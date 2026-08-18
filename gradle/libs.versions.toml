@@ -13,6 +13,7 @@ graphicsShapes = "1.1.0"
 material3Ripple = "1.5.0-alpha24"
 supabase = "3.7.0"
 ktor = "3.3.0"
+godot = "4.7.0.stable"
 
 [libraries]
 androidx-compose-material3-ripple = { module = "androidx.compose.material3:material3-ripple", version.ref = "material3Ripple" }

@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
+import com.example.smart_build.components.ModuleName
 import com.example.smart_build.ui.theme.GSCode
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
@@ -44,14 +45,15 @@ fun ModuleCardExpanded(
   module: ModuleCardData,
   maxWidth: Dp,
   maxHeight: Dp,
-  onBack: () -> Unit
+  onBack: () -> Unit,
+  onGS: () -> Unit,
+  onAS: () -> Unit
 ) {
 
   val shape = RoundedCornerShape(
     bottomStart = (maxWidth.value * 0.022f).dp,
     bottomEnd = (maxWidth.value * 0.022f).dp
   )
-
 
   Column(
     modifier = Modifier
@@ -185,26 +187,14 @@ fun ModuleCardExpanded(
           modifier = Modifier.height((maxHeight.value * 0.015f).dp)
         )
 
-
         // Title
-
-        Text(
-          text = module.title,
-          color = Color.White,
-          style = Typography.displayMedium.copy(fontFamily = GSCode),
-          fontSize = (maxWidth.value * 0.034f).sp,
-          fontWeight = FontWeight.ExtraBold,
-          lineHeight = (maxHeight.value * 0.05f).sp
-        )
-
+        ModuleName(moduleName = module.title, maxWidth = maxWidth, variant = 2)
 
         Spacer(
           modifier = Modifier.height((maxHeight.value * 0.018f).dp)
         )
 
-
         // Description
-
         Text(
           text = module.description,
           color = Color.White.copy(alpha = 0.72f),
@@ -243,25 +233,24 @@ fun ModuleCardExpanded(
         modifier = Modifier.weight(1f)
       ) {
 
+//        Text(
+//          text = "Hello there!\n Hi!",
+//          style = Typography.headlineMedium.copy(fontFamily = GSFlex),
+//          color = Color.White.copy(alpha = 0.72f),
+//          fontSize = (maxWidth.value * 0.022f).sp
+//        )
+
+
+//        Spacer(
+//          modifier = Modifier.height(
+//            (maxHeight.value * 0.01f).dp
+//          )
+//        )
+
+
         Text(
-          text = "Hello there!",
-          style = Typography.headlineMedium.copy(fontFamily = GSFlex),
-          color = Color.White.copy(alpha = 0.72f),
-          fontSize = (maxWidth.value * 0.022f).sp
-        )
-
-
-        Spacer(
-          modifier = Modifier.height(
-            (maxHeight.value * 0.01f).dp
-          )
-        )
-
-
-        Text(
-          text =
-            "Welcome to the very first of the core modules " +
-                "of this course, the ${module.title}.",
+//          text = "Welcome to the very first of the core modules " + "of this course, the ${module.title}.",
+          text = module.contents,
           style = Typography.headlineMedium.copy(fontFamily = GSFlex),
 
           color = Color.White.copy(alpha = 0.72f),
@@ -282,18 +271,12 @@ fun ModuleCardExpanded(
 
 
         Text(
-          text =
-            "At the end of this introductory, you will be able to:",
-
+//          text = "At the end of this introductory, you will be able to:",
+          text = "${module.benefits[0]}",
           style = Typography.headlineMedium.copy(fontFamily = GSFlex),
-          color =
-            Color.White.copy(alpha = 0.72f),
-
-          fontSize =
-            (maxWidth.value * 0.021f).sp,
-
-          fontWeight =
-            FontWeight.Medium
+          color = Color.White.copy(alpha = 0.72f),
+          fontSize = (maxWidth.value * 0.021f).sp,
+          fontWeight = FontWeight.Medium
         )
 
 
@@ -301,12 +284,14 @@ fun ModuleCardExpanded(
           modifier = Modifier.height((maxHeight.value * 0.013f).dp)
         )
 
-
-        BenefitItem("Benefit 1", maxWidth = maxWidth)
-        BenefitItem("Benefit 2", maxWidth = maxWidth)
-        BenefitItem("Benefit 3", maxWidth = maxWidth)
-        BenefitItem("Benefit 4", maxWidth = maxWidth)
-        BenefitItem("Benefit 5", maxWidth = maxWidth)
+        module.benefits.filterIndexed{ index, string -> index != 0 }.forEach { benefit ->
+          BenefitItem(text = benefit, maxWidth = maxWidth)
+        }
+//        BenefitItem("Benefit 1", maxWidth = maxWidth)
+//        BenefitItem("Benefit 2", maxWidth = maxWidth)
+//        BenefitItem("Benefit 3", maxWidth = maxWidth)
+//        BenefitItem("Benefit 4", maxWidth = maxWidth)
+//        BenefitItem("Benefit 5", maxWidth = maxWidth)
       }
 
 
@@ -327,9 +312,7 @@ fun ModuleCardExpanded(
             .background(
               Color(0xFF1591C2)
             )
-            .clickable {
-              // Start...
-            },
+            .clickable(onClick = module.onGS),
           contentAlignment = Alignment.Center
         ) {
 
@@ -361,7 +344,9 @@ fun ModuleCardExpanded(
         ProgressCard(
           progress = 0.25f,
           maxWidth = maxWidth,
-          maxHeight = maxHeight
+          maxHeight = maxHeight,
+          onGS = onGS,
+          onAS = onAS
         )
       }
     }

@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.smart_build.components.CSOutlinedTextField
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
@@ -45,11 +44,11 @@ import com.example.smart_build.ui.theme.White
 import com.example.smart_build.viewmodel.auth.AuthFormState
 import com.example.smart_build.viewmodel.auth.AuthStatusState
 //import com.example.smart_build.viewmodel.auth.AuthViewModel
-import com.example.smart_build.viewmodel.auth.AuthViewModel1
+import com.example.smart_build.viewmodel.auth.AuthViewModel
 import com.example.smart_build.viewmodel.auth.ErrorType
 
 @Composable
-fun FPForm(modifier: Modifier, viewModel: AuthViewModel1, maxWidthScreen: Dp, maxHeightScreen: Dp) {
+fun FPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, maxHeightScreen: Dp) {
   var submitting by remember { mutableStateOf(false) }
 
   val fpFormState by viewModel.fpFormState.collectAsStateWithLifecycle()

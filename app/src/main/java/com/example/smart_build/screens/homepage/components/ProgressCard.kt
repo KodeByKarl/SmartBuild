@@ -36,7 +36,9 @@ import com.example.smart_build.ui.theme.White
 fun ProgressCard(
   progress: Float,
   maxWidth: Dp,
-  maxHeight: Dp
+  maxHeight: Dp,
+  onGS: () -> Unit,
+  onAS: () -> Unit
 ) {
 
   Column(
@@ -91,7 +93,6 @@ fun ProgressCard(
 
 
     // Guided Simulation
-
     Box(
       modifier = Modifier
         .fillMaxWidth()
@@ -99,9 +100,7 @@ fun ProgressCard(
         .height((maxHeight.value * 0.07f).dp)
         .clip(RoundedCornerShape((maxWidth.value * 0.011f).dp))
         .background(Color(0xFF1591C2))
-        .clickable {
-          // Start guided simulation
-        },
+        .clickable(onClick = onGS),
       contentAlignment = Alignment.Center
     ) {
 
@@ -143,7 +142,8 @@ fun ProgressCard(
 //        .height(56.dp)
         .height((maxHeight.value * 0.07f).dp)
         .clip(RoundedCornerShape((maxWidth.value * 0.011f).dp))
-        .background(Color(0xFF003247)),
+        .background(Color(0xFF003247))
+        .clickable(onClick = onAS),
       contentAlignment = Alignment.Center
     ) {
 

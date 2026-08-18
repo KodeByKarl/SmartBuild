@@ -22,6 +22,7 @@ class HomeViewModel : ViewModel() {
   val authState = _authState.asStateFlow()
   val session = supabase.auth.sessionStatus.value
   val emailAdd = supabase.auth.currentUserOrNull()!!.email
+//  val emailAdd = if(supabase.auth.currentUserOrNull()!!.email == null) null else supabase.auth.currentUserOrNull()!!.email
 
 //  var showDeleteDialog by remember {
 //    mutableStateOf(false)

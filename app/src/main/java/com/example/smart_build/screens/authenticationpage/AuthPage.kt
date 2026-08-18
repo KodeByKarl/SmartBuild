@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialShapes
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.smart_build.navigation.Routes
 import com.example.smart_build.screens.authenticationpage.components.AppLogoWithLoading
@@ -43,14 +40,14 @@ import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.viewmodel.auth.AuthFormState
 import com.example.smart_build.viewmodel.auth.AuthStatusState
 //import com.example.smart_build.viewmodel.auth.AuthViewModel
-import com.example.smart_build.viewmodel.auth.AuthViewModel1
+import com.example.smart_build.viewmodel.auth.AuthViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AuthPage(
   navController : NavHostController,
 //  viewModel : AuthViewModel = viewModel()
-  viewModel : AuthViewModel1
+  viewModel : AuthViewModel
 ) {
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
   val formState by viewModel.formState.collectAsStateWithLifecycle()

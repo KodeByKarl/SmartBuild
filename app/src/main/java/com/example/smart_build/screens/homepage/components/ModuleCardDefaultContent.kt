@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.smart_build.components.ModuleName
 import com.example.smart_build.ui.theme.Typography
 import com.example.smart_build.ui.theme.White
 import com.example.smart_build.viewmodel.home.ModuleCardData
@@ -78,13 +79,18 @@ fun ModuleCardDefaultContent(
     // TITLE
     // --------------------------------------------------------
 
-    Text(
-      text = module.title,
-      color = Color.White,
-      style = Typography.titleLarge,
-      fontSize = (maxWidth.value * 0.017f).sp,
-      fontWeight = FontWeight.Bold,
-      lineHeight = (maxHeight.value * 0.035f).sp
+//    Text(
+//      text = module.title,
+//      color = Color.White,
+//      style = Typography.titleLarge,
+//      fontSize = (maxWidth.value * 0.017f).sp,
+//      fontWeight = FontWeight.Bold,
+//      lineHeight = (maxHeight.value * 0.035f).sp
+//    )
+
+    ModuleName(
+      moduleName = module.title,
+      maxWidth = maxWidth
     )
 
 

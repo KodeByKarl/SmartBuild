@@ -1,9 +1,7 @@
 package com.example.smart_build.screens.authenticationpage.components
 
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateValueAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -34,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -58,11 +55,11 @@ import com.example.smart_build.viewmodel.auth.AuthFormState
 import com.example.smart_build.viewmodel.auth.AuthMode
 import com.example.smart_build.viewmodel.auth.AuthStatusState
 //import com.example.smart_build.viewmodel.auth.AuthViewModel
-import com.example.smart_build.viewmodel.auth.AuthViewModel1
+import com.example.smart_build.viewmodel.auth.AuthViewModel
 import com.example.smart_build.viewmodel.auth.ErrorType
 
 @Composable
-fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel1, maxWidthScreen: Dp, maxHeightScreen: Dp) {
+fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, maxHeightScreen: Dp) {
   var submitting by remember { mutableStateOf(false) }
   var isPWVisible by remember { mutableStateOf(false) }
 

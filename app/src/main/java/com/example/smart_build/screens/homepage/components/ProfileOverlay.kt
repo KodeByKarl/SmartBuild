@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.smart_build.ui.theme.Black
-import com.example.smart_build.viewmodel.auth.AuthViewModel1
+import com.example.smart_build.viewmodel.auth.AuthViewModel
 import com.example.smart_build.viewmodel.home.HomeViewModel
 
 @Composable
@@ -39,7 +39,7 @@ fun ProfileOverlay(
   onDismiss: () -> Unit
 ) {
   val viewModel: HomeViewModel = viewModel()
-  val authViewModel1: AuthViewModel1 = viewModel()
+  val authViewModel1: AuthViewModel = viewModel()
 
   Box(
     contentAlignment = Alignment.TopEnd,

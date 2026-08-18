@@ -1,5 +1,6 @@
 package com.example.smart_build.screens.homepage
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -7,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,7 +28,7 @@ import com.example.smart_build.screens.homepage.components.ProfileOverlay
 import com.example.smart_build.screens.homepage.components.TopBar
 import com.example.smart_build.ui.theme.Black
 import com.example.smart_build.viewmodel.auth.AuthStatusState
-import com.example.smart_build.viewmodel.auth.AuthViewModel1
+import com.example.smart_build.viewmodel.auth.AuthViewModel
 //import com.example.smart_build.viewmodel.auth.AuthViewModel
 import com.example.smart_build.viewmodel.home.HomeViewModel
 import com.example.smart_build.viewmodel.home.ModuleCardData
@@ -41,7 +41,7 @@ fun HomePage(
 
   val authState by viewModel.authState.collectAsStateWithLifecycle()
   val showDeleteDialog by viewModel.showDeleteDialog.collectAsStateWithLifecycle()
-  val authViewModel1: AuthViewModel1 = viewModel()
+  val authViewModel1: AuthViewModel = viewModel()
 
   var profileMenuOpen by remember {
     mutableStateOf(false)
@@ -62,33 +62,208 @@ fun HomePage(
   }
 
   val modules = listOf(
-
     ModuleCardData(
       number = "Module 0",
       title = "Introduction to Computer Systems Servicing",
       description = "This prerequisite module for Computer Systems Servicing (CSS) NC II covers the fundamentals of computer systems. It is recommended to complete this module first before proceeding to the other CSS modules and hands-on servicing activities.",
-//      image = R.drawable.module_0
+      contents = """
+        Hello there!
+        Welcome to the very first module of the core modules of this course, the Introduction to Computer Systems Servicing.
+      """.trimIndent(),
+      benefits = listOf(
+        "At the end of this introductory, you will be able to:",
+        "Benefit 1",
+        "Benefit 2",
+        "Benefit 3",
+        "Benefit 4",
+        "Benefit 5"
+      ),
+//      image = R.drawable.module_0,
+      onGS = {
+        navController.navigate(Routes.ModulePage.createRoute(
+          moduleId = 0,
+          moduleName = "Introduction To Computer Systems Servicing",
+          simulationType = 0,
+          progress = 0f
+        )) {
+          popUpTo(Routes.HomePage.route) {
+            inclusive = true
+          }
+        }
+      },
+      onAS = { /* Navigate */ }
     ),
 
     ModuleCardData(
       number = "Module 1",
       title = "Installing and Configuring Computer Systems",
       description = "Learn how to properly install, configure, and prepare computer systems for operation.",
-//      image = R.drawable.module_1
+      contents = """
+        Hello there!
+        Welcome to the first core module of this course, the Installing and Configuring Computer Systems.
+      """.trimIndent(),
+      benefits = listOf(
+        "At the end of this Module 1, you will be able to:",
+        "Benefit 1",
+        "Benefit 2",
+        "Benefit 3",
+        "Benefit 4",
+        "Benefit 5"
+      ),
+//      image = R.drawable.module_1,
+      onGS = {
+        navController.navigate(Routes.ModulePage.createRoute(
+          moduleId = 1,
+          moduleName = "Installing and Configuring Computer Systems",
+          simulationType = 0,
+          progress = 0f
+        )) {
+          popUpTo(Routes.HomePage.route) {
+            inclusive = true
+          }
+        }
+      },
+      onAS = {
+        navController.navigate(Routes.ModulePage.createRoute(
+          moduleId = 1,
+          moduleName = "Installing and Configuring Computer Systems",
+          simulationType = 1,
+          progress = 0f
+        )) {
+          popUpTo(Routes.HomePage.route) {
+            inclusive = true
+          }
+        }
+      }
     ),
 
     ModuleCardData(
       number = "Module 2",
       title = "Setting Up Computer Networks",
       description = "Learn the fundamentals of networking and how to configure computer network connections.",
-//      image = R.drawable.module_2
+      contents = """
+        Hello there!
+        Welcome to the second core module of this course, the Setting Up Computer Networks.
+      """.trimIndent(),
+      benefits = listOf(
+        "At the end of this Module 2, you will be able to:",
+        "Benefit 1",
+        "Benefit 2",
+        "Benefit 3",
+        "Benefit 4",
+        "Benefit 5"
+      ),
+//      image = R.drawable.module_2,
+      onGS = {
+        navController.navigate(Routes.ModulePage.createRoute(
+          moduleId = 2,
+          moduleName = "Setting Up Computer Networks",
+          simulationType = 0,
+          progress = 0f
+        )) {
+          popUpTo(Routes.HomePage.route) {
+            inclusive = true
+          }
+        }
+      },
+      onAS = {
+        navController.navigate(Routes.ModulePage.createRoute(
+          moduleId = 2,
+          moduleName = "Setting Up Computer Networks",
+          simulationType = 1,
+          progress = 0f
+        )) {
+          popUpTo(Routes.HomePage.route) {
+            inclusive = true
+          }
+        }
+      }
     ),
 
     ModuleCardData(
       number = "Module 3",
+      title = "Setting Up Computer Servers",
+      description = "Learn how to diagnose, maintain, and troubleshoot common computer system problems.",
+      contents = """
+        Hello there!
+        Welcome to the third core module of this course, the Setting Up Computer Servers.
+      """.trimIndent(),
+      benefits = listOf(
+        "At the end of this Module 3, you will be able to:",
+        "Benefit 1",
+        "Benefit 2",
+        "Benefit 3",
+        "Benefit 4",
+        "Benefit 5"
+      ),
+//      image = R.drawable.module_3,
+      onGS = {
+        navController.navigate(Routes.ModulePage.createRoute(
+          moduleId = 3,
+          moduleName = "Setting Up Computer Servers",
+          simulationType = 0,
+          progress = 0f
+        )) {
+          popUpTo(Routes.HomePage.route) {
+            inclusive = true
+          }
+        }
+      },
+      onAS = {
+        navController.navigate(Routes.ModulePage.createRoute(
+          moduleId = 3,
+          moduleName = "Setting Up Computer Servers",
+          simulationType = 1,
+          progress = 0f
+        )) {
+          popUpTo(Routes.HomePage.route) {
+            inclusive = true
+          }
+        }
+      }
+    ),
+
+    ModuleCardData(
+      number = "Module 4",
       title = "Maintaining Computer Systems",
       description = "Learn how to diagnose, maintain, and troubleshoot common computer system problems.",
-//      image = R.drawable.module_3
+      contents = """
+        Hello there!
+        Welcome to the last core module of this course, the Maintaining Computer Systems.
+      """.trimIndent(),
+      benefits = listOf(
+        "At the end of this Module 4, you will be able to:",
+        "Benefit 1",
+        "Benefit 2",
+        "Benefit 3",
+        "Benefit 4",
+        "Benefit 5"
+      ),
+//      image = R.drawable.module_4,
+      onGS = {
+        navController.navigate(Routes.ModulePage.createRoute(
+          moduleId = 4,
+          moduleName = "Maintaining Computer Systems",
+          simulationType = 0,
+          progress = 0f
+        )) {
+          popUpTo(Routes.HomePage.route) {
+            inclusive = true
+          }
+        }
+      },
+      onAS = {
+        navController.navigate(Routes.ModulePage.createRoute(
+          moduleId = 4,
+          moduleName = "Maintaining Computer Systems",
+          simulationType = 1,
+          progress = 0f
+        )) {
+          popUpTo(Routes.HomePage.route) {
+            inclusive = true
+          }
+        }
+      }
     )
   )
 

@@ -1,7 +1,6 @@
 package com.example.smart_build.screens.homepage.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +10,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -60,14 +58,13 @@ fun ModuleCarousel(
 
       val isCurrentPage = page == pagerState.currentPage
 
-      ModuleCard1(
+      ModuleCard(
         module = modules[page],
         isCurrentPage = isCurrentPage,
         maxWidth = maxWidthh,
         maxHeight = maxHeightt,
-        onClick = {
-          // Navigate...
-        },
+        onGS = modules[page].onGS,
+        onAS = modules[page].onAS,
         modifier = Modifier
           .graphicsLayer {
 
