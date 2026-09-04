@@ -2,7 +2,9 @@ package com.example.smart_build
 
 import android.util.Log
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
 
 // ========================================================================= //
@@ -14,10 +16,33 @@ import org.json.JSONObject
 //  The processed data can be now sent to either Compose or Godot.           //
 // ========================================================================= //
 object SmartBuildBridge {
-  private val _godotMessages = MutableSharedFlow<String>(extraBufferCapacity = 1000)
+  // replay=0: a replayed assessment_completed / destroy from a previous module
+  // was marking the next Guided run complete the moment ModulePage subscribed.
+  // engine_initialized is tracked with the boolean below, not via replay.
+  private val _godotMessages = MutableSharedFlow<String>(replay = 0, extraBufferCapacity = 1000)
   val godotMessages = _godotMessages.asSharedFlow()
 
   private var currentPlugin: SmartBuildGodotPlugin? = null
+  @Volatile
+  var engineInitialized: Boolean = false
+    private set
+
+  // SurfaceView punches through Compose. Keep it GONE until a module is Ready
+  // so Login / Home stay tappable while the engine warms up in the background.
+  private val _godotSurfaceVisible = MutableStateFlow(false)
+  val godotSurfaceVisible = _godotSurfaceVisible.asStateFlow()
+
+  fun setGodotSurfaceVisible(visible: Boolean) {
+    _godotSurfaceVisible.value = visible
+  }
+
+  fun isPluginReady(): Boolean = currentPlugin != null
+
+  /** Call when the Godot fragment is recreated so Compose waits for a fresh engine_initialized. */
+  fun resetEngineSession() {
+    engineInitialized = false
+    Log.d("GODOT_COMM", "Engine session reset")
+  }
 
   fun setPlugin(plugin: SmartBuildGodotPlugin) {
     currentPlugin = plugin
@@ -45,6 +70,10 @@ object SmartBuildBridge {
 
       Log.d("GODOT_COMM", "{ type: $type, event: $event }")
 
+      if (event == "engine_initialized") {
+        engineInitialized = true
+      }
+
 //      _godotMessages.tryEmit(event)
       _godotMessages.tryEmit(json.toString())
     } catch(e: Exception) {
@@ -58,11 +87,28 @@ object SmartBuildBridge {
 //    sendToGodot(message.toJson())
 //  }
 
-  fun prepare(moduleId: Int, simulationType: Int, progress: Float) {
+  /**
+   * Launch a simulation module inside Godot.
+   * Optional session fields let Godot sync progress without owning auth UI.
+   * See SmartBuild-Godot/assets/docs/native_auth_handoff.md
+   */
+  fun prepare(
+    moduleId: Int,
+    simulationType: Int,
+    progress: Float,
+    accessToken: String? = null,
+    refreshToken: String? = null,
+    userId: String? = null,
+    userEmail: String? = null,
+  ) {
     val data = JSONObject().apply {
       put("moduleId", moduleId)
       put("simulationType", simulationType)
-      put("progress", progress)
+      put("progress", progress.toDouble())
+      accessToken?.takeIf { it.isNotBlank() }?.let { put("accessToken", it) }
+      refreshToken?.takeIf { it.isNotBlank() }?.let { put("refreshToken", it) }
+      userId?.takeIf { it.isNotBlank() }?.let { put("userId", it) }
+      userEmail?.takeIf { it.isNotBlank() }?.let { put("userEmail", it) }
     }
     val message = SmartBuildMessage.Command("prepare", data)
 

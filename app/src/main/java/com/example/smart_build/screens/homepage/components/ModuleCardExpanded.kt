@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -299,56 +298,23 @@ fun ModuleCardExpanded(
       // RIGHT PROGRESS CARD
       // ======================================================
 
-      if (module.number == "Module 0") {
-        Box(
-          modifier = Modifier
-            .width(
-              (maxWidth.value * 0.28f).dp
-            )
-            .height((maxHeight.value * 0.07f).dp)
-            .clip(
-              RoundedCornerShape((maxWidth.value * 0.011f).dp)
-            )
-            .background(
-              Color(0xFF1591C2)
-            )
-            .clickable(onClick = module.onGS),
-          contentAlignment = Alignment.Center
-        ) {
-
-          Row(
-            verticalAlignment =
-              Alignment.CenterVertically
-          ) {
-
-            Text(
-              text = "Start",
-              color = Color.White,
-              fontSize = (maxWidth.value * 0.013f).sp,
-              fontWeight = FontWeight.Medium
-            )
-
-            Spacer(
-              modifier = Modifier.width((maxWidth.value * 0.006f).dp)
-            )
-
-            Icon(
-              imageVector = Icons.Default.ArrowForward,
-              contentDescription = "Start",
-              tint = White,
-              modifier = Modifier.size((maxWidth.value * 0.016f).dp)
-            )
-          }
-        }
-      } else {
-        ProgressCard(
-          progress = 0.25f,
-          maxWidth = maxWidth,
-          maxHeight = maxHeight,
-          onGS = onGS,
-          onAS = onAS
-        )
-      }
+      ProgressCard(
+        progress = (module.progressPercent / 100f).coerceIn(0f, 1f),
+        maxWidth = maxWidth,
+        maxHeight = maxHeight,
+        guidedUnlocked = true,
+        assessmentUnlocked = module.moduleId != 0 && (
+          module.guidedDone || module.assessmentDone || module.progressPercent >= 99f
+        ),
+        showAssessment = module.moduleId != 0,
+        guidedLabel = if (module.moduleId == 0) {
+          if (module.assessmentDone) "Review Lesson" else "Continue Lesson"
+        } else {
+          "Guided Simulation"
+        },
+        onGS = onGS,
+        onAS = onAS
+      )
     }
   }
 }

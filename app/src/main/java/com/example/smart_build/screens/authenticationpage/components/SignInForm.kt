@@ -28,6 +28,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.smart_build.components.AuthFieldStyles
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
@@ -119,19 +121,18 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
           Column {
             Box {
               OutlinedTextField(
-                label = { Text("Email")},
+                label = { Text("Email", color = White.copy(alpha = 0.7f)) },
                 value = signInFormState.email,
                 singleLine = true,
-                textStyle = Typography.bodyLarge.copy(color = White, lineHeight = 0.sp),
+                textStyle = AuthFieldStyles.textStyle,
+                colors = AuthFieldStyles.colors(),
                 isError = uiState is AuthStatusState.Error && (authError.type.equals(ErrorType.EMAIL_BLANK) || authError.type.equals(ErrorType.EMAIL_INVALID) || authError.type.equals(
                   ErrorType.INVALID_CREDENTIALS) || authError.type.equals(ErrorType.ACCOUNT_EXISTING) || authError.type.equals(ErrorType.ACCOUNT_NOT_VERIFIED)),
                 onValueChange = { value ->
                   viewModel.clearError()
                   viewModel.onEmailSIChanged(value)
                 },
-                modifier = Modifier
-                  .fillMaxWidth(0.9f)
-                  .height((maxHeightScreen.value * 0.07f).dp)
+                modifier = Modifier.fillMaxWidth(0.9f)
               )
               androidx.compose.animation.AnimatedVisibility(
                 visible = (uiState is AuthStatusState.Error && (authError.type.equals(ErrorType.EMAIL_BLANK) || authError.type.equals(ErrorType.EMAIL_INVALID) || authError.type.equals(ErrorType.INVALID_CREDENTIALS) || authError.type.equals(
@@ -150,14 +151,13 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
             Spacer(Modifier.size((maxHeightScreen.value * 0.025f).dp))
             Box {
               OutlinedTextField(
-                label = { Text("Password") },
+                label = { Text("Password", color = White.copy(alpha = 0.7f)) },
                 value = signInFormState.password,
                 singleLine = true,
-                textStyle = Typography.bodyLarge.copy(color = White, lineHeight = 0.sp),
+                textStyle = AuthFieldStyles.textStyle,
+                colors = AuthFieldStyles.colors(),
                 isError = uiState is AuthStatusState.Error && (authError.type.equals(ErrorType.PW_BLANK) || authError.type.equals(ErrorType.PW_SHORT)),
-                modifier = Modifier
-                  .fillMaxWidth(0.9f)
-                  .height((maxHeightScreen.value * 0.07f).dp),
+                modifier = Modifier.fillMaxWidth(0.9f),
                 onValueChange = { value ->
                   viewModel.clearError()
                   viewModel.onPWSIChanged(value)

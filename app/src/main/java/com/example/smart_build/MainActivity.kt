@@ -86,6 +86,8 @@ class MainActivity : FragmentActivity(), GodotHost {
           val MAX_WIDTH = maxWidth // Width size of the Device's Screen.
           val MAX_HEIGHT = maxHeight // Height size of the Device's Screen.
 
+          // Boot Godot once, behind Compose. Surface stays GONE until a module is Ready.
+          com.example.smart_build.godot.GodotHostLayer()
           AppNav(navController, authViewModel)
 
 //           Will appear if there is no internet connection.
