@@ -20,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.smart_build.components.AuthFieldStyles
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
@@ -85,15 +87,14 @@ fun FPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
         Column {
           Box {
             OutlinedTextField(
-              label = { Text("Email")},
+              label = { Text("Email", color = White.copy(alpha = 0.7f)) },
               value = fpFormState.email,
               singleLine = true,
-              textStyle = Typography.bodyLarge.copy(color = White, lineHeight = 0.sp),
+              textStyle = AuthFieldStyles.textStyle,
+              colors = AuthFieldStyles.colors(),
               onValueChange = { value -> viewModel.onEmailFPChanged(value) },
               isError = authState is AuthStatusState.Error && (authError.type.equals(ErrorType.EMAIL_BLANK) || authError.type.equals(ErrorType.EMAIL_INVALID) || authError.type.equals(ErrorType.RESET_FAILED)),
-              modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height((maxHeightScreen.value * 0.07f).dp)
+              modifier = Modifier.fillMaxWidth(0.9f)
             )
             androidx.compose.animation.AnimatedVisibility(
               visible = (authState is AuthStatusState.Error && (authError.type.equals(ErrorType.EMAIL_BLANK) || authError.type.equals(ErrorType.EMAIL_INVALID) || authError.type.equals(ErrorType.RESET_FAILED)) || authState is AuthStatusState.Registered),

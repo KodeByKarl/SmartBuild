@@ -17,9 +17,36 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.smart_build.ui.theme.Primary
+import com.example.smart_build.ui.theme.Typography
 import com.example.smart_build.ui.theme.White
+
+/** Shared auth form field styling for dark login screens. */
+object AuthFieldStyles {
+  val textStyle: TextStyle
+    get() = Typography.bodyLarge.copy(color = White)
+
+  @Composable
+  fun colors() = OutlinedTextFieldDefaults.colors(
+    focusedTextColor = White,
+    unfocusedTextColor = White,
+    disabledTextColor = White.copy(alpha = 0.5f),
+    focusedLabelColor = White,
+    unfocusedLabelColor = White.copy(alpha = 0.7f),
+    disabledLabelColor = White.copy(alpha = 0.5f),
+    focusedBorderColor = Primary,
+    unfocusedBorderColor = White.copy(alpha = 0.5f),
+    cursorColor = Primary,
+    focusedContainerColor = Color.Transparent,
+    unfocusedContainerColor = Color.Transparent,
+    disabledContainerColor = Color.Transparent,
+    errorContainerColor = Color.Transparent,
+  )
+}
 
 @Composable
 fun CustomColorOTF(
@@ -36,6 +63,7 @@ fun CustomColorOTF(
     value = value,
     onValueChange = onValueChange,
     singleLine = true,
+    textStyle = AuthFieldStyles.textStyle,
     modifier = Modifier.width(484.dp),
     visualTransformation = if(isPW && isPWVisible) {
       PasswordVisualTransformation()
@@ -56,14 +84,6 @@ fun CustomColorOTF(
         }
       } else { null }
     },
-    colors = OutlinedTextFieldDefaults.colors(
-      focusedTextColor = White,
-      unfocusedTextColor = White,
-
-      focusedBorderColor = Primary,
-      unfocusedBorderColor = White.copy(alpha = 0.7f),
-
-      cursorColor = Primary
-    )
+    colors = AuthFieldStyles.colors()
   )
 }

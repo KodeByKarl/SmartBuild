@@ -37,9 +37,15 @@ fun ProgressCard(
   progress: Float,
   maxWidth: Dp,
   maxHeight: Dp,
+  guidedUnlocked: Boolean = true,
+  assessmentUnlocked: Boolean = false,
+  showAssessment: Boolean = true,
+  guidedLabel: String = "Guided Simulation",
   onGS: () -> Unit,
   onAS: () -> Unit
 ) {
+  val clamped = progress.coerceIn(0f, 1f)
+  val percentLabel = (clamped * 100f).toInt()
 
   Column(
     modifier = Modifier
@@ -72,13 +78,13 @@ fun ProgressCard(
       ) {
 
         CircularProgressIndicator(
-          progress = { progress },
+          progress = { clamped },
           modifier = Modifier.size((maxWidth.value * 0.033f).dp),
           strokeWidth = (maxWidth.value * 0.003f).dp
         )
 
         Text(
-          text = "${(progress * 100).toInt()}",
+          text = "$percentLabel",
           style = Typography.bodyLarge.copy(fontFamily = GSFlex),
           color = White.copy(alpha = 0.75f),
           fontSize = (maxWidth.value * 0.009f).sp
@@ -92,15 +98,14 @@ fun ProgressCard(
     )
 
 
-    // Guided Simulation
+    // Guided Simulation / Continue
     Box(
       modifier = Modifier
         .fillMaxWidth()
-//        .height(56.dp)
         .height((maxHeight.value * 0.07f).dp)
         .clip(RoundedCornerShape((maxWidth.value * 0.011f).dp))
-        .background(Color(0xFF1591C2))
-        .clickable(onClick = onGS),
+        .background(if (guidedUnlocked) Color(0xFF1591C2) else Color(0xFF003247))
+        .clickable(enabled = guidedUnlocked, onClick = onGS),
       contentAlignment = Alignment.Center
     ) {
 
@@ -120,7 +125,7 @@ fun ProgressCard(
         )
 
         Text(
-          text = "Guided Simulation",
+          text = guidedLabel,
           style = Typography.titleMedium,
           color = Color.White,
           fontSize = (maxWidth.value * 0.013f).sp
@@ -128,46 +133,46 @@ fun ProgressCard(
       }
     }
 
+    if (showAssessment) {
+      Spacer(
+        modifier = Modifier.height((maxHeight.value * 0.015f).dp)
+      )
 
-    Spacer(
-      modifier = Modifier.height((maxHeight.value * 0.015f).dp)
-    )
+      val asEnabled = assessmentUnlocked
+      val asAlpha = if (asEnabled) 1f else 0.35f
 
-
-    // Assessment
-
-    Box(
-      modifier = Modifier
-        .fillMaxWidth()
-//        .height(56.dp)
-        .height((maxHeight.value * 0.07f).dp)
-        .clip(RoundedCornerShape((maxWidth.value * 0.011f).dp))
-        .background(Color(0xFF003247))
-        .clickable(onClick = onAS),
-      contentAlignment = Alignment.Center
-    ) {
-
-      Row(
-        verticalAlignment = Alignment.CenterVertically
+      Box(
+        modifier = Modifier
+          .fillMaxWidth()
+          .height((maxHeight.value * 0.07f).dp)
+          .clip(RoundedCornerShape((maxWidth.value * 0.011f).dp))
+          .background(Color(0xFF003247))
+          .clickable(enabled = asEnabled, onClick = onAS),
+        contentAlignment = Alignment.Center
       ) {
 
-        Icon(
-          imageVector = Icons.Default.Lock,
-          contentDescription = null,
-          tint = White.copy(alpha = 0.15f),
-          modifier = Modifier.size((maxWidth.value * 0.019f).dp)
-        )
+        Row(
+          verticalAlignment = Alignment.CenterVertically
+        ) {
 
-        Spacer(
-          modifier = Modifier.width((maxWidth.value * 0.006f).dp)
-        )
+          Icon(
+            imageVector = if (asEnabled) Icons.Default.PlayArrow else Icons.Default.Lock,
+            contentDescription = null,
+            tint = White.copy(alpha = asAlpha),
+            modifier = Modifier.size((maxWidth.value * 0.019f).dp)
+          )
 
-        Text(
-          text = "Assessment Simulation",
-          style = Typography.titleMedium,
-          color = White.copy(alpha = 0.15f),
-          fontSize = (maxWidth.value * 0.013f).sp
-        )
+          Spacer(
+            modifier = Modifier.width((maxWidth.value * 0.006f).dp)
+          )
+
+          Text(
+            text = "Assessment Simulation",
+            style = Typography.titleMedium,
+            color = White.copy(alpha = asAlpha),
+            fontSize = (maxWidth.value * 0.013f).sp
+          )
+        }
       }
     }
   }

@@ -2,7 +2,7 @@ package com.example.smart_build.screens.homepage.components
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -33,18 +34,15 @@ fun ModuleCard(
     mutableStateOf(false)
   }
 
-
   // ==========================================================
   // DEFAULT CARD
   // ==========================================================
 
   Box(
     modifier = modifier
-      .clickable {
-        expanded = true
-
-        // Keep your existing callback if you need it.
-//        onClick()
+      // detectTapGestures yields to HorizontalPager swipes; clickable does not.
+      .pointerInput(Unit) {
+        detectTapGestures(onTap = { expanded = true })
       }
       .width((maxWidth.value * 0.781f).dp)
       .height((maxHeight.value * 0.693f).dp)

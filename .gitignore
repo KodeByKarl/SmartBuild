@@ -13,3 +13,14 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Secrets — never commit
+secrets.properties
+*.secrets.properties
+.env
+.env.*
+!.env.example
+!secrets.properties.example
+
+# Godot simulation pack — regenerate with SmartBuild-Godot/tools/export_android_pck.ps1
+app/src/main/assets/SmartBuildGodot.pck

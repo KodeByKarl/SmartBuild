@@ -29,11 +29,44 @@ fun ModuleCardBackground(
       modifier = Modifier.fillMaxSize(),
       contentScale = ContentScale.Crop
     )
+
+    // Lighter overlay when artwork is present so module icons stay visible on phone.
+    Box(
+      modifier = Modifier
+        .fillMaxSize()
+        .background(
+          Brush.verticalGradient(
+            colors = listOf(
+              Color(0xFF14A9E0).copy(alpha = 0.35f),
+              Color(0xFF087AA4).copy(alpha = 0.45f),
+              Color(0xFF00354A).copy(alpha = 0.65f),
+              Color(0xFF001A27).copy(alpha = 0.88f),
+              Color(0xFF001923).copy(alpha = 0.95f)
+            )
+          )
+        )
+    )
+
+    Box(
+      modifier = Modifier
+        .fillMaxSize()
+        .background(
+          Brush.verticalGradient(
+            colors = listOf(
+              Color.Transparent,
+              Color.Transparent,
+              Color(0xFF001923).copy(alpha = 0.25f),
+              Color(0xFF001923).copy(alpha = 0.75f)
+            )
+          )
+        )
+    )
+    return
   }
 
 
   // ----------------------------------------------------------
-  // BLUE -> BLACK GRADIENT
+  // BLUE -> BLACK GRADIENT (no artwork)
   // ----------------------------------------------------------
 
   Box(

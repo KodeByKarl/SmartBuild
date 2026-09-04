@@ -18,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.smart_build.components.AuthFieldStyles
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
@@ -81,15 +83,14 @@ fun RPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
         Column {
           Box {
             OutlinedTextField(
-              label = { Text("Password")},
+              label = { Text("Password", color = White.copy(alpha = 0.7f)) },
               value = rpFormState.password,
               singleLine = true,
-              textStyle = Typography.bodyLarge.copy(color = White, lineHeight = 0.sp),
+              textStyle = AuthFieldStyles.textStyle,
+              colors = AuthFieldStyles.colors(),
               onValueChange = { value -> viewModel.onPWRPChanged(value) },
               isError = authState is AuthStatusState.Error && (authError.type.equals(ErrorType.PW_BLANK) || authError.type.equals(ErrorType.PW_SHORT) || authError.type.equals(ErrorType.RESET_SESSION_EXPIRED)),
-              modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height((maxHeightScreen.value * 0.07f).dp)
+              modifier = Modifier.fillMaxWidth(0.9f)
             )
             androidx.compose.animation.AnimatedVisibility(
               visible = (authState is AuthStatusState.Error && (authError.type.equals(ErrorType.PW_BLANK) || authError.type.equals(ErrorType.PW_SHORT) || authError.type.equals(ErrorType.RESET_SESSION_EXPIRED)) || authState is AuthStatusState.Registered),

@@ -49,6 +49,7 @@ fun ModuleCarousel(
       contentPadding = androidx.compose.foundation.layout.PaddingValues(
         horizontal = sidePadding
       ),
+      userScrollEnabled = true,
       modifier = Modifier.fillMaxWidth()
     ) { page ->
 

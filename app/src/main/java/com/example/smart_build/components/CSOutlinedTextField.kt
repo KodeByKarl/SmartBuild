@@ -22,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.smart_build.ui.theme.Primary
+import com.example.smart_build.ui.theme.White
 
 
 // TODO: Copy the behavior and some style of OutlinedTextField for full control.
@@ -57,8 +59,8 @@ fun CSOutlinedTextField(
   val labelColor by animateColorAsState(
     when {
       isError -> MaterialTheme.colorScheme.error
-      focused -> MaterialTheme.colorScheme.primary
-      else -> MaterialTheme.colorScheme.onSurfaceVariant
+      focused -> White
+      else -> White.copy(alpha = 0.7f)
     },
     label = ""
   )
@@ -84,7 +86,7 @@ fun CSOutlinedTextField(
       keyboardActions = keyboardActions,
       visualTransformation = visualTransformation,
       textStyle = MaterialTheme.typography.bodyLarge.copy(
-        color = MaterialTheme.colorScheme.onSurface
+        color = White
       ),
       modifier = Modifier
         .fillMaxWidth(),
@@ -110,7 +112,7 @@ fun CSOutlinedTextField(
             if (value.isEmpty()) {
               Text(
                 "Enter $label",
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = White.copy(alpha = 0.5f)
               )
             }
 
