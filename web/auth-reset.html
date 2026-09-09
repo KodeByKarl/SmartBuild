@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SmartBuild — Open in the app</title>
+  <style>
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #011723;
+      color: #f4fbff;
+      font-family: system-ui, sans-serif;
+    }
+    main {
+      max-width: 28rem;
+      margin: 0 auto;
+      padding: 3rem 1.25rem;
+      line-height: 1.5;
+    }
+    h1 { color: #4ec3ff; font-size: 1.4rem; }
+    a.button {
+      display: inline-block;
+      margin-top: 1.25rem;
+      background: #1aa3d9;
+      color: #fff;
+      text-decoration: none;
+      padding: 0.75rem 1.1rem;
+      border-radius: 0.6rem;
+      font-weight: 700;
+    }
+    p { color: rgba(244, 251, 255, 0.82); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Open SmartBuild to continue</h1>
+    <p id="status">
+      Password reset and email confirmation links must be opened on the phone
+      that has SmartBuild installed. A blank page here means the browser cannot
+      complete a custom app link.
+    </p>
+    <a class="button" id="open" href="smartbuild://auth/reset">Open SmartBuild</a>
+  </main>
+  <script>
+    (function () {
+      var extra = window.location.search || "";
+      var hash = window.location.hash || "";
+      var appUrl = "smartbuild://auth/reset" + extra + hash;
+      var link = document.getElementById("open");
+      link.href = appUrl;
+      var mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (mobile && (extra || hash)) {
+        document.getElementById("status").textContent =
+          "Opening SmartBuild so you can set a new password…";
+        window.location.replace(appUrl);
+      }
+    })();
+  </script>
+</body>
+</html>

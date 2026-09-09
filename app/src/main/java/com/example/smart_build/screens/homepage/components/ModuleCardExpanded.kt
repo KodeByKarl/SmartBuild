@@ -18,7 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +37,7 @@ import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
 import com.example.smart_build.ui.theme.White
+import com.example.smart_build.ui.theme.readableSp
 import com.example.smart_build.viewmodel.home.ModuleCardData
 
 @Composable
@@ -99,10 +100,10 @@ fun ModuleCardExpanded(
 
       Box(
         modifier = Modifier
-          .align(Alignment.TopEnd)
+          .align(Alignment.TopStart)
           .padding(
             top = (maxHeight.value * 0.04f).dp,
-            end = (maxWidth.value * 0.034f).dp
+            start = (maxWidth.value * 0.034f).dp
           )
           .border(
             width = (maxWidth.value * 0.002f).dp,
@@ -123,7 +124,7 @@ fun ModuleCardExpanded(
         ) {
 
           Icon(
-            imageVector = Icons.Default.ArrowBack,
+            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
             contentDescription = "Back",
             tint = White.copy(alpha = 0.75f),
             modifier = Modifier.size((maxWidth.value * 0.016f).dp)
@@ -137,7 +138,7 @@ fun ModuleCardExpanded(
             text = "Back",
             style = Typography.titleMedium,
             color = Color.White.copy(alpha = 0.75f),
-            fontSize = (maxWidth.value * 0.011f).sp
+            fontSize = readableSp(maxWidth, 0.011f, 14f)
           )
         }
       }
@@ -176,7 +177,7 @@ fun ModuleCardExpanded(
             text = module.number,
             style = Typography.labelLarge.copy(fontFamily = GSCode),
             color = Color.White.copy(alpha = 0.9f),
-            fontSize = (maxWidth.value * 0.011f).sp,
+            fontSize = readableSp(maxWidth, 0.011f, 14f),
             fontWeight = FontWeight.Medium
           )
         }
@@ -197,7 +198,7 @@ fun ModuleCardExpanded(
         Text(
           text = module.description,
           color = Color.White.copy(alpha = 0.72f),
-          fontSize = (maxWidth.value * 0.0125f).sp,
+          fontSize = readableSp(maxWidth, 0.0125f, 14f),
           lineHeight = (maxHeight.value * 0.03f).sp
         )
       }

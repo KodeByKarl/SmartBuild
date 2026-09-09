@@ -1,20 +1,55 @@
 package com.example.smart_build.data
 
 import android.content.Context
+import android.content.SharedPreferences
+import android.util.Log
+import io.github.jan.supabase.auth.auth
+import com.example.smart_build.data.client.SupabaseClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 /**
- * Local cache + Supabase sync for flowchart progress.
- * Never hardcode 0% / 100% in the UI — always read from here after pull.
+ * Per-account local cache + Supabase sync for flowchart progress.
+ * Prefs are scoped by auth user id so signing in as another student never
+ * inherits (or overwrites) the previous account's "Your Progress".
  */
 object ModuleProgressStore {
-  private const val PREFS = "smartbuild_module_progress"
+  private const val LEGACY_PREFS = "smartbuild_module_progress"
   private const val VERSION_KEY = "meta_version"
-  private const val VERSION = 6
+  /** v7: per-user prefs; stop wiping finished M1–4 rows back to 0%. */
+  private const val VERSION = 7
+  private const val TAG = "ModuleProgressStore"
   private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+  @Volatile
+  private var boundUserId: String? = null
+
+  /**
+   * Point the cache at the signed-in student. Call on Home / login / sign-out.
+   * Switching accounts never copies another user's local numbers.
+   */
+  fun bindAccount(context: Context?, userId: String?) {
+    val normalized = userId?.takeIf { it.isNotBlank() }
+    if (normalized == boundUserId) return
+    Log.d(TAG, "bindAccount ${boundUserId ?: "none"} → ${normalized ?: "guest"}")
+    boundUserId = normalized
+    if (context != null) {
+      migrateIfNeeded(context)
+    }
+  }
+
+  /** Drop the active account pointer (sign-out). Prefs files stay on disk per user. */
+  fun unbindAccount() {
+    boundUserId = null
+  }
+
+  /** Resolve the current Supabase user and bind (no-op if unchanged). */
+  fun bindCurrentUser(context: Context) {
+    val id = SupabaseClient.client.auth.currentUserOrNull()?.id
+    bindAccount(context, id)
+  }
 
   fun guidedDone(context: Context, moduleId: Int): Boolean {
     migrateIfNeeded(context)
@@ -79,8 +114,12 @@ object ModuleProgressStore {
 
   fun isModuleUnlocked(_context: Context, _moduleId: Int): Boolean = true
 
-  /** Pull remote rows into local cache (call on Home resume / login). */
+  /**
+   * Pull this account's remote rows into its local cache.
+   * Never max-merges another user's leftovers — prefs are already scoped.
+   */
   suspend fun pullFromRemote(context: Context) {
+    bindCurrentUser(context)
     migrateIfNeeded(context)
     val rows = ModuleProgressRepository.fetchAll()
     if (rows.isNotEmpty()) {
@@ -154,31 +193,68 @@ object ModuleProgressStore {
 
   private fun migrateIfNeeded(context: Context) {
     val p = prefs(context)
-    val version = p.getInt(VERSION_KEY, 1)
+    val version = p.getInt(VERSION_KEY, 0)
     if (version >= VERSION) return
-    if (version < 3) {
+
+    if (version in 1..2) {
+      // Ancient schema — wipe this prefs file only (never cross-user).
       p.edit().clear().putInt(VERSION_KEY, VERSION).apply()
+      claimOrDropLegacy(context)
       return
     }
-    val editor = p.edit().putInt(VERSION_KEY, VERSION)
-    if (version < 6) {
-      // Persistent Godot replayed assessment_completed onto Guided opens.
-      for (id in 1..4) {
-        val done = p.getBoolean(assessmentKey(id), false)
-        val pct = p.getFloat(progressKey(id), 0f)
-        if (done || pct >= 99.5f) {
-          editor.putBoolean(assessmentKey(id), false)
-          editor.putBoolean(guidedKey(id), false)
-          editor.putFloat(progressKey(id), 0f)
-        }
-      }
-    }
-    editor.apply()
+    // v6 wiped finished M1–4 rows back to 0%. v7 keeps finished work and
+    // moves the old device-global file into the signed-in account once.
+    claimOrDropLegacy(context)
+    p.edit().putInt(VERSION_KEY, VERSION).apply()
     repairFalseIntroComplete(context)
   }
 
-  private fun prefs(context: Context) =
-    context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+  /**
+   * One-shot: the first signed-in account after upgrade inherits the old
+   * device-global cache (so progress is not lost). Later accounts get a
+   * clean scoped file + remote pull — never the previous student's numbers.
+   */
+  private fun claimOrDropLegacy(context: Context) {
+    val app = context.applicationContext
+    val legacy = app.getSharedPreferences(LEGACY_PREFS, Context.MODE_PRIVATE)
+    if (legacy.all.isEmpty()) return
+    val meta = app.getSharedPreferences("smartbuild_progress_meta", Context.MODE_PRIVATE)
+    val claimedBy = meta.getString("legacy_claimed_by", null)
+    val user = boundUserId
+    if (user != null && (claimedBy == null || claimedBy == user)) {
+      val scopedEmpty = (0..4).none {
+        prefs(context).getFloat(progressKey(it), 0f) > 0.5f ||
+          prefs(context).getBoolean(guidedKey(it), false) ||
+          prefs(context).getBoolean(assessmentKey(it), false)
+      }
+      if (scopedEmpty) {
+        val ed = prefs(context).edit()
+        for (id in 0..4) {
+          ed.putFloat(progressKey(id), legacy.getFloat(progressKey(id), 0f))
+          ed.putBoolean(guidedKey(id), legacy.getBoolean(guidedKey(id), false))
+          ed.putBoolean(assessmentKey(id), legacy.getBoolean(assessmentKey(id), false))
+        }
+        ed.putInt(VERSION_KEY, VERSION)
+        ed.apply()
+        Log.d(TAG, "Imported legacy progress into account $user")
+      }
+      meta.edit().putString("legacy_claimed_by", user).apply()
+    }
+    legacy.edit().clear().apply()
+    Log.d(TAG, "Cleared legacy global progress prefs")
+  }
+
+  private fun prefs(context: Context): SharedPreferences {
+    val app = context.applicationContext
+    val user = boundUserId
+      ?: SupabaseClient.client.auth.currentUserOrNull()?.id?.also { boundUserId = it }
+    val name = if (user.isNullOrBlank()) {
+      "smartbuild_module_progress_guest"
+    } else {
+      "smartbuild_module_progress_$user"
+    }
+    return app.getSharedPreferences(name, Context.MODE_PRIVATE)
+  }
 
   private fun progressKey(id: Int) = "progress_$id"
   private fun guidedKey(id: Int) = "guided_$id"

@@ -3,6 +3,7 @@ package com.example.smart_build.screens.search.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,7 @@ import com.example.smart_build.ui.theme.White
 fun PartDetailSheet(
   part: CssPart,
   onClose: () -> Unit,
+  onImageClick: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
   Column(
@@ -68,6 +70,13 @@ fun PartDetailSheet(
         .height(160.dp)
         .clip(RoundedCornerShape(12.dp))
         .background(Color(0xFF0A2A3C))
+        .clickable(onClick = onImageClick)
+    )
+
+    Text(
+      "Tap the image to view it full screen.",
+      color = White.copy(alpha = 0.6f),
+      fontSize = 11.sp,
     )
 
     DetailSection("Overview", part.overview)

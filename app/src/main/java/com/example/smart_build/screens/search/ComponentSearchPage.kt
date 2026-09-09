@@ -41,6 +41,7 @@ import com.example.smart_build.data.CssPartsCatalog
 import com.example.smart_build.screens.search.components.CategoryChipRow
 import com.example.smart_build.screens.search.components.PartCard
 import com.example.smart_build.screens.search.components.PartDetailSheet
+import com.example.smart_build.screens.search.components.PartImageViewer
 import com.example.smart_build.ui.theme.Black
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.White
@@ -50,6 +51,7 @@ fun ComponentSearchPage(navController: NavHostController) {
   var query by remember { mutableStateOf("") }
   var category by remember { mutableStateOf(CssPartsCatalog.ALL) }
   var selected by remember { mutableStateOf<CssPart?>(null) }
+  var zoomed by remember { mutableStateOf<CssPart?>(null) }
 
   val hits = remember(query, category) {
     CssPartsCatalog.filter(query, category)
@@ -119,7 +121,7 @@ fun ComponentSearchPage(navController: NavHostController) {
       Text(
         text = "Hardware · networks · cabling · servers · internet & cloud",
         color = White.copy(alpha = 0.65f),
-        fontSize = 12.sp,
+        fontSize = 14.sp,
       )
 
       CategoryChipRow(
@@ -151,7 +153,11 @@ fun ComponentSearchPage(navController: NavHostController) {
           horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
           items(hits, key = { it.id }) { part ->
-            PartCard(part = part, onClick = { selected = part })
+            PartCard(
+              part = part,
+              onClick = { selected = part },
+              onImageClick = { zoomed = part },
+            )
           }
         }
       }
@@ -161,11 +167,16 @@ fun ComponentSearchPage(navController: NavHostController) {
       PartDetailSheet(
         part = part,
         onClose = { selected = null },
+        onImageClick = { zoomed = part },
         modifier = Modifier
           .align(Alignment.BottomCenter)
           .fillMaxWidth()
           .height(maxHeight * 0.62f),
       )
+    }
+
+    zoomed?.let { part ->
+      PartImageViewer(part = part, onDismiss = { zoomed = null })
     }
   }
 }

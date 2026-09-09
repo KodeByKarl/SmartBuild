@@ -19,21 +19,12 @@ import com.example.smart_build.viewmodel.auth.AuthViewModel
 @Composable
 fun AppNav(navController: NavHostController, authViewModel1: AuthViewModel) {
   val uiState by authViewModel1.uiState.collectAsStateWithLifecycle()
+  val recovering by authViewModel1.isPasswordRecovery.collectAsStateWithLifecycle()
 
   // Prototype flow: Sign In / Sign Up → Dashboard (HomePage) first — never straight into a module.
-  LaunchedEffect(uiState) {
-    when (uiState) {
-      AuthStatusState.SignedIn -> {
-        val current = navController.currentDestination?.route
-        if (current == Routes.LoginPage.route || current == null) {
-          navController.navigate(Routes.HomePage.route) {
-            popUpTo(Routes.LoginPage.route) { inclusive = true }
-            launchSingleTop = true
-          }
-        }
-      }
-
-      AuthStatusState.SignedOut -> {
+  LaunchedEffect(uiState, recovering) {
+    when {
+      recovering -> {
         val current = navController.currentDestination?.route
         if (current != null && current != Routes.LoginPage.route) {
           navController.navigate(Routes.LoginPage.route) {
@@ -43,7 +34,25 @@ fun AppNav(navController: NavHostController, authViewModel1: AuthViewModel) {
         }
       }
 
-      else -> Unit
+      uiState is AuthStatusState.SignedIn -> {
+        val current = navController.currentDestination?.route
+        if (current == Routes.LoginPage.route || current == null) {
+          navController.navigate(Routes.HomePage.route) {
+            popUpTo(Routes.LoginPage.route) { inclusive = true }
+            launchSingleTop = true
+          }
+        }
+      }
+
+      uiState is AuthStatusState.SignedOut -> {
+        val current = navController.currentDestination?.route
+        if (current != null && current != Routes.LoginPage.route) {
+          navController.navigate(Routes.LoginPage.route) {
+            popUpTo(0) { inclusive = true }
+            launchSingleTop = true
+          }
+        }
+      }
     }
   }
 

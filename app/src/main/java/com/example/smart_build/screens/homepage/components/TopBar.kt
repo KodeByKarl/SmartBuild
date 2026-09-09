@@ -18,8 +18,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,7 +43,13 @@ import com.example.smart_build.ui.theme.Typography
 import com.example.smart_build.ui.theme.White
 
 @Composable
-fun TopBar(maxWidth: Dp, maxHeight: Dp, searchBarOnClick: () -> Unit, iconButtonOnClick: () -> Unit) {
+fun TopBar(
+  maxWidth: Dp,
+  maxHeight: Dp,
+  searchBarOnClick: () -> Unit,
+  helpOnClick: () -> Unit,
+  iconButtonOnClick: () -> Unit,
+) {
 
   val appTitleLetterSpacing: Float = (maxWidth.value * 0.002f) // max width * 0.7%
   val appTitleLineHeight: Float = (maxWidth.value * 0.045f) // max width * 4.1%
@@ -126,6 +131,22 @@ fun TopBar(maxWidth: Dp, maxHeight: Dp, searchBarOnClick: () -> Unit, iconButton
           )
         } // Row
       } // Button
+      Spacer(Modifier.size((maxWidth.value * 0.009f).dp))
+      IconButton(
+        onClick = helpOnClick,
+        shape = CircleShape,
+        colors = IconButtonDefaults.iconButtonColors(
+          containerColor = Color(0xFF1A3A4C)
+        ),
+        modifier = Modifier.size((maxWidth.value * 0.038f).dp)
+      ) {
+        Icon(
+          imageVector = Icons.AutoMirrored.Filled.HelpOutline,
+          contentDescription = "How SmartBuild works",
+          tint = White,
+          modifier = Modifier.size((maxWidth.value * 0.022f).dp)
+        )
+      }
       Spacer(Modifier.size((maxWidth.value * 0.009f).dp))
       IconButton(
         onClick = iconButtonOnClick,

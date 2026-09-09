@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Typography
 import com.example.smart_build.ui.theme.White
+import com.example.smart_build.ui.theme.readableSp
 
 @Composable
 fun ProgressCard(
@@ -87,7 +88,7 @@ fun ProgressCard(
           text = "$percentLabel",
           style = Typography.bodyLarge.copy(fontFamily = GSFlex),
           color = White.copy(alpha = 0.75f),
-          fontSize = (maxWidth.value * 0.009f).sp
+          fontSize = readableSp(maxWidth, 0.009f, 13f)
         )
       }
     }

@@ -35,6 +35,7 @@ import com.example.smart_build.data.client.SupabaseClient
 import com.example.smart_build.navigation.AppNav
 import com.example.smart_build.network.NetworkConnectivityObserver
 import com.example.smart_build.ui.theme.Smart_BuildTheme
+import com.example.smart_build.viewmodel.auth.AuthRecoveryHold
 import com.example.smart_build.viewmodel.auth.AuthViewModel
 import io.github.jan.supabase.auth.handleDeeplinks
 import org.godotengine.godot.Godot
@@ -171,9 +172,17 @@ class MainActivity : FragmentActivity(), GodotHost {
   }
 
   private fun isPasswordRecoveryIntent(intent: Intent?): Boolean {
-    val fragment = intent?.data?.fragment ?: return false
-
-    return fragment.split("&").any { parameter -> parameter == "type=recovery" }
+    val uri = intent?.data ?: return false
+    val haystack = buildString {
+      append(uri.toString())
+      uri.host?.let { append(' '); append(it) }
+      uri.path?.let { append(' '); append(it) }
+      uri.query?.let { append('?'); append(it) }
+      uri.fragment?.let { append('#'); append(it) }
+    }.lowercase()
+    return haystack.contains("type=recovery") ||
+      haystack.contains("type%3drecovery") ||
+      uri.path?.contains("reset", ignoreCase = true) == true
   }
 
   private fun handleAuthIntent(intent: Intent?) {
@@ -181,14 +190,13 @@ class MainActivity : FragmentActivity(), GodotHost {
 
     Log.d("AUTH_DEEPLINK", "Handling auth intent: ${intent.data}")
 
-    if (isPasswordRecoveryIntent(intent)) {
-      Log.d("AUTH_DEEPLINK", "PASSWORD RECOVERY DETECTED")
-
-      authViewModel.onPasswordRecoveryDetected()
-    }
-
     if (intent.data != null) {
       SupabaseClient.client.handleDeeplinks(intent)
+    }
+
+    if (isPasswordRecoveryIntent(intent) || AuthRecoveryHold.isExpecting()) {
+      Log.d("AUTH_DEEPLINK", "PASSWORD RECOVERY DETECTED")
+      authViewModel.onPasswordRecoveryDetected()
     }
   }
 

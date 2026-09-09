@@ -81,7 +81,8 @@ fun ModulePage(
   }
 
   // Always send prepare when module params change — do not rely on engine_initialized alone.
-  LaunchedEffect(moduleId, simulationType, progress, prepareAttempt) {
+  // Do NOT key on `progress`: in-module progress_update must not re-prepare and race Godot.
+  LaunchedEffect(moduleId, simulationType, prepareAttempt) {
     acceptModuleEvents = false
     viewModel.changeGodotEnvState(GodotEnvState.Preparing)
     loadingMessage = "SETTING UP YOUR ENVIRONMENT..."
@@ -145,11 +146,14 @@ fun ModulePage(
           viewModel.changeGodotEnvState(GodotEnvState.Error)
         }
         else -> {
-          if (acceptModuleEvents || viewModel.godotEnvState.value is GodotEnvState.Ready) {
-            acceptModuleEvents = true
-            viewModel.changeGodotEnvState(GodotEnvState.Ready)
+          // Missed-ready races leave a black surface. Retry prepare once
+          // before painting Error.
+          if (prepareAttempt == 0) {
+            Log.w("GODOT_COMM", "Prepare got no ack for module $moduleId — retrying once")
+            delay(400)
+            prepareAttempt += 1
           } else {
-            Log.e("GODOT_COMM", "Prepare got no ack")
+            Log.e("GODOT_COMM", "Prepare got no ack for module $moduleId")
             viewModel.changeGodotEnvState(GodotEnvState.Error)
           }
         }
@@ -226,7 +230,11 @@ fun ModulePage(
 
         "error" -> {
           if (eventModuleId == moduleId || eventModuleId == -1) {
-            viewModel.changeGodotEnvState(GodotEnvState.Error)
+            if (viewModel.godotEnvState.value is GodotEnvState.Ready) {
+              Log.w("GODOT_COMM", "Ignoring late error after module $moduleId is Ready")
+            } else {
+              viewModel.changeGodotEnvState(GodotEnvState.Error)
+            }
           }
         }
       }

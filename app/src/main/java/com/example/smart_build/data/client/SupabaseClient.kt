@@ -3,6 +3,7 @@ package com.example.smart_build.data.client
 import com.example.smart_build.BuildConfig
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.FlowType
 import io.github.jan.supabase.functions.Functions
 import io.github.jan.supabase.postgrest.Postgrest
 
@@ -26,7 +27,10 @@ object SupabaseClient {
     supabaseKey = anonKey
   ) {
     install(Auth) {
-      // Used for Android authentication callbacks.
+      // PKCE puts the auth code in the query string. Implicit-hash tokens
+      // (#access_token=) are dropped by Gmail/Chrome before the app sees them,
+      // which left reset-password opening the app with no session.
+      flowType = FlowType.PKCE
       scheme = BuildConfig.SUPABASE_AUTH_SCHEME.ifBlank { "smartbuild" }
       host = BuildConfig.SUPABASE_AUTH_HOST.ifBlank { "auth" }
     }

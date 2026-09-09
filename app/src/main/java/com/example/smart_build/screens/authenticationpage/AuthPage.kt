@@ -52,8 +52,10 @@ fun AuthPage(
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
   val formState by viewModel.formState.collectAsStateWithLifecycle()
   val authMode by viewModel.authMode.collectAsStateWithLifecycle()
+  val recovering by viewModel.isPasswordRecovery.collectAsStateWithLifecycle()
 
-  LaunchedEffect(uiState) {
+  LaunchedEffect(uiState, recovering) {
+    if (recovering) return@LaunchedEffect
     when (uiState) {
       AuthStatusState.SignedIn -> {
         navController.navigate(Routes.HomePage.route) {

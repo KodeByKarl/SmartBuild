@@ -45,6 +45,11 @@ object AuthFieldStyles {
     unfocusedContainerColor = Color.Transparent,
     disabledContainerColor = Color.Transparent,
     errorContainerColor = Color.Transparent,
+    errorBorderColor = Color(0xFFFF8A80),
+    errorLabelColor = Color(0xFFFF8A80),
+    errorCursorColor = Color(0xFFFF8A80),
+    errorSupportingTextColor = Color(0xFFFF8A80),
+    errorTextColor = White,
   )
 }
 

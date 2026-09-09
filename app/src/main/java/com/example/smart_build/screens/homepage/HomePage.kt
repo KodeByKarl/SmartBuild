@@ -30,6 +30,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.smart_build.R
 import com.example.smart_build.data.ModuleProgressStore
 import com.example.smart_build.navigation.Routes
+import com.example.smart_build.screens.homepage.components.HowToUseDialog
 import com.example.smart_build.screens.homepage.components.ModuleCarousel
 import com.example.smart_build.screens.homepage.components.ProfileOverlay
 import com.example.smart_build.screens.homepage.components.TopBar
@@ -56,6 +57,7 @@ fun HomePage(
   var profileMenuOpen by remember {
     mutableStateOf(false)
   }
+  var howToOpen by remember { mutableStateOf(false) }
 
   LaunchedEffect(Unit) {
     viewModel.refreshProgress()
@@ -123,7 +125,6 @@ fun HomePage(
       description = "This prerequisite module for Computer Systems Servicing (CSS) NC II covers the fundamentals of computer systems. It is recommended to complete this module first before proceeding to the other CSS modules and hands-on servicing activities.",
       image = R.drawable.module_0_card,
       contents = """
-        Hello there!
         Welcome to the very first module of the core modules of this course, the Introduction to Computer Systems Servicing.
       """.trimIndent(),
       benefits = listOf(
@@ -150,7 +151,6 @@ fun HomePage(
       description = "Learn how to properly install, configure, and prepare computer systems for operation.",
       image = R.drawable.module_1_card,
       contents = """
-        Hello there!
         Welcome to the first core module of this course, the Installing and Configuring Computer Systems.
       """.trimIndent(),
       benefits = listOf(
@@ -179,7 +179,6 @@ fun HomePage(
       description = "Learn the fundamentals of networking and how to configure computer network connections.",
       image = R.drawable.module_2_card,
       contents = """
-        Hello there!
         Welcome to the second core module of this course, the Setting Up Computer Networks.
       """.trimIndent(),
       benefits = listOf(
@@ -208,7 +207,6 @@ fun HomePage(
       description = "Learn how to diagnose, maintain, and troubleshoot common computer system problems.",
       image = R.drawable.module_3_card,
       contents = """
-        Hello there!
         Welcome to the third core module of this course, the Setting Up Computer Servers.
       """.trimIndent(),
       benefits = listOf(
@@ -237,7 +235,6 @@ fun HomePage(
       description = "Learn how to diagnose, maintain, and troubleshoot common computer system problems.",
       image = R.drawable.module_4_card,
       contents = """
-        Hello there!
         Welcome to the last core module of this course, the Maintaining Computer Systems.
       """.trimIndent(),
       benefits = listOf(
@@ -281,6 +278,7 @@ fun HomePage(
             launchSingleTop = true
           }
         },
+        helpOnClick = { howToOpen = true },
         iconButtonOnClick = {
           profileMenuOpen = !profileMenuOpen
         }
@@ -293,6 +291,10 @@ fun HomePage(
           .fillMaxWidth()
           .padding(top = 40.dp)
       )
+    }
+
+    if (howToOpen) {
+      HowToUseDialog(onDismiss = { howToOpen = false })
     }
 
     if (profileMenuOpen) {

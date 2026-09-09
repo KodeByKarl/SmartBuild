@@ -40,7 +40,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
   fun refreshProgress() {
     val ctx = getApplication<Application>()
-    // Show local cache immediately.
+    ModuleProgressStore.bindCurrentUser(ctx)
+    // Show this account's local cache immediately.
     _moduleProgress.value = ModuleProgressStore.allProgress(ctx)
     _guidedDone.value = (0..4).associateWith { ModuleProgressStore.guidedDone(ctx, it) }
     _assessmentDone.value = (0..4).associateWith { ModuleProgressStore.assessmentDone(ctx, it) }
@@ -64,6 +65,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     viewModelScope.launch {
       try {
         supabase.auth.signOut()
+        // Detach the previous student's cache so Home never shows their bars.
+        ModuleProgressStore.unbindAccount()
+        _moduleProgress.value = emptyMap()
+        _guidedDone.value = emptyMap()
+        _assessmentDone.value = emptyMap()
         _authState.value = AuthStatusState.SignedOut
       } catch (e: Exception) {
         Log.e("AUTH", "${e.message}")

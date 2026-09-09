@@ -1,8 +1,5 @@
 package com.example.smart_build.screens.authenticationpage.components
 
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,7 +14,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -39,6 +34,7 @@ import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
 import com.example.smart_build.ui.theme.White
+import com.example.smart_build.ui.theme.readableSp
 import com.example.smart_build.viewmodel.auth.AuthFormState
 import com.example.smart_build.viewmodel.auth.AuthStatusState
 //import com.example.smart_build.viewmodel.auth.AuthViewModel
@@ -75,45 +71,51 @@ fun RPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
           Text(
             "Enter your new password and do not lose it!",
             style = Typography.labelLarge,
-            fontSize = (maxWidthScreen.value * 0.011f).sp,
+            fontSize = readableSp(maxWidthScreen, 0.011f, 14f),
             color = White.copy(alpha = 0.7f)
           )
         }
         Spacer(Modifier.size((maxHeightScreen.value * 0.035f).dp))
         Column {
-          Box {
-            OutlinedTextField(
-              label = { Text("Password", color = White.copy(alpha = 0.7f)) },
-              value = rpFormState.password,
-              singleLine = true,
-              textStyle = AuthFieldStyles.textStyle,
-              colors = AuthFieldStyles.colors(),
-              onValueChange = { value -> viewModel.onPWRPChanged(value) },
-              isError = authState is AuthStatusState.Error && (authError.type.equals(ErrorType.PW_BLANK) || authError.type.equals(ErrorType.PW_SHORT) || authError.type.equals(ErrorType.RESET_SESSION_EXPIRED)),
-              modifier = Modifier.fillMaxWidth(0.9f)
-            )
-            androidx.compose.animation.AnimatedVisibility(
-              visible = (authState is AuthStatusState.Error && (authError.type.equals(ErrorType.PW_BLANK) || authError.type.equals(ErrorType.PW_SHORT) || authError.type.equals(ErrorType.RESET_SESSION_EXPIRED)) || authState is AuthStatusState.Registered),
-              enter = fadeIn(tween(1000)),
-              exit = fadeOut(tween(1000))
-            ) {
-              Text(
-                authError.message,
-                style = Typography.bodySmall.copy(color = Color.Red, fontSize = (maxWidthScreen.value * 0.009f).sp),
-                modifier = Modifier
-                  .offset(y = (maxHeightScreen.value * 0.075f).dp)
-              )
-            }
-          }
+          val hintVisible = (authState is AuthStatusState.Error && (
+            authError.type == ErrorType.PW_BLANK ||
+              authError.type == ErrorType.PW_SHORT ||
+              authError.type == ErrorType.RESET_SESSION_EXPIRED
+            )) || authState is AuthStatusState.Registered
+          OutlinedTextField(
+            label = { Text("Password", color = White.copy(alpha = 0.7f)) },
+            value = rpFormState.password,
+            singleLine = true,
+            textStyle = AuthFieldStyles.textStyle,
+            colors = AuthFieldStyles.colors(),
+            onValueChange = { value -> viewModel.onPWRPChanged(value) },
+            isError = authState is AuthStatusState.Error && (
+              authError.type == ErrorType.PW_BLANK ||
+                authError.type == ErrorType.PW_SHORT ||
+                authError.type == ErrorType.RESET_SESSION_EXPIRED
+              ),
+            supportingText = if (hintVisible) {
+              {
+                Text(
+                  authError.message,
+                    style = Typography.bodySmall.copy(
+                      color = if (authState is AuthStatusState.Error) Color.Red else Primary,
+                      fontSize = readableSp(maxWidthScreen, 0.011f, 14f),
+                      lineHeight = 18.sp,
+                    ),
+                    modifier = Modifier.padding(top = 2.dp),
+                )
+              }
+            } else null,
+            modifier = Modifier.fillMaxWidth(0.9f)
+          )
           Spacer(Modifier.size((maxHeightScreen.value * 0.03f).dp))
           Button(
-//            onClick = { submitting = !submitting },
-//            onClick = { viewModel.onChangeAuthFormState(AuthFormState.SignIn) },
             onClick = {
               viewModel.resetPassword(rpFormState.password)
             },
             contentPadding = PaddingValues(horizontal = (maxWidthScreen.value * 0.016f).dp, vertical = (maxHeightScreen.value * 0.02f).dp),
-            enabled = authState is AuthStatusState.SignedOut && formState is AuthFormState.ResetPassword,
+            enabled = authState != AuthStatusState.Submitting && formState is AuthFormState.ResetPassword,
             shape = RoundedCornerShape((maxWidthScreen.value * 0.013f).dp),
             modifier = Modifier.height((maxHeightScreen.value * 0.07f).dp),
             colors = ButtonColors(
@@ -132,7 +134,7 @@ fun RPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
                 fontFamily = GSFlex,
                 style = Typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                fontSize = (maxWidthScreen.value * 0.013f).sp,
+                fontSize = readableSp(maxWidthScreen, 0.013f, 15f),
                 letterSpacing = (maxWidthScreen.value * 0.00012f).sp,
                 color = White,
                 modifier = Modifier.padding(0.dp)

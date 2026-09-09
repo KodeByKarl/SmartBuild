@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 //import io.github.jan.supabase.SupabaseClient
+import com.example.smart_build.data.ModuleProgressStore
 import com.example.smart_build.data.client.SupabaseClient
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.auth.auth
@@ -131,6 +132,9 @@ class AuthViewModel : ViewModel() {
   private val _isPasswordRecovery = MutableStateFlow(false)
 
   val isPasswordRecovery = _isPasswordRecovery.asStateFlow()
+
+  /** Set after sign-up so an immediate login maps "invalid credentials" to verify-email. */
+  private var lastUnverifiedEmail: String? = null
 
   // ------------------------------------------------------------------------
   // UI STATE
@@ -338,10 +342,16 @@ class AuthViewModel : ViewModel() {
 
             Log.d(
               "AUTH_SESSION",
-              "Authenticated type=${session.type}"
+              "Authenticated type=${session.type} recoveryFlag=${_isPasswordRecovery.value}"
             )
 
-            if (session.type == "recovery") {
+            // PKCE recovery sessions often have type=bearer, not "recovery".
+            // Trust the deep-link flag / pending reset as well as session.type.
+            val recovery = _isPasswordRecovery.value ||
+              AuthRecoveryHold.isExpecting() ||
+              session.type.equals("recovery", ignoreCase = true)
+
+            if (recovery) {
 
               Log.d(
                 "AUTH_RECOVERY",
@@ -350,11 +360,13 @@ class AuthViewModel : ViewModel() {
 
               _isPasswordRecovery.value = true
 
-              _uiState.value =
-                AuthStatusState.SignedOut
-
               _formState.value =
                 AuthFormState.ResetPassword
+
+              if (_uiState.value != AuthStatusState.Submitting) {
+                _uiState.value =
+                  AuthStatusState.SignedOut
+              }
 
             } else {
 
@@ -364,12 +376,15 @@ class AuthViewModel : ViewModel() {
               )
 
               _isPasswordRecovery.value = false
+              AuthRecoveryHold.clear()
 
               _uiState.value =
                 AuthStatusState.SignedIn
 
               _formState.value =
                 AuthFormState.None
+
+              ModuleProgressStore.bindAccount(null, session.user?.id)
             }
           }
 
@@ -511,8 +526,10 @@ class AuthViewModel : ViewModel() {
 
       try {
 
+        val scheme = com.example.smart_build.BuildConfig.SUPABASE_AUTH_SCHEME.ifBlank { "smartbuild" }
+        val host = com.example.smart_build.BuildConfig.SUPABASE_AUTH_HOST.ifBlank { "auth" }
         val user =
-          supabase.auth.signUpWith(Email) {
+          supabase.auth.signUpWith(Email, redirectUrl = "$scheme://$host/confirm") {
 
             this.email =
               trimmedEmail
@@ -582,6 +599,9 @@ class AuthViewModel : ViewModel() {
 
           _authMode.value =
             AuthMode.SignIn
+
+          lastUnverifiedEmail =
+            trimmedEmail.lowercase()
         }
 
       } catch (e: Exception) {
@@ -737,6 +757,8 @@ class AuthViewModel : ViewModel() {
         _formState.value =
           AuthFormState.None
 
+        lastUnverifiedEmail = null
+
       } catch (e: Exception) {
 
         Log.e(
@@ -765,14 +787,15 @@ class AuthViewModel : ViewModel() {
           ) ||
           message.contains(
             "email is not confirmed"
-          )
+          ) ||
+          lastUnverifiedEmail == trimmedEmail.lowercase()
         ) {
 
           showError(
             type =
               ErrorType.ACCOUNT_NOT_VERIFIED,
             message =
-              "Please verify your email before signing in."
+              "Please verify your email before signing in. Check your inbox for the confirmation link."
           )
 
         } else {
@@ -814,6 +837,8 @@ class AuthViewModel : ViewModel() {
       try {
 
         supabase.auth.signOut()
+        // Drop the previous account's progress cache so the next login starts clean.
+        ModuleProgressStore.unbindAccount()
 
         /*
          * SessionStatus.NotAuthenticated will update
@@ -887,23 +912,16 @@ class AuthViewModel : ViewModel() {
         AuthStatusState.Submitting
 
       try {
+        AuthRecoveryHold.mark()
+        val scheme = com.example.smart_build.BuildConfig.SUPABASE_AUTH_SCHEME.ifBlank { "smartbuild" }
+        val host = com.example.smart_build.BuildConfig.SUPABASE_AUTH_HOST.ifBlank { "auth" }
+        // Path /reset is how we recognize the return deep-link after PKCE
+        // (session.type is usually no longer "recovery").
         supabase.auth.resetPasswordForEmail(
           email = trimmedEmail,
-          redirectUrl = "smartbuild://auth"
+          redirectUrl = "$scheme://$host/reset"
         )
 
-        supabase.auth.signOut()
-
-        _uiState.value =
-          AuthStatusState.Registered
-
-        _formState.value =
-          AuthFormState.SignIn
-
-        _authMode.value =
-          AuthMode.SignIn
-
-        /*
         _uiState.value =
           AuthStatusState.Registered
 
@@ -911,13 +929,11 @@ class AuthViewModel : ViewModel() {
           Error(
             type = ErrorType.NONE,
             message =
-              "If an account exists for this email, a password reset link has been sent."
+              "If an account exists for this email, a reset link has been sent. Open it on this phone to choose a new password."
           )
 
         _formState.value =
-          AuthFormState.SignIn
-
-         */
+          AuthFormState.ForgotPassword
 
       } catch (e: Exception) {
 
@@ -1065,6 +1081,9 @@ class AuthViewModel : ViewModel() {
          */
 
         supabase.auth.signOut()
+
+        _isPasswordRecovery.value = false
+        AuthRecoveryHold.clear()
 
         _uiState.value =
           AuthStatusState.Registered
@@ -1475,13 +1494,39 @@ class AuthViewModel : ViewModel() {
   fun onPasswordRecoveryDetected() {
 
     _isPasswordRecovery.value = true
+    AuthRecoveryHold.mark()
 
     _formState.value =
       AuthFormState.ResetPassword
+
+    if (_uiState.value == AuthStatusState.SignedIn) {
+      _uiState.value = AuthStatusState.SignedOut
+    }
 
     Log.d(
       "AUTH_RECOVERY",
       "RECOVERY FLAG SET"
     )
+  }
+}
+
+/**
+ * Survives Activity recreation while the user is waiting on a reset email.
+ * PKCE return links often omit type=recovery, so we remember that a reset
+ * was requested for two hours.
+ */
+internal object AuthRecoveryHold {
+  private const val WINDOW_MS = 2L * 60L * 60L * 1000L
+  @Volatile private var untilElapsed: Long = 0L
+
+  fun mark() {
+    untilElapsed = android.os.SystemClock.elapsedRealtime() + WINDOW_MS
+  }
+
+  fun isExpecting(): Boolean =
+    android.os.SystemClock.elapsedRealtime() < untilElapsed
+
+  fun clear() {
+    untilElapsed = 0L
   }
 }

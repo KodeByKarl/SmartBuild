@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.smart_build.ui.theme.Black
+import com.example.smart_build.ui.theme.readableSp
 import com.example.smart_build.viewmodel.auth.AuthViewModel
 import com.example.smart_build.viewmodel.home.HomeViewModel
 
@@ -114,7 +115,7 @@ fun ProfileOverlay(
 //          text = "myhoneybunchsweetiepie@example.com",
           text = "${viewModel.emailAdd}",
           color = Black.copy(alpha = 0.85f),
-          fontSize = (maxWidth.value * 0.011f).sp,
+          fontSize = readableSp(maxWidth, 0.011f, 14f),
           fontWeight = FontWeight.Medium
         )
       }

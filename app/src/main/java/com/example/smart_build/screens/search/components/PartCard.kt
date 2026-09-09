@@ -35,6 +35,7 @@ import com.example.smart_build.ui.theme.White
 fun PartCard(
   part: CssPart,
   onClick: () -> Unit,
+  onImageClick: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
   Column(
@@ -61,6 +62,7 @@ fun PartCard(
           .fillMaxHeight()
           .clip(RoundedCornerShape(10.dp))
           .background(Color(0xFF0A2A3C))
+          .clickable(onClick = onImageClick)
       )
       Box(
         modifier = Modifier
@@ -78,8 +80,8 @@ fun PartCard(
         Text(
           text = part.summary,
           color = White.copy(alpha = 0.92f),
-          fontSize = 11.sp,
-          lineHeight = 14.sp,
+          fontSize = 14.sp,
+          lineHeight = 18.sp,
           maxLines = 6,
           overflow = TextOverflow.Ellipsis,
         )
@@ -89,7 +91,7 @@ fun PartCard(
       text = part.title.uppercase(),
       color = White,
       fontWeight = FontWeight.Bold,
-      fontSize = 13.sp,
+      fontSize = 16.sp,
       maxLines = 2,
       overflow = TextOverflow.Ellipsis,
       modifier = Modifier
