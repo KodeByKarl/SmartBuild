@@ -25,7 +25,7 @@ First official, release-signed build: `release/SmartBuild-V2.1.apk` (about 132 M
 
 ## 29 Sep 2026 — Client revision round
 
-Included in V2.1. The Android changes are committed (`136529b`); the Godot changes are in the
+Included in V2.1. The Android changes are committed (`cae6ef4`); the Godot changes are in the
 exported `.pck` but not yet committed in `SmartBuild-Godot`.
 
 ### Fixed
@@ -59,18 +59,18 @@ exported `.pck` but not yet committed in `SmartBuild-Godot`.
 
 ## 16 Sep 2026 — `V2`
 
-- *App* `58ef363`: version bumped to V2 (versionCode 2).
+- *App* `34b88f9`: version bumped to V2 (versionCode 2).
 
 ## 9 Sep 2026
 
-- *App* `1ee2f7e`: login screen readability; progress is stored **per account**, so a new
+- *App* `3f3a49d`: login screen readability; progress is stored **per account**, so a new
   sign-in never inherits another student's Home state.
 - *Godot* `e40ac6d`: TESDA disassembly-then-rebuild assessment for Module 1; Module 0
   rebuilt as 2D slides.
 
 ## 4 Sep 2026
 
-- *App* `7deb22f`: Assessment unlocks after Guided is complete; progress holds at 99% until
+- *App* `cefb1fd`: Assessment unlocks after Guided is complete; progress holds at 99% until
   the Assessment is finished.
 - *Godot* `2eafa8c`: Modules 1–4 shell content with the same-path Guided vs Assessment flow.
 
