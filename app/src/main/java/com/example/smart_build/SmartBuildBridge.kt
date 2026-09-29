@@ -148,7 +148,8 @@ object SmartBuildBridge {
     }
     val message = SmartBuildMessage.Command("prepare", data)
 
-    Log.d("GODOT_COMM", "Sending prepare: ${message.toJson()}")
+    // Never log the full message: it carries the user's session tokens.
+    Log.d("GODOT_COMM", "Sending prepare: module=$moduleId type=$simulationType")
 
     sendToGodot(message.toJson())
   }

@@ -35,6 +35,14 @@ val supabaseAnonKey = secretOrEnv(smartBuildSecrets, "SUPABASE_ANON_KEY")
 val supabaseAuthScheme = secretOrEnv(smartBuildSecrets, "SUPABASE_AUTH_SCHEME", "smartbuild")
 val supabaseAuthHost = secretOrEnv(smartBuildSecrets, "SUPABASE_AUTH_HOST", "auth")
 
+val releaseKeystoreProps = Properties().apply {
+    val file = rootProject.file("keystore.properties")
+    if (file.exists()) {
+        file.inputStream().use { load(it) }
+    }
+}
+val hasReleaseKeystore = releaseKeystoreProps.getProperty("storeFile")?.let { file(it).exists() } == true
+
 if (supabaseUrl.isEmpty() || supabaseAnonKey.isEmpty()) {
     logger.warn(
         "SmartBuild: SUPABASE_URL / SUPABASE_ANON_KEY missing. " +
@@ -51,11 +59,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.smart_build"
+        applicationId = "com.smartbuild.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "V2"
+        versionCode = 3
+        versionName = "V2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -76,8 +84,22 @@ android {
         }
     }
 
+    signingConfigs {
+        if (hasReleaseKeystore) {
+            create("release") {
+                storeFile = file(releaseKeystoreProps.getProperty("storeFile"))
+                storePassword = releaseKeystoreProps.getProperty("storePassword")
+                keyAlias = releaseKeystoreProps.getProperty("keyAlias")
+                keyPassword = releaseKeystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (hasReleaseKeystore) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             optimization {
                 enable = false
             }

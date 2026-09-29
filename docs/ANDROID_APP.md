@@ -13,8 +13,9 @@ unless stated otherwise.
 | Item | Value | Where |
 |---|---|---|
 | Gradle project | `Smart_Build`, single module `:app` | `settings.gradle.kts` |
-| Application ID / namespace | `com.example.smart_build` | `app/build.gradle.kts` |
-| Version | `versionCode 2`, `versionName "V2"` | `app/build.gradle.kts` |
+| Application ID | `com.smartbuild.app` | `app/build.gradle.kts` |
+| Namespace (Kotlin packages, `R`) | `com.example.smart_build` — internal only, not visible to users or Play | `app/build.gradle.kts` |
+| Version | `versionCode 3`, `versionName "V2.1"` | `app/build.gradle.kts` |
 | SDK levels | minSdk 24, targetSdk 35, compileSdk 37.1 | `app/build.gradle.kts` |
 | Java target | 11 | `app/build.gradle.kts` |
 | ABIs | `arm64-v8a`, `armeabi-v7a` | `ndk.abiFilters` |
@@ -23,7 +24,7 @@ unless stated otherwise.
 | Assets | `ignoreAssetsPattern` overridden so Godot's hidden files are packaged | `aaptOptions` |
 | Secrets → BuildConfig | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_AUTH_SCHEME` (default `smartbuild`), `SUPABASE_AUTH_HOST` (default `auth`) | `loadSmartBuildSecrets()` / `secretOrEnv()` — environment variable first, then `secrets.properties` |
 | Custom task | `checkGodotPack` — fails if `src/main/assets/SmartBuildGodot.pck` is missing or < 1 KB; `preBuild` depends on it | `app/build.gradle.kts` |
-| Signing | No `signingConfigs` yet (debug key only) | see [RELEASE](./RELEASE.md) |
+| Signing | `signingConfigs.release` reads `SmartBuild/keystore.properties` (gitignored). Without that file, release builds are unsigned and debug builds use the debug key | see [RELEASE](./RELEASE.md) |
 
 Main libraries: Compose BOM 2026.06.01, Material 3, material-icons-extended 1.7.8,
 navigation-compose 2.9.8, supabase-kt BOM 3.7.0 (`auth-kt`, `postgrest-kt`, `functions-kt`),

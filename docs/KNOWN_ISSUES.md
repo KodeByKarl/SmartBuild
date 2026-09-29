@@ -9,10 +9,8 @@ these block normal use of the app. Fixed items are recorded in [CHANGELOG](./CHA
 
 | Issue | Impact | Suggested fix |
 |---|---|---|
-| `SmartBuildBridge.prepare()` logs the whole `prepare` message, including the user's **access and refresh tokens**, to Logcat (`GODOT_COMM`) | Anyone with USB/ADB access to an unlocked phone could read a session token | Remove the `Log.d("GODOT_COMM", "Sending prepare: ...")` line, or log only `moduleId` and `simulationType` |
 | The real Supabase URL and anon key are committed in `SmartBuild/secrets.properties.example` and `SmartBuild-Godot/config/env.example` | Low: the anon key is public by design and ships inside every APK; data is protected by RLS | Replace the values with placeholders and commit. Rotate the key only if you also suspect the RLS policy was weak |
-| Builds are signed with a debug key | Updates between machines need an uninstall; Play rejects the build | Create a release keystore — [RELEASE](./RELEASE.md) |
-| Application ID is `com.example.smart_build` | Play Console rejects `com.example.*` | [MAINTENANCE_GUIDE §8](./MAINTENANCE_GUIDE.md#8-change-the-package-name-application-id) |
+| The release keystore and its passwords live in one folder (`release-keys/`) on the developer PC | If that PC is lost, future updates cannot be signed | Back it up in two offline places and hand it over privately |
 | Godot `config/env.local` may contain DEBUG Supabase keys | Only used by the Godot editor; excluded from the export | Keep it out of Git (already gitignored) |
 
 ---
@@ -63,7 +61,7 @@ these block normal use of the app. Fixed items are recorded in [CHANGELOG](./CHA
 |---|---|---|
 | Internet is required at all times | Offline classrooms cannot use the app | Would need an offline mode for auth and a queued progress sync |
 | ARM phones only (no x86) | Cannot run on most PC emulators | Add `x86_64` to `abiFilters` if emulator support matters (larger APK) |
-| APK is about 146 MB | Slow downloads; check Play size limits for the AAB | Play Asset Delivery for the `.pck` — [RELEASE §5](./RELEASE.md#5-google-play-specifics) |
+| Release APK is about 132 MB | Slow downloads; check Play size limits for the AAB | Play Asset Delivery for the `.pck` — [RELEASE §5](./RELEASE.md#5-google-play-specifics) |
 | The `delete-user` Edge Function source is not in the repository | Hard to redeploy | Commit the reference in [SUPABASE §8](./SUPABASE.md#8-edge-function-delete-user) under `supabase/functions/` |
 | `SmartBuild/gradle.properties` sets `org.gradle.java.home` to a path on the original machine | Build fails on other machines | Remove the line or change it per machine |
 | Minification (R8) is off | Larger APK | Only enable with keep rules for Godot and kotlinx-serialization |

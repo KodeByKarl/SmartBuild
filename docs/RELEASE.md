@@ -1,79 +1,60 @@
 # SmartBuild — Release
 
-How to produce a signed release build (APK for sideloading, AAB for Google Play). The
-repository currently has **no release signing** configured: every build so far is signed with
-the machine's debug key. For store listing requirements see [PLAYSTORE](./PLAYSTORE.md).
+How to produce the official signed build (APK for sideloading, AAB for Google Play). Release
+signing is set up as of **V2.1**. For store listing requirements see
+[PLAYSTORE](./PLAYSTORE.md).
 
 ---
 
-## 1. Create the release keystore (once)
+## 1. The release keystore
 
-Use `keytool` from the bundled JDK:
+Already created (29 Sep 2026) — **do not create a new one**, or phones with the official app
+will refuse the update.
 
-```powershell
-& "D:\Porjects\Smartbuild\tools\jdk\jdk-17.0.20.1+1\bin\keytool.exe" -genkeypair -v `
-  -keystore D:\SmartBuildKeys\smartbuild-release.jks `
-  -alias smartbuild -keyalg RSA -keysize 2048 -validity 10000
-```
+| Item | Value |
+|---|---|
+| Folder | `release-keys/` (workspace root, outside Git) |
+| Keystore | `smartbuild-release.jks` (PKCS12, RSA 2048, valid until 2054) |
+| Alias | `smartbuild` |
+| Passwords | In `release-keys/keystore.properties` (store and key password are the same) |
+| Certificate SHA-256 | `85:E7:2B:9A:E5:22:4D:71:70:98:EB:B6:44:C5:E1:54:44:80:EA:9A:B1:A4:60:2C:62:6A:56:5A:A9:69:14:B9` |
 
-- Answer the prompts (name, organization, country) and choose strong passwords.
-- **Keep the keystore outside the repository** and make at least two offline backups
-  (e.g. an encrypted USB drive and a password manager attachment).
-- Record: keystore path, keystore password, key alias, key password.
+- Keep **two offline backups** of `release-keys/` (e.g. encrypted USB drive and a password
+  manager attachment). Never commit it or send the passwords in plain chat/email.
 
 > If this keystore is lost, apps already installed from it can no longer be updated, and a
 > Play listing can only continue if Play App Signing holds the app signing key (see §5).
 
+Only if you truly need a brand-new key (new app / new package name):
+
+```powershell
+& "D:\Porjects\Smartbuild\tools\jdk\jdk-17.0.20.1+1\bin\keytool.exe" -genkeypair -v `
+  -keystore D:\SmartBuildKeys\smartbuild-release.jks -storetype PKCS12 `
+  -alias smartbuild -keyalg RSA -keysize 2048 -validity 10000
+```
+
 ---
 
-## 2. Wire the keystore into Gradle
+## 2. How Gradle uses it
 
-Create `SmartBuild/keystore.properties` (do **not** commit it):
+`SmartBuild/app/build.gradle.kts` reads `SmartBuild/keystore.properties` (gitignored, together
+with `*.jks` / `*.keystore`):
 
 ```properties
-storeFile=D:/SmartBuildKeys/smartbuild-release.jks
+storeFile=D:/Porjects/Smartbuild/release-keys/smartbuild-release.jks
 storePassword=********
 keyAlias=smartbuild
 keyPassword=********
 ```
 
-Add to `SmartBuild/.gitignore`:
+- On a new machine: copy `release-keys/keystore.properties` into `SmartBuild/` and fix
+  `storeFile` if the folder is somewhere else.
+- If the file (or the keystore it points to) is missing, the build still works: debug builds
+  use the debug key, and release builds come out **unsigned** (not installable) — that is the
+  signal that the keystore is not set up.
 
-```gitignore
-keystore.properties
-*.jks
-*.keystore
-```
-
-In `SmartBuild/app/build.gradle.kts` add (keep the existing content; add
-`import java.util.Properties` at the top if it is not already there):
-
-```kotlin
-val keystoreProps = java.util.Properties().apply {
-    val f = rootProject.file("keystore.properties")
-    if (f.exists()) f.inputStream().use { load(it) }
-}
-
-android {
-    signingConfigs {
-        create("release") {
-            storeFile = keystoreProps.getProperty("storeFile")?.let { file(it) }
-            storePassword = keystoreProps.getProperty("storePassword")
-            keyAlias = keystoreProps.getProperty("keyAlias")
-            keyPassword = keystoreProps.getProperty("keyPassword")
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig = signingConfigs.getByName("release")
-            // keep the existing release settings (minification stays off)
-        }
-    }
-}
-```
-
-Keep minification (R8) **off** unless you add keep rules: Godot and the plugin bridge rely on
-reflection (`@UsedByGodot`) and kotlinx-serialization.
+Minification (R8) stays **off**: Godot and the plugin bridge rely on reflection
+(`@UsedByGodot`) and kotlinx-serialization.
 
 ---
 
@@ -104,12 +85,11 @@ Verify the signature of an APK:
 ## 4. Pre-release checklist
 
 - [ ] `versionCode` / `versionName` bumped and [CHANGELOG](./CHANGELOG.md) updated
-- [ ] Application ID changed from `com.example.smart_build` (required for Play —
-      [MAINTENANCE_GUIDE §8](./MAINTENANCE_GUIDE.md#8-change-the-package-name-application-id))
+- [ ] Application ID is still `com.smartbuild.app`
+- [ ] `SmartBuild/keystore.properties` present; `apksigner` shows the certificate SHA-256 from §1
 - [ ] `.pck` re-exported from the current Godot source
 - [ ] Production Supabase URL/key in `secrets.properties`
 - [ ] Supabase redirect URLs set; `delete-user` function deployed
-- [ ] Token logging removed from `SmartBuildBridge.prepare` ([KNOWN_ISSUES](./KNOWN_ISSUES.md#security))
 - [ ] Smoke test on a real phone (below)
 
 ### Smoke test (about 15 minutes)
@@ -134,7 +114,7 @@ Verify the signature of an APK:
 - Enrol in **Play App Signing** (default for new apps): Google keeps the app signing key and
   your keystore becomes the *upload key*. A lost upload key can then be reset through Play
   support.
-- Size: the debug APK is about 146 MB (about 60 MB of it is the Godot `.pck`, plus the Godot
+- Size: the V2.1 release APK is about 132 MB (about 60 MB of it is the Godot `.pck`, plus the Godot
   native library). Check the download size Play reports for the AAB; if it exceeds Play's
   limits, move the `.pck` into a Play Asset Delivery pack.
 - Only ARM ABIs are included, which matches almost all real phones.

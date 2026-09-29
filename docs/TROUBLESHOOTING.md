@@ -28,9 +28,10 @@ For live debugging, connect the phone by USB and filter Logcat (Android Studio) 
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | Installed copy signed with a different key (another PC's debug key) | Uninstall first: `adb uninstall com.example.smart_build`. Long term: use one release keystore ([RELEASE](./RELEASE.md)) |
+| `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | Installed copy signed with a different key (e.g. a debug build over the official release) | Uninstall first: `adb uninstall com.smartbuild.app`. Sign official builds only with the release keystore ([RELEASE](./RELEASE.md)) |
+| Two SmartBuild icons on the phone | The old demo (`com.example.smart_build`) and the official app (`com.smartbuild.app`) are separate apps | Uninstall the old demo; progress returns after signing in to the official app |
 | `INSTALL_FAILED_NO_MATCHING_ABIS` | x86 emulator or x86 device | Use a real ARM phone. The APK ships only `arm64-v8a` and `armeabi-v7a` |
-| "App not installed" when sideloading | Not enough storage (APK is ~146 MB, needs more to install), or unknown-sources blocked | Free space; allow "Install unknown apps" for the file manager / browser |
+| "App not installed" when sideloading | Not enough storage (APK is ~132 MB, needs more to install), or unknown-sources blocked | Free space; allow "Install unknown apps" for the file manager / browser |
 | `adb` does not see the phone | USB debugging off or driver missing | Enable Developer options → USB debugging; accept the RSA prompt; try another cable |
 
 ---

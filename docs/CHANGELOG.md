@@ -5,10 +5,28 @@ repository (`SmartBuild-Godot`). Short hashes refer to Git commits.
 
 ---
 
-## 29 Sep 2026 — Client revision round (still `V2`, versionCode 2)
+## 29 Sep 2026 — `V2.1` official release (versionCode 3)
 
-Not yet committed at handover. Commit these in both repositories, and bump the version
-before the next release ([MAINTENANCE_GUIDE §7](./MAINTENANCE_GUIDE.md#7-bump-the-version)).
+First official, release-signed build: `release/SmartBuild-V2.1.apk` (about 132 MB).
+
+### Changed
+
+- **Package name** is now `com.smartbuild.app` (was `com.example.smart_build`, which Google
+  Play rejects). It installs as a new app; uninstall old demo builds.
+- **Release signing** with the keystore in `release-keys/` (see
+  [HANDOVER §4](./HANDOVER.md#4-about-app-signing-important)).
+
+### Security
+
+- Session tokens are no longer written to Logcat when a module is opened
+  (`SmartBuildBridge.prepare`).
+
+---
+
+## 29 Sep 2026 — Client revision round
+
+Included in V2.1. The Android changes are committed (`136529b`); the Godot changes are in the
+exported `.pck` but not yet committed in `SmartBuild-Godot`.
 
 ### Fixed
 

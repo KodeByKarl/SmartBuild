@@ -103,4 +103,4 @@ Handover set (English): [HANDOVER](./HANDOVER.md), [ARCHITECTURE](./ARCHITECTURE
 3. **Module 1 disassembly** — pag tinanggal ang motherboard, kasama nang lumalabas ang RAM, CPU fan at CPU; doon na sila tatanggalin isa-isa.  
 4. **Module 0** — tinanggal ang Search button (nasa Home pa rin ang Component Search).  
 
-Details at files: [CHANGELOG](./CHANGELOG.md#29-sep-2026--client-revision-round-still-v2-versioncode-2).
+Details at files: [CHANGELOG](./CHANGELOG.md#29-sep-2026--client-revision-round). Kasama na ito sa official **V2.1** APK..

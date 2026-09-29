@@ -125,8 +125,8 @@ last one. Use `ComposeLabScaffold` (`screens/composelabs/ComposeLabChrome.kt`) a
 In `SmartBuild/app/build.gradle.kts`:
 
 ```kotlin
-versionCode = 3        // must increase for every Play upload
-versionName = "V3"     // shown to users
+versionCode = 4        // current: 3 — must increase for every release / Play upload
+versionName = "V2.2"   // current: "V2.1" — shown to users
 ```
 
 Add an entry to [CHANGELOG](./CHANGELOG.md).
@@ -135,14 +135,15 @@ Add an entry to [CHANGELOG](./CHANGELOG.md).
 
 ## 8. Change the package name (application ID)
 
-`com.example.smart_build` must be replaced before publishing on Google Play (the
-`com.example` prefix is rejected).
+**Already done in V2.1:** the application ID is `com.smartbuild.app` (the old
+`com.example.smart_build` is rejected by Google Play). Once the app is published or installed
+on students' phones, **do not change it again** — a new ID is a new app.
 
-**Simplest (recommended):** change only the application ID in `app/build.gradle.kts`:
+How it was done (only the application ID in `app/build.gradle.kts`):
 
 ```kotlin
 defaultConfig {
-    applicationId = "ph.yourschool.smartbuild"
+    applicationId = "com.smartbuild.app"
 }
 ```
 
@@ -154,7 +155,7 @@ Notes:
 - A new application ID is a **different app** to Android: users must install it fresh.
 - Deep links use the `smartbuild://` scheme, not the package name, so Supabase settings stay
   the same.
-- The instrumented test `ExampleInstrumentedTest` asserts the old package name — update it.
+- The instrumented test `ExampleInstrumentedTest` asserts the package name — keep it in sync.
 
 ---
 

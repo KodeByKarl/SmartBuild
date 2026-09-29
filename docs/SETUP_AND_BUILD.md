@@ -148,7 +148,8 @@ $env:JAVA_HOME = "D:\Porjects\Smartbuild\tools\jdk\jdk-17.0.20.1+1"   # or Andro
 .\gradlew.bat :app:assembleDebug
 ```
 
-Output: `SmartBuild\app\build\outputs\apk\debug\app-debug.apk` (about 146 MB).
+Output: `SmartBuild\app\build\outputs\apk\debug\app-debug.apk` (about 146 MB). For the
+official signed build (`assembleRelease`, about 132 MB) see [RELEASE](./RELEASE.md).
 
 Useful tasks:
 
@@ -181,7 +182,7 @@ If Gradle says everything is `UP-TO-DATE` but the APK is missing, force packagin
 ```
 
 If you get `INSTALL_FAILED_UPDATE_INCOMPATIBLE`, the installed copy was signed with a
-different key: uninstall it first (`adb uninstall com.example.smart_build`).
+different key: uninstall it first (`adb uninstall com.smartbuild.app`).
 
 ### Sideload (no computer)
 

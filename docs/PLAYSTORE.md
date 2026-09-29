@@ -11,17 +11,17 @@
 |------|--------|
 | Working demo (modules 0–4) | Yes — sideload APK |
 | Supabase auth + progress | Yes — kung naka-setup ang project |
-| Release signing keystore | **Hindi pa** (kailangan sa Play) |
+| Release signing keystore | **Yes** — `release-keys/smartbuild-release.jks` (V2.1). Gamitin din bilang upload key sa Play |
 | App Bundle (AAB) | Prefer over raw APK |
 | Privacy policy URL | **Required** |
 | Data safety form | **Required** (account + progress) |
 | Store listing (screenshots, description) | Ihahanda pa |
-| Package name | `com.example.smart_build` — palitan kung may client brand |
+| Package name | `com.smartbuild.app` (pinalitan na sa V2.1 — Play-ready, huwag nang palitan pagka-upload) |
 
 **Verdict**
 
 - **Demo / panel / sideload:** OK  
-- **Public Play listing:** OK lang pagkatapos ng signing + AAB + listing + policy  
+- **Public Play listing:** OK lang pagkatapos ng AAB + listing + privacy policy + data safety (tapos na ang signing at package name)  
 
 ---
 
@@ -86,7 +86,7 @@ Kung **inyo** ang Google Play Developer account at **rirentahan** ng client:
 
 | Problem | Notes |
 |---------|--------|
-| APK too large (~146 MB as of 29 Sep 2026) | Play prefers AAB; may need Asset Delivery / size plan — see [RELEASE §5](./RELEASE.md#5-google-play-specifics) |
+| APK too large (~132 MB release build as of 29 Sep 2026) | Play prefers AAB; may need Asset Delivery / size plan — see [RELEASE §5](./RELEASE.md#5-google-play-specifics) |
 | Rejected listing | Missing privacy policy / Data safety / screenshots |
 | Deep link broken after rename | Update Supabase redirect URLs + `applicationId` |
 | Lost keystore | Cannot update same listing — guard the key file |

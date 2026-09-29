@@ -8,7 +8,7 @@ Computer Systems Servicing (CSS NC II) through lessons and hands-on simulations.
 ## 1. Requirements
 
 - Android phone or tablet, **Android 7.0 or newer**, ARM processor (almost all real devices).
-- About **400 MB free storage** for installing (the app file is about 146 MB).
+- About **400 MB free storage** for installing (the app file is about 132 MB).
 - **Internet connection** at all times. When the connection drops, a "connection lost" window
   covers the app until it returns.
 - The app runs in **landscape** (turn the phone sideways).

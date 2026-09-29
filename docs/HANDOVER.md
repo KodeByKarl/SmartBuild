@@ -12,7 +12,8 @@ must change hands, and what the new owner should do after receiving the system.
 | Android app source (main system) | `SmartBuild/` | Kotlin + Jetpack Compose. Git remote `https://github.com/KodeByKarl/SmartBuild.git`, branch `master` |
 | Supporting Godot content source | `SmartBuild-Godot/` | Godot 4.7.2 visual content for Modules 0 and 1. Git remote `https://github.com/KodeByKarl/SmartBuild-Godot.git` |
 | Exported support pack | `SmartBuild/app/src/main/assets/SmartBuildGodot.pck` | About 60 MB. Gitignored — it must be re-exported from `SmartBuild-Godot/` or copied by hand |
-| Latest APK | `SmartBuild/app/build/outputs/apk/debug/app-debug.apk` | Debug-signed build, about 146 MB. Version `V2` (versionCode 2) |
+| **Official APK** | `release/SmartBuild-V2.1.apk` | Release-signed, about 132 MB. Package `com.smartbuild.app`, version `V2.1` (versionCode 3) |
+| Release keystore | `release-keys/` (`smartbuild-release.jks` + `keystore.properties`) | Signs every official build. Not in Git — see section 4 |
 | Build tools | `tools/jdk/jdk-17.0.20.1+1/`, `tools/godot/Godot_v4.7.2-stable_win64.exe` | Exact tool versions used to build the project |
 | Documentation | `docs/` | This folder |
 | Password-reset bounce page | `SmartBuild/web/auth-reset.html` | Optional static page for email links (see [SUPABASE](./SUPABASE.md)) |
@@ -36,7 +37,7 @@ must change hands, and what the new owner should do after receiving the system.
 | Supabase URL + anon (public) key | `SmartBuild/secrets.properties` (gitignored), Godot `config/env.local` (gitignored) | Hand over the file. The anon key is designed to be public and is protected by row-level security (RLS) |
 | Supabase `service_role` key | Supabase dashboard only | **Never** put it in the app. Only the `delete-user` Edge Function uses it, server-side |
 | Supabase dashboard login | Developer's Supabase account | Replaced by the ownership transfer in section 2 |
-| Release keystore (app signing key) | **Does not exist yet** | See section 4 — the client should create and keep it |
+| Release keystore (app signing key) + passwords | `release-keys/smartbuild-release.jks`, passwords in `release-keys/keystore.properties` | Hand over privately (not by chat or email in plain text). See section 4 |
 
 > **Note:** the current anon key also appears in the committed files
 > `SmartBuild/secrets.properties.example` and `SmartBuild-Godot/config/env.example`.
@@ -47,17 +48,22 @@ must change hands, and what the new owner should do after receiving the system.
 
 ## 4. About app signing (important)
 
-The delivered APK is signed with the **debug key** of the machine that built it. That is
-fine for demos and sideloading, but:
+The official APK is signed with the release keystore in `release-keys/`
+(alias `smartbuild`, RSA 2048, valid until 2054). Certificate SHA-256:
+
+```text
+85:E7:2B:9A:E5:22:4D:71:70:98:EB:B6:44:C5:E1:54:44:80:EA:9A:B1:A4:60:2C:62:6A:56:5A:A9:69:14:B9
+```
 
 - Android only installs an update over an existing install when **both are signed with the
-  same key**. A build made on a different computer will require uninstalling first, which
-  also clears the local progress cache (cloud progress is kept).
-- Google Play will **not** accept debug-signed builds.
-
-**Recommended:** the client creates a release keystore, stores it safely (two offline
-backups), and builds releases with it. Step-by-step instructions are in
-[RELEASE](./RELEASE.md). Losing that keystore means the Play listing can never be updated.
+  same key**. Every future official build must be signed with this keystore.
+- **Keep two offline backups** of the `release-keys/` folder (e.g. encrypted USB drive and a
+  password manager). Losing it means installed copies and a Play listing can never be updated.
+- To build with it, place `keystore.properties` in `SmartBuild/` (adjust `storeFile` if the
+  folder moves). Steps: [RELEASE](./RELEASE.md).
+- Earlier demo APKs used the package `com.example.smart_build` and a debug key. The official
+  app is a **separate app** (`com.smartbuild.app`): uninstall the old demo from phones to
+  avoid two SmartBuild icons. Cloud progress carries over after signing in.
 
 ---
 
@@ -89,8 +95,7 @@ Tick these off after receiving the system.
 ### Recommended clean-up
 
 - [ ] Replace real values in the two `*.example` files with placeholders
-- [ ] Stop logging session tokens in `SmartBuildBridge.prepare` ([KNOWN_ISSUES](./KNOWN_ISSUES.md#security))
-- [ ] Change the package name from `com.example.smart_build` before publishing ([MAINTENANCE_GUIDE §8](./MAINTENANCE_GUIDE.md#8-change-the-package-name-application-id))
+- [ ] Back up `release-keys/` in two offline places
 
 ---
 
@@ -99,8 +104,8 @@ Tick these off after receiving the system.
 | Fact | Value |
 |---|---|
 | App name | SmartBuild |
-| Package (application ID) | `com.example.smart_build` |
-| Version | `V2` (versionCode 2) |
+| Package (application ID) | `com.smartbuild.app` |
+| Version | `V2.1` (versionCode 3) |
 | Android support | Android 7.0 (API 24) and newer, **arm64-v8a / armeabi-v7a phones only** (no x86 emulators) |
 | Orientation | Landscape only |
 | Internet | Required. While offline the app shows a blocking "connection lost" dialog until the connection returns |
