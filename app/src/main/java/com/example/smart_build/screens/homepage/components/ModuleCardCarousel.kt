@@ -8,6 +8,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.graphicsLayer
@@ -21,7 +23,9 @@ fun ModuleCarousel(
   modules: List<ModuleCardData>,
   maxWidthh: Dp,
   maxHeightt: Dp,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  openModuleId: Int? = null,
+  onPageChanged: (Int) -> Unit = {},
 ) {
   if (modules.isEmpty()) return
 
@@ -40,6 +44,16 @@ fun ModuleCarousel(
       initialPage = 0,
       pageCount = { modules.size }
     )
+
+    LaunchedEffect(pagerState) {
+      snapshotFlow { pagerState.currentPage }.collect { onPageChanged(it) }
+    }
+
+    LaunchedEffect(openModuleId) {
+      val id = openModuleId ?: return@LaunchedEffect
+      val index = modules.indexOfFirst { it.moduleId == id }
+      if (index >= 0) pagerState.scrollToPage(index)
+    }
 
     HorizontalPager (
       state = pagerState,
@@ -66,6 +80,7 @@ fun ModuleCarousel(
         maxHeight = maxHeightt,
         onGS = modules[page].onGS,
         onAS = modules[page].onAS,
+        startExpanded = openModuleId != null && modules[page].moduleId == openModuleId,
         modifier = Modifier
           .graphicsLayer {
 

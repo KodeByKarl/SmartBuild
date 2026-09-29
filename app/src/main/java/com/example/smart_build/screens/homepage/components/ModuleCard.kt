@@ -26,12 +26,14 @@ fun ModuleCard(
   maxHeight: Dp,
   modifier: Modifier = Modifier,
   onGS: () -> Unit,
-  onAS: () -> Unit
-//  onClick: () -> Unit
+  onAS: () -> Unit,
+  startExpanded: Boolean = false,
 ) {
 
-  var expanded by remember {
-    mutableStateOf(false)
+  var expanded by remember { mutableStateOf(startExpanded) }
+
+  LaunchedEffect(startExpanded) {
+    if (startExpanded) expanded = true
   }
 
   // ==========================================================

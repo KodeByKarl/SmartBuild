@@ -38,19 +38,23 @@ fun HowToUseDialog(onDismiss: () -> Unit) {
         )
         HowToBlock(
           "3. Guided path",
-          "Open Guided Simulation. Read the hero and hardware catalog (image previews), complete each simulation phase, then read the “Be Ready for Assessment” page before the graded scenario.",
+          "Open Guided Simulation. Module 1 uses the 3D Godot bench. Modules 2–4 use Compose labs with DO THIS coaches. Repeat until you are confident.",
         )
         HowToBlock(
-          "4. Assessment",
-          "Unlocks after Guided is finished. Same labs, no yellow hints. Starts directly on the assessment simulation.",
+          "4. Scenario Assessment",
+          "Unlocks after Guided. You get a short scenario with faults to identify and correct (TESDA-aligned), then complete the lab without yellow coaches.",
         )
         HowToBlock(
-          "5. Controls",
-          "Exit (top-left) leaves without skipping ahead. Prev / Next sit beside the page counter. Search opens the CSS Parts Encyclopedia; Help explains the current page.",
+          "5. Rule-based feedback",
+          "Wrong order or incomplete steps show immediate corrective messages (e.g. wrong topology order, missing links). Fix before you can finish.",
         )
         HowToBlock(
-          "6. Progress bars",
-          "Bars rise as you clear pages. They stay saved when you leave and resume when you return — they should not jump to another account's 100%.",
+          "6. Component Search",
+          "Search / browse CSS parts (Case, PSU, Optical Drive, HDD, Motherboard, RAM, CPU, CPU Fan, and more) for independent review.",
+        )
+        HowToBlock(
+          "7. Progress",
+          "Bars rise as you clear stations. Saved to your account — they should not jump to another user's 100%.",
         )
       }
     },

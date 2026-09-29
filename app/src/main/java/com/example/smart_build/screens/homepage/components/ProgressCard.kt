@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Typography
@@ -43,7 +45,7 @@ fun ProgressCard(
   showAssessment: Boolean = true,
   guidedLabel: String = "Guided Simulation",
   onGS: () -> Unit,
-  onAS: () -> Unit
+  onAS: () -> Unit,
 ) {
   val clamped = progress.coerceIn(0f, 1f)
   val percentLabel = (clamped * 100f).toInt()
@@ -71,7 +73,7 @@ fun ProgressCard(
         text = "Your Progress",
         style = Typography.headlineSmall.copy(fontFamily = GSFlex),
         color = White.copy(alpha = 0.75f),
-        fontSize = (maxWidth.value * 0.019f).sp
+        fontSize = readableSp(maxWidth, 0.016f, 16f)
       )
 
       Box(
@@ -88,7 +90,7 @@ fun ProgressCard(
           text = "$percentLabel",
           style = Typography.bodyLarge.copy(fontFamily = GSFlex),
           color = White.copy(alpha = 0.75f),
-          fontSize = readableSp(maxWidth, 0.009f, 13f)
+          fontSize = readableSp(maxWidth, 0.009f, 15f)
         )
       }
     }
@@ -103,7 +105,7 @@ fun ProgressCard(
     Box(
       modifier = Modifier
         .fillMaxWidth()
-        .height((maxHeight.value * 0.07f).dp)
+        .heightIn(min = max(48.dp, (maxHeight.value * 0.09f).dp))
         .clip(RoundedCornerShape((maxWidth.value * 0.011f).dp))
         .background(if (guidedUnlocked) Color(0xFF1591C2) else Color(0xFF003247))
         .clickable(enabled = guidedUnlocked, onClick = onGS),
@@ -129,7 +131,7 @@ fun ProgressCard(
           text = guidedLabel,
           style = Typography.titleMedium,
           color = Color.White,
-          fontSize = (maxWidth.value * 0.013f).sp
+          fontSize = readableSp(maxWidth, 0.014f, 15f)
         )
       }
     }
@@ -145,7 +147,7 @@ fun ProgressCard(
       Box(
         modifier = Modifier
           .fillMaxWidth()
-          .height((maxHeight.value * 0.07f).dp)
+          .heightIn(min = max(48.dp, (maxHeight.value * 0.09f).dp))
           .clip(RoundedCornerShape((maxWidth.value * 0.011f).dp))
           .background(Color(0xFF003247))
           .clickable(enabled = asEnabled, onClick = onAS),
@@ -168,13 +170,14 @@ fun ProgressCard(
           )
 
           Text(
-            text = "Assessment Simulation",
+            text = "Scenario Assessment",
             style = Typography.titleMedium,
             color = White.copy(alpha = asAlpha),
-            fontSize = (maxWidth.value * 0.013f).sp
+            fontSize = readableSp(maxWidth, 0.014f, 15f)
           )
         }
       }
     }
+
   }
 }

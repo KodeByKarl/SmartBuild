@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.example.smart_build.components.ModuleName
 import com.example.smart_build.ui.theme.Typography
 import com.example.smart_build.ui.theme.White
+import com.example.smart_build.ui.theme.lineGap
 import com.example.smart_build.ui.theme.readableSp
 import com.example.smart_build.viewmodel.home.ModuleCardData
 
@@ -63,7 +64,7 @@ fun ModuleCardDefaultContent(
         text = module.number,
         color = Color.White.copy(alpha = 0.9f),
         style = Typography.labelLarge,
-        fontSize = readableSp(maxWidth, 0.011f, 14f),
+        fontSize = readableSp(maxWidth, 0.011f, 15f),
         fontWeight = FontWeight.Medium
       )
     }
@@ -106,11 +107,12 @@ fun ModuleCardDefaultContent(
     // DESCRIPTION
     // --------------------------------------------------------
 
+    val descriptionSize = readableSp(maxWidth, 0.013f, 16f)
     Text(
       text = module.description,
       color = Color.White.copy(alpha = 0.72f),
-      fontSize = readableSp(maxWidth, 0.011f, 14f),
-      lineHeight = (maxHeight.value * 0.026f).sp
+      fontSize = descriptionSize,
+      lineHeight = descriptionSize.lineGap()
     )
   }
 }

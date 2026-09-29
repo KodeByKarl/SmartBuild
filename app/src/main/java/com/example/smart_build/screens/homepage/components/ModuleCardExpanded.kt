@@ -37,6 +37,7 @@ import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
 import com.example.smart_build.ui.theme.White
+import com.example.smart_build.ui.theme.lineGap
 import com.example.smart_build.ui.theme.readableSp
 import com.example.smart_build.viewmodel.home.ModuleCardData
 
@@ -138,7 +139,7 @@ fun ModuleCardExpanded(
             text = "Back",
             style = Typography.titleMedium,
             color = Color.White.copy(alpha = 0.75f),
-            fontSize = readableSp(maxWidth, 0.011f, 14f)
+            fontSize = readableSp(maxWidth, 0.011f, 15f)
           )
         }
       }
@@ -177,7 +178,7 @@ fun ModuleCardExpanded(
             text = module.number,
             style = Typography.labelLarge.copy(fontFamily = GSCode),
             color = Color.White.copy(alpha = 0.9f),
-            fontSize = readableSp(maxWidth, 0.011f, 14f),
+            fontSize = readableSp(maxWidth, 0.011f, 15f),
             fontWeight = FontWeight.Medium
           )
         }
@@ -195,11 +196,12 @@ fun ModuleCardExpanded(
         )
 
         // Description
+        val descriptionSize = readableSp(maxWidth, 0.014f, 16f)
         Text(
           text = module.description,
           color = Color.White.copy(alpha = 0.72f),
-          fontSize = readableSp(maxWidth, 0.0125f, 14f),
-          lineHeight = (maxHeight.value * 0.03f).sp
+          fontSize = descriptionSize,
+          lineHeight = descriptionSize.lineGap()
         )
       }
     }
@@ -248,18 +250,13 @@ fun ModuleCardExpanded(
 //        )
 
 
+        val bodySize = readableSp(maxWidth, 0.018f, 17f)
         Text(
-//          text = "Welcome to the very first of the core modules " + "of this course, the ${module.title}.",
           text = module.contents,
           style = Typography.headlineMedium.copy(fontFamily = GSFlex),
-
           color = Color.White.copy(alpha = 0.72f),
-
-          fontSize =
-            (maxWidth.value * 0.021f).sp,
-
-          lineHeight =
-            (maxHeight.value * 0.055f).sp
+          fontSize = bodySize,
+          lineHeight = bodySize.lineGap(1.5f)
         )
 
 
@@ -270,12 +267,13 @@ fun ModuleCardExpanded(
         )
 
 
+        val benefitHeadingSize = readableSp(maxWidth, 0.018f, 17f)
         Text(
-//          text = "At the end of this introductory, you will be able to:",
-          text = "${module.benefits[0]}",
+          text = module.benefits[0],
           style = Typography.headlineMedium.copy(fontFamily = GSFlex),
           color = Color.White.copy(alpha = 0.72f),
-          fontSize = (maxWidth.value * 0.021f).sp,
+          fontSize = benefitHeadingSize,
+          lineHeight = benefitHeadingSize.lineGap(1.45f),
           fontWeight = FontWeight.Medium
         )
 
@@ -314,7 +312,7 @@ fun ModuleCardExpanded(
           "Guided Simulation"
         },
         onGS = onGS,
-        onAS = onAS
+        onAS = onAS,
       )
     }
   }

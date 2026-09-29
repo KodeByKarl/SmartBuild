@@ -27,10 +27,17 @@ object SmartBuildBridge {
   var engineInitialized: Boolean = false
     private set
 
+  @Volatile
+  var priorityWarmupReady: Boolean = false
+    private set
+
   // SurfaceView punches through Compose. Keep it GONE until a module is Ready
   // so Login / Home stay tappable while the engine warms up in the background.
   private val _godotSurfaceVisible = MutableStateFlow(false)
   val godotSurfaceVisible = _godotSurfaceVisible.asStateFlow()
+
+  private val _simulationWarmState = MutableStateFlow<SimulationWarmState>(SimulationWarmState.Cold)
+  val simulationWarmState = _simulationWarmState.asStateFlow()
 
   fun setGodotSurfaceVisible(visible: Boolean) {
     _godotSurfaceVisible.value = visible
@@ -41,6 +48,8 @@ object SmartBuildBridge {
   /** Call when the Godot fragment is recreated so Compose waits for a fresh engine_initialized. */
   fun resetEngineSession() {
     engineInitialized = false
+    priorityWarmupReady = false
+    _simulationWarmState.value = SimulationWarmState.Cold
     Log.d("GODOT_COMM", "Engine session reset")
   }
 
@@ -70,8 +79,17 @@ object SmartBuildBridge {
 
       Log.d("GODOT_COMM", "{ type: $type, event: $event }")
 
-      if (event == "engine_initialized") {
-        engineInitialized = true
+      when (event) {
+        "engine_initialized" -> {
+          engineInitialized = true
+          if (_simulationWarmState.value == SimulationWarmState.Cold) {
+            _simulationWarmState.value = SimulationWarmState.EngineReady
+          }
+        }
+        "warmup_ready" -> {
+          priorityWarmupReady = true
+          _simulationWarmState.value = SimulationWarmState.ModuleReady
+        }
       }
 
 //      _godotMessages.tryEmit(event)
@@ -79,6 +97,24 @@ object SmartBuildBridge {
     } catch(e: Exception) {
       Log.e("GODOT_COMM", "Failed to parse Godot message: $message")
     }
+  }
+
+  /**
+   * Ask Godot to prefetch a module while the student is still on Home.
+   * Default = Module 1 (3D assemble/disassemble) for the Friday demo path.
+   */
+  fun requestWarmup(moduleId: Int = 1) {
+    if (!isPluginReady()) {
+      Log.w("GODOT_COMM", "requestWarmup ignored — plugin not ready")
+      return
+    }
+    if (_simulationWarmState.value != SimulationWarmState.ModuleReady) {
+      _simulationWarmState.value = SimulationWarmState.Warming
+    }
+    val data = JSONObject().apply { put("moduleId", moduleId) }
+    val message = SmartBuildMessage.Command("warmup", data)
+    Log.d("GODOT_COMM", "Sending warmup: ${message.toJson()}")
+    sendToGodot(message.toJson())
   }
 
 //  fun startSimulation(simulationId: String) {

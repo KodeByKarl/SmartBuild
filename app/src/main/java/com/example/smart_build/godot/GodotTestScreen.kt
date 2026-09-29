@@ -42,12 +42,6 @@ fun GodotHostLayer() {
   )
 }
 
-/** @deprecated Use [GodotHostLayer] at the Activity level. Kept for call-site compatibility. */
-@Composable
-fun GodotTestScreen() {
-  GodotHostLayer()
-}
-
 object GodotRuntime {
   const val GODOT_TAG = "GODOT"
 
@@ -60,7 +54,6 @@ object GodotRuntime {
       if (existing.id == containerId) {
         return
       }
-      // Engine is already running in another container — do NOT destroy it.
       Log.d("GODOT_COMM", "GodotFragment already attached; skipping recreate")
       return
     }

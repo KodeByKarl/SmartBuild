@@ -1,6 +1,7 @@
 package com.example.smart_build.screens.homepage
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,32 +14,40 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.smart_build.R
+import com.example.smart_build.SmartBuildBridge
+import com.example.smart_build.SimulationWarmState
 import com.example.smart_build.data.ModuleProgressStore
+import com.example.smart_build.data.ReturnToModule
 import com.example.smart_build.navigation.Routes
 import com.example.smart_build.screens.homepage.components.HowToUseDialog
 import com.example.smart_build.screens.homepage.components.ModuleCarousel
 import com.example.smart_build.screens.homepage.components.ProfileOverlay
 import com.example.smart_build.screens.homepage.components.TopBar
 import com.example.smart_build.ui.theme.Black
+import com.example.smart_build.ui.theme.White
 import com.example.smart_build.viewmodel.auth.AuthStatusState
 import com.example.smart_build.viewmodel.auth.AuthViewModel
 import com.example.smart_build.viewmodel.home.HomeViewModel
 import com.example.smart_build.viewmodel.home.ModuleCardData
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomePage(
@@ -53,25 +62,43 @@ fun HomePage(
   val assessmentMap by viewModel.assessmentDoneMap.collectAsStateWithLifecycle()
   val authViewModel1: AuthViewModel = viewModel()
   val context = LocalContext.current
+  val warmState by SmartBuildBridge.simulationWarmState.collectAsStateWithLifecycle()
 
   var profileMenuOpen by remember {
     mutableStateOf(false)
   }
   var howToOpen by remember { mutableStateOf(false) }
+  var openModuleId by remember { mutableStateOf<Int?>(null) }
 
+  val lifecycleOwner = LocalLifecycleOwner.current
+
+  // Refresh on every entry (including popBackStack from ModulePage after guided/assessment save).
   LaunchedEffect(Unit) {
     viewModel.refreshProgress()
   }
 
-  val lifecycleOwner = LocalLifecycleOwner.current
+  // Also refresh when this destination resumes (Compose nav does not always recreate).
   DisposableEffect(lifecycleOwner) {
     val observer = LifecycleEventObserver { _, event ->
       if (event == Lifecycle.Event.ON_RESUME) {
         viewModel.refreshProgress()
+        val returned = ReturnToModule.consume()
+        if (returned != null) openModuleId = returned
       }
     }
     lifecycleOwner.lifecycle.addObserver(observer)
     onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+  }
+
+  // Warm Module 1 (3D Godot) only — M2–M4 run as Compose.
+  LaunchedEffect(Unit) {
+    while (!SmartBuildBridge.isPluginReady()) {
+      delay(250)
+    }
+    while (!SmartBuildBridge.engineInitialized) {
+      delay(250)
+    }
+    SmartBuildBridge.requestWarmup(moduleId = 1)
   }
 
   fun openModule(moduleId: Int, moduleName: String, simulationType: Int) {
@@ -85,11 +112,18 @@ fun HomePage(
       } else if (!guided) {
         Toast.makeText(
           context,
-          "Finish Guided Simulation first (reach the last page). Assessment uses the same pages without guides.",
+          "Finish Guided Simulation first. Scenario Assessment unlocks after Guided.",
           Toast.LENGTH_SHORT
         ).show()
         return
       }
+    }
+    // M2–M4 = Compose path; M0–M1 = Godot.
+    if (moduleId in 2..4) {
+      navController.navigate(Routes.ComposeModule.createRoute(moduleId, simulationType)) {
+        launchSingleTop = true
+      }
+      return
     }
     val progress = ModuleProgressStore.progress(context, moduleId)
     navController.navigate(
@@ -197,7 +231,7 @@ fun HomePage(
       },
       onAS = {
         openModule(2, "Setting Up Computer Networks", 1)
-      }
+      },
     ),
 
     ModuleCardData(
@@ -225,17 +259,17 @@ fun HomePage(
       },
       onAS = {
         openModule(3, "Setting Up Computer Servers", 1)
-      }
+      },
     ),
 
     ModuleCardData(
       number = "Module 4",
       moduleId = 4,
-      title = "Maintaining Computer Systems",
-      description = "Learn how to diagnose, maintain, and troubleshoot common computer system problems.",
+      title = "Maintaining Computer Systems and Networks",
+      description = "Learn how to diagnose, maintain, and troubleshoot computer systems and networks.",
       image = R.drawable.module_4_card,
       contents = """
-        Welcome to the last core module of this course, the Maintaining Computer Systems.
+        Welcome to the last core module of this course, Maintaining Computer Systems and Networks.
       """.trimIndent(),
       benefits = listOf(
         "At the end of this Module 4, you will be able to:",
@@ -249,13 +283,15 @@ fun HomePage(
       guidedDone = guided(4),
       assessmentDone = assessed(4),
       onGS = {
-        openModule(4, "Maintaining Computer Systems", 0)
+        openModule(4, "Maintaining Computer Systems and Networks", 0)
       },
       onAS = {
-        openModule(4, "Maintaining Computer Systems", 1)
-      }
+        openModule(4, "Maintaining Computer Systems and Networks", 1)
+      },
     )
   )
+
+  var homeModulePage by remember { mutableIntStateOf(0) }
 
   BoxWithConstraints(
     contentAlignment = Alignment.Center,
@@ -287,6 +323,8 @@ fun HomePage(
         modules = modules,
         maxWidthh = MAX_WIDTH,
         maxHeightt = MAX_HEIGHT,
+        openModuleId = openModuleId,
+        onPageChanged = { homeModulePage = it },
         modifier = Modifier
           .fillMaxWidth()
           .padding(top = 40.dp)
@@ -295,6 +333,28 @@ fun HomePage(
 
     if (howToOpen) {
       HowToUseDialog(onDismiss = { howToOpen = false })
+    }
+
+    val warmLabel = when (warmState) {
+      SimulationWarmState.Cold,
+      SimulationWarmState.EngineReady,
+      SimulationWarmState.Warming -> "Preparing simulations…"
+      SimulationWarmState.ModuleReady -> {
+        val moduleLabel = modules.getOrNull(homeModulePage)?.number ?: "Module 1"
+        "$moduleLabel simulation ready"
+      }
+    }
+    Box(
+      modifier = Modifier
+        .align(Alignment.BottomCenter)
+        .padding(bottom = 12.dp)
+    ) {
+      Text(
+        text = warmLabel,
+        color = White.copy(alpha = 0.72f),
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Medium
+      )
     }
 
     if (profileMenuOpen) {

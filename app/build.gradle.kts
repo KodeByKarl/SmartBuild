@@ -59,6 +59,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        // Phones only. The Godot engine is ~70 MB per ABI; x86 builds are emulator-only.
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
+
         buildConfigField("String", "SUPABASE_URL", "\"${escapeBuildConfigString(supabaseUrl)}\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${escapeBuildConfigString(supabaseAnonKey)}\"")
         buildConfigField("String", "SUPABASE_AUTH_SCHEME", "\"${escapeBuildConfigString(supabaseAuthScheme)}\"")
@@ -85,6 +90,12 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    packaging {
+        jniLibs {
+            // Compress libgodot_android.so inside the APK (~70 MB -> ~20 MB per ABI).
+            useLegacyPackaging = true
+        }
     }
 }
 

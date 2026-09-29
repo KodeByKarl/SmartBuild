@@ -36,6 +36,7 @@ import androidx.navigation.NavHostController
 import com.example.smart_build.SmartBuildBridge
 import com.example.smart_build.components.ModuleName
 import com.example.smart_build.data.ModuleProgressStore
+import com.example.smart_build.data.ReturnToModule
 import com.example.smart_build.navigation.Routes
 import com.example.smart_build.ui.theme.Black
 import com.example.smart_build.ui.theme.GSFlex
@@ -72,6 +73,14 @@ fun ModulePage(
   var prepareAttempt by remember { mutableStateOf(0) }
   var acceptModuleEvents by remember { mutableStateOf(false) }
 
+  fun returnToModuleCard() {
+    ReturnToModule.mark(moduleId)
+    val returned = navController.popBackStack()
+    if (!returned) {
+      navController.navigate(Routes.HomePage.route) { launchSingleTop = true }
+    }
+  }
+
   DisposableEffect(Unit) {
     onDispose { SmartBuildBridge.setGodotSurfaceVisible(false) }
   }
@@ -101,7 +110,11 @@ fun ModulePage(
     }
 
     if (!SmartBuildBridge.engineInitialized) {
-      loadingMessage = "STARTING SIMULATION ENGINE..."
+      loadingMessage = if (SmartBuildBridge.priorityWarmupReady) {
+        "OPENING MODULE…"
+      } else {
+        "STARTING SIMULATION ENGINE..."
+      }
       val engineReady = withTimeoutOrNull(ENGINE_WAIT_MS) {
         while (!SmartBuildBridge.engineInitialized) {
           delay(250)
@@ -132,7 +145,11 @@ fun ModulePage(
       }
       yield()
       viewModel.prepareGodot(moduleId, simulationType, progress)
-      loadingMessage = "LOADING MODULE $moduleId..."
+      loadingMessage = if (SmartBuildBridge.priorityWarmupReady && moduleId == 1) {
+        "OPENING MODULE 1…"
+      } else {
+        "LOADING MODULE $moduleId..."
+      }
 
       val ack = withTimeoutOrNull(PREPARE_ACK_MS) { ackDeferred.await() }
       val event = ack?.optString("event")
@@ -173,20 +190,14 @@ fun ModulePage(
         "destroy" -> {
           if (eventModuleId != -1 && eventModuleId != moduleId) return@LaunchedEffect
           if (!acceptModuleEvents) return@LaunchedEffect
-          val returned = navController.popBackStack(Routes.HomePage.route, inclusive = false)
-          if (!returned) {
-            navController.navigate(Routes.HomePage.route) { launchSingleTop = true }
-          }
+          returnToModuleCard()
         }
 
         "guided_completed" -> {
           if (eventModuleId != moduleId || !acceptModuleEvents) return@LaunchedEffect
           ModuleProgressStore.markGuidedCompleted(context, moduleId)
           Toast.makeText(context, "Guided Simulation saved. Assessment unlocked (same pages, no guides).", Toast.LENGTH_SHORT).show()
-          val returned = navController.popBackStack(Routes.HomePage.route, inclusive = false)
-          if (!returned) {
-            navController.navigate(Routes.HomePage.route) { launchSingleTop = true }
-          }
+          returnToModuleCard()
         }
 
         "assessment_completed" -> {
@@ -197,10 +208,7 @@ fun ModulePage(
             ModuleProgressStore.markAssessmentCompleted(context, moduleId)
           }
           Toast.makeText(context, "Module marked complete.", Toast.LENGTH_SHORT).show()
-          val returned = navController.popBackStack(Routes.HomePage.route, inclusive = false)
-          if (!returned) {
-            navController.navigate(Routes.HomePage.route) { launchSingleTop = true }
-          }
+          returnToModuleCard()
         }
 
         "progress_update" -> {
@@ -209,6 +217,13 @@ fun ModulePage(
           if (percent >= 0f) {
             ModuleProgressStore.setProgressPercent(context, moduleId, percent)
           }
+        }
+
+        "progress_reset", "retake" -> {
+          // Retake from last page — clear saved progress so reopen starts at page 1.
+          if (eventModuleId != moduleId) return@LaunchedEffect
+          ModuleProgressStore.resetForRetake(context, moduleId)
+          Toast.makeText(context, "Progress reset. Module restarts from the beginning.", Toast.LENGTH_SHORT).show()
         }
 
         "engine_initialized" -> {
@@ -317,8 +332,8 @@ fun ModulePage(
             Text("Try again")
           }
           Spacer(Modifier.size((MAX_HEIGHT.value * 0.015f).dp))
-          Button(onClick = { navController.popBackStack() }) {
-            Text("Back to Home")
+          Button(onClick = { returnToModuleCard() }) {
+            Text("Back")
           }
         }
       }

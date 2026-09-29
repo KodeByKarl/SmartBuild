@@ -88,7 +88,7 @@ fun PartCard(
       }
     }
     Text(
-      text = part.title.uppercase(),
+      text = part.title,
       color = White,
       fontWeight = FontWeight.Bold,
       fontSize = 16.sp,

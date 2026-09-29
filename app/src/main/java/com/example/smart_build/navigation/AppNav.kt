@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.smart_build.screens.authenticationpage.AuthPage
+import com.example.smart_build.screens.composemodule.ComposeModuleScreen
 import com.example.smart_build.screens.homepage.HomePage
 import com.example.smart_build.screens.modulepage.ModulePage
 import com.example.smart_build.screens.search.ComponentSearchPage
@@ -67,15 +68,27 @@ fun AppNav(navController: NavHostController, authViewModel1: AuthViewModel) {
       ComponentSearchPage(navController)
     }
     composable(
+      route = Routes.ComposeModule.route,
+      arguments = listOf(
+        navArgument("moduleId") { type = NavType.IntType },
+        navArgument("simulationType") { type = NavType.IntType },
+      ),
+    ) { entry ->
+      ComposeModuleScreen(
+        navController = navController,
+        moduleId = entry.arguments!!.getInt("moduleId"),
+        simulationType = entry.arguments!!.getInt("simulationType"),
+      )
+    }
+    composable(
       route = Routes.ModulePage.route,
       arguments = listOf(
         navArgument("moduleId") { type = NavType.IntType },
         navArgument("moduleName") { type = NavType.StringType },
         navArgument("simulationType") { type = NavType.IntType },
-        navArgument("progress") { type = NavType.FloatType }
-      )
+        navArgument("progress") { type = NavType.FloatType },
+      ),
     ) { backStackEntry ->
-
       val moduleId = backStackEntry.arguments?.getInt("moduleId")
       val moduleName = backStackEntry.arguments?.getString("moduleName")
       val simulationType = backStackEntry.arguments?.getInt("simulationType")
@@ -86,7 +99,7 @@ fun AppNav(navController: NavHostController, authViewModel1: AuthViewModel) {
         moduleId = moduleId!!,
         moduleName = moduleName!!,
         simulationType = simulationType!!,
-        progress = progress!!
+        progress = progress!!,
       )
     }
   }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -90,7 +91,7 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                 Text(
                   "Authenticate to sync your progress to the server.",
                   style = Typography.labelLarge,
-                  fontSize = readableSp(maxWidthScreen, 0.011f, 14f),
+                  fontSize = readableSp(maxWidthScreen, 0.011f, 16f),
                   color = White.copy(alpha = 0.7f)
                 )
               }
@@ -105,7 +106,7 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                 Text(
                   "Create an account to save and sync your progress across your devices.",
                   style = Typography.labelLarge,
-                  fontSize = readableSp(maxWidthScreen, 0.011f, 14f),
+                  fontSize = readableSp(maxWidthScreen, 0.011f, 16f),
                   color = White.copy(alpha = 0.7f)
                 )
               }
@@ -145,7 +146,7 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                     authError.message,
                     style = Typography.bodySmall.copy(
                       color = if (uiState is AuthStatusState.Error) Color.Red else Primary,
-                      fontSize = readableSp(maxWidthScreen, 0.011f, 14f),
+                      fontSize = readableSp(maxWidthScreen, 0.011f, 16f),
                       lineHeight = 18.sp,
                     ),
                     modifier = Modifier.padding(top = 2.dp),
@@ -194,7 +195,7 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                     authError.message,
                     style = Typography.bodySmall.copy(
                       color = Color.Red,
-                      fontSize = readableSp(maxWidthScreen, 0.011f, 14f),
+                      fontSize = readableSp(maxWidthScreen, 0.011f, 16f),
                       lineHeight = 18.sp,
                     ),
                     modifier = Modifier.padding(top = 2.dp),
@@ -211,9 +212,9 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                   if(authMode == AuthMode.SignIn) viewModel.signIn(signInFormState.email, signInFormState.password) else viewModel.signUp(signInFormState.email, signInFormState.password)
                 },
                 enabled = uiState != AuthStatusState.Submitting && formState is AuthFormState.SignIn,
-                contentPadding = PaddingValues(horizontal = (maxWidthScreen.value * 0.016f).dp, vertical = (maxHeightScreen.value * 0.02f).dp),
+                contentPadding = PaddingValues(horizontal = (maxWidthScreen.value * 0.016f).dp, vertical = 10.dp),
                 shape = RoundedCornerShape((maxWidthScreen.value * 0.013f).dp),
-                modifier = Modifier.height((maxHeightScreen.value * 0.07f).dp),
+                modifier = Modifier.heightIn(min = 48.dp),
                 colors = ButtonColors(
                   containerColor = Primary,
                   contentColor = White,
@@ -259,9 +260,9 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                   viewModel.changeAuthMode(if(authMode == AuthMode.SignIn) AuthMode.SignUp else AuthMode.SignIn)
                 },
                 enabled = uiState != AuthStatusState.Submitting && formState is AuthFormState.SignIn,
-                contentPadding = PaddingValues(horizontal = (maxWidthScreen.value * 0.016f).dp, vertical = (maxHeightScreen.value * 0.02f).dp),
+                contentPadding = PaddingValues(horizontal = (maxWidthScreen.value * 0.016f).dp, vertical = 10.dp),
                 shape = RoundedCornerShape((maxWidthScreen.value * 0.013f).dp),
-                modifier = Modifier.height((maxHeightScreen.value * 0.07f).dp),
+                modifier = Modifier.heightIn(min = 48.dp),
                 colors = ButtonDefaults.buttonColors(
                   containerColor = White.copy(alpha = 0.4f),
                   contentColor = Primary.copy(alpha = 0.4f)
@@ -301,9 +302,9 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
               TextButton(
                 onClick = {viewModel.onChangeAuthFormState(AuthFormState.ForgotPassword)},
                 enabled = uiState != AuthStatusState.Submitting && formState is AuthFormState.SignIn,
-                contentPadding = PaddingValues(horizontal = (maxWidthScreen.value * 0.016f).dp, vertical = (maxHeightScreen.value * 0.02f).dp),
+                contentPadding = PaddingValues(horizontal = (maxWidthScreen.value * 0.016f).dp, vertical = 10.dp),
                 shape = RoundedCornerShape((maxWidthScreen.value * 0.013f).dp),
-                modifier = Modifier.height((maxHeightScreen.value * 0.07f).dp),
+                modifier = Modifier.heightIn(min = 48.dp),
               ) {
                 Text(
                   "Forgot Password?",

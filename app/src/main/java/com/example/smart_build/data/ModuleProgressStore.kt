@@ -74,6 +74,21 @@ object ModuleProgressStore {
   }
 
   /**
+   * Retake: wipe this module's saved progress so Guided/Assessment reopen at page 1.
+   * Monotonic [setProgressPercent] cannot go backwards — Retake must call this.
+   */
+  fun resetForRetake(context: Context, moduleId: Int) {
+    migrateIfNeeded(context)
+    prefs(context).edit()
+      .putFloat(progressKey(moduleId), 0f)
+      .putBoolean(guidedKey(moduleId), false)
+      .putBoolean(assessmentKey(moduleId), false)
+      .commit()
+    pushAsync(context, moduleId)
+    Log.d(TAG, "resetForRetake module=$moduleId")
+  }
+
+  /**
    * Update percent from in-module page progress (monotonic — never decreases).
    * Caps at 99% — only markAssessmentCompleted may set 100%.
    */
@@ -83,7 +98,8 @@ object ModuleProgressStore {
     val p = prefs(context)
     val current = p.getFloat(progressKey(moduleId), 0f)
     val next = maxOf(current, percent.coerceIn(0f, 99f))
-    p.edit().putFloat(progressKey(moduleId), next).apply()
+    // commit(): Home may read immediately after Godot progress_update / popBackStack.
+    p.edit().putFloat(progressKey(moduleId), next).commit()
     pushAsync(context, moduleId)
   }
 
@@ -94,7 +110,7 @@ object ModuleProgressStore {
     p.edit()
       .putBoolean(guidedKey(moduleId), true)
       .putFloat(progressKey(moduleId), maxOf(current, 50f).coerceAtMost(99f))
-      .apply()
+      .commit()
     pushAsync(context, moduleId)
   }
 
@@ -104,7 +120,7 @@ object ModuleProgressStore {
       .putBoolean(guidedKey(moduleId), true)
       .putBoolean(assessmentKey(moduleId), true)
       .putFloat(progressKey(moduleId), 100f)
-      .apply()
+      .commit()
     pushAsync(context, moduleId)
   }
 

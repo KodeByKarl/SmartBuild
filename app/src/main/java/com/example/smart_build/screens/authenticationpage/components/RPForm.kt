@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -71,7 +72,7 @@ fun RPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
           Text(
             "Enter your new password and do not lose it!",
             style = Typography.labelLarge,
-            fontSize = readableSp(maxWidthScreen, 0.011f, 14f),
+            fontSize = readableSp(maxWidthScreen, 0.011f, 16f),
             color = White.copy(alpha = 0.7f)
           )
         }
@@ -100,7 +101,7 @@ fun RPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
                   authError.message,
                     style = Typography.bodySmall.copy(
                       color = if (authState is AuthStatusState.Error) Color.Red else Primary,
-                      fontSize = readableSp(maxWidthScreen, 0.011f, 14f),
+                      fontSize = readableSp(maxWidthScreen, 0.011f, 16f),
                       lineHeight = 18.sp,
                     ),
                     modifier = Modifier.padding(top = 2.dp),
@@ -114,10 +115,10 @@ fun RPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
             onClick = {
               viewModel.resetPassword(rpFormState.password)
             },
-            contentPadding = PaddingValues(horizontal = (maxWidthScreen.value * 0.016f).dp, vertical = (maxHeightScreen.value * 0.02f).dp),
+            contentPadding = PaddingValues(horizontal = (maxWidthScreen.value * 0.016f).dp, vertical = 10.dp),
             enabled = authState != AuthStatusState.Submitting && formState is AuthFormState.ResetPassword,
             shape = RoundedCornerShape((maxWidthScreen.value * 0.013f).dp),
-            modifier = Modifier.height((maxHeightScreen.value * 0.07f).dp),
+            modifier = Modifier.heightIn(min = 48.dp),
             colors = ButtonColors(
               containerColor = Primary,
               contentColor = White,

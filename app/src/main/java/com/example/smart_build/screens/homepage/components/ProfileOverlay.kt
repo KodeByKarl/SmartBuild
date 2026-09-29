@@ -115,7 +115,7 @@ fun ProfileOverlay(
 //          text = "myhoneybunchsweetiepie@example.com",
           text = "${viewModel.emailAdd}",
           color = Black.copy(alpha = 0.85f),
-          fontSize = readableSp(maxWidth, 0.011f, 14f),
+          fontSize = readableSp(maxWidth, 0.011f, 15f),
           fontWeight = FontWeight.Medium
         )
       }

@@ -139,16 +139,42 @@ object CssPartsCatalog {
     ),
     CssPart(
       id = "case",
-      title = "System Unit / Case",
+      title = "Computer Case",
       category = "Core Hardware",
       summary = "Enclosure that mounts the board, drives, PSU, and cooling.",
-      overview = "The case provides structure, airflow paths, front I/O, and drive bays. Form factor must match the motherboard.",
+      overview = "The case provides structure, airflow paths, front I/O, and drive bays. Form factor must match the motherboard. Panelists expect Case as a core assembly component.",
       howItWorks = "Intake/exhaust fans move air across CPU and GPU heatsinks. Cable management improves cooling and serviceability.",
-      cssUse = "Assembly order in CSS training includes preparing the chassis, installing PSU and motherboard, then routing cables.",
+      cssUse = "Assembly order in CSS training includes preparing the chassis, installing PSU and motherboard, then routing cables before closing the side panel.",
       commonIssues = "Missing standoffs, blocked airflow, sharp edges cutting cables, front-panel connectors miswired.",
       technicianTips = "Photograph front-panel pinouts before disconnecting. Keep intake filters clean during maintenance.",
       relatedModules = listOf(0, 1, 4),
       imageRes = R.drawable.card_system_unit,
+    ),
+    CssPart(
+      id = "cpu_fan",
+      title = "CPU Fan & Heatsink",
+      category = "Core Hardware",
+      summary = "Cools the processor after it is seated in the socket.",
+      overview = "A CPU cooler combines a heatsink and fan (or AIO radiator). It clamps over the CPU and draws heat away so the system can POST and run under load.",
+      howItWorks = "Thermal paste fills microscopic gaps between the IHS and cooler base. The fan pulls air through the fins; the fan header (CPU_FAN) reports RPM to the board.",
+      cssUse = "Module 1 assemble/disassemble requires seating the cooler after the CPU and connecting the fan cable to the correct header.",
+      commonIssues = "Uneven mounting pressure, forgotten paste, wrong bracket, fan cable on CHA_FAN instead of CPU_FAN, overheating after rebuild.",
+      technicianTips = "Mount with even torque. Confirm the cooler does not rock. Plug the fan into CPU_FAN before first power-on.",
+      relatedModules = listOf(0, 1, 4),
+      imageRes = R.drawable.card_cooling,
+    ),
+    CssPart(
+      id = "optical_drive",
+      title = "Optical Drive (ODD)",
+      category = "Core Hardware",
+      summary = "Front 5.25\" bay drive for CDs/DVDs used in some CSS labs and legacy installs.",
+      overview = "Optical disc drives read (and sometimes write) optical media. Many modern towers omit them, but panelists and older TESDA labs still list Optical Drive among core installable parts.",
+      howItWorks = "A laser assembly reads pits/lands on the disc. SATA data and power cables connect the drive to the motherboard and PSU like other internal storage.",
+      cssUse = "When present, mount in a 5.25\" bay after the chassis is prepared, then route SATA data/power. SmartBuild documents this part in Search; the 3D bench focuses on PSU/MB/CPU/CPU Fan/RAM/HDD/Case Cover first.",
+      commonIssues = "Missing SATA power, wrong bay screws, dusty lens, disabled optical controller in BIOS.",
+      technicianTips = "If the build has no ODD, document N/A — do not force a drive into a case without a bay. Keep a known-good SATA cable in the toolkit.",
+      relatedModules = listOf(0, 1),
+      imageRes = R.drawable.card_storage,
     ),
     CssPart(
       id = "antistatic",
@@ -501,6 +527,6 @@ object CssPartsCatalog {
         part.category.lowercase().contains(needle) ||
         part.overview.lowercase().contains(needle) ||
         part.cssUse.lowercase().contains(needle)
-    }
+    }.sortedBy { it.title.lowercase() }
   }
 }

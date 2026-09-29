@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.sp
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Typography
 import com.example.smart_build.ui.theme.White
+import com.example.smart_build.ui.theme.lineGap
+import com.example.smart_build.ui.theme.readableSp
 
 @Composable
 fun BenefitItem(
@@ -37,11 +39,13 @@ fun BenefitItem(
       modifier = Modifier.width((maxWidth.value * 0.009f).dp)
     )
 
+    val itemSize = readableSp(maxWidth, 0.016f, 16f)
     Text(
       text = text,
       style = Typography.headlineMedium.copy(fontFamily = GSFlex),
       color = White.copy(alpha = 0.70f),
-      fontSize = (maxWidth.value * 0.017f).sp
+      fontSize = itemSize,
+      lineHeight = itemSize.lineGap(1.4f)
     )
   }
 }
