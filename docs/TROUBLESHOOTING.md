@@ -14,7 +14,8 @@ For live debugging, connect the phone by USB and filter Logcat (Android Studio) 
 |---|---|---|
 | `JAVA_HOME is not set and no 'java' command could be found` | The Gradle wrapper needs a JDK to start | `$env:JAVA_HOME = "D:\Porjects\Smartbuild\tools\jdk\jdk-17.0.20.1+1"` (or Android Studio's `jbr`), or build from Android Studio |
 | `Gradle JVM ... org.gradle.java.home ... does not exist` | `gradle.properties` points to a JDK path from the original machine | Edit or delete `org.gradle.java.home` in `SmartBuild/gradle.properties` |
-| `Missing SmartBuildGodot.pck` | The `.pck` is gitignored and was never exported on this machine | Export it: [SETUP_AND_BUILD §4](./SETUP_AND_BUILD.md#4-export-the-godot-pack) |
+| `:app:checkGodotPack` fails: `Missing SmartBuildGodot.pck ... automatic download failed` | The `.pck` is gitignored, and the build could not download it (no internet, proxy/firewall, or an old clone without auto-download) | `git pull` first. Otherwise download `SmartBuildGodot.pck` from the [v2.1 release](https://github.com/KodeByKarl/SmartBuild/releases/tag/v2.1) into `app/src/main/assets/`. See [SETUP_AND_BUILD §4](./SETUP_AND_BUILD.md#4-export-the-godot-pack) |
+| `Downloaded pack has SHA-256 ..., expected ...` | The file on the release no longer matches `godotPackSha256` in `app/build.gradle.kts` | Update `godotPackUrl` / `godotPackSha256` to the current release (SETUP_AND_BUILD §4) |
 | Build succeeds with a warning about empty `SUPABASE_URL` | `secrets.properties` missing | Create it from `secrets.properties.example`; the app crashes at start-up without it |
 | `SDK location not found` | No `local.properties` | Open the project once in Android Studio, or create `local.properties` with `sdk.dir=...` |
 | `compileSdk 37.1 ... not installed` | Missing SDK platform | Android Studio → SDK Manager → install API 37 |

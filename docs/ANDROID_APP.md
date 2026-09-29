@@ -23,7 +23,7 @@ unless stated otherwise.
 | Native libs | `useLegacyPackaging = true` (Godot `.so` stored compressed, ~20 MB/ABI instead of ~70 MB) | `packaging.jniLibs` |
 | Assets | `ignoreAssetsPattern` overridden so Godot's hidden files are packaged | `aaptOptions` |
 | Secrets → BuildConfig | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_AUTH_SCHEME` (default `smartbuild`), `SUPABASE_AUTH_HOST` (default `auth`) | `loadSmartBuildSecrets()` / `secretOrEnv()` — environment variable first, then `secrets.properties` |
-| Custom task | `checkGodotPack` — fails if `src/main/assets/SmartBuildGodot.pck` is missing or < 1 KB; `preBuild` depends on it | `app/build.gradle.kts` |
+| Custom task | `checkGodotPack` — if `src/main/assets/SmartBuildGodot.pck` is missing or < 1 KB, downloads it from `godotPackUrl` (GitHub release) and checks `godotPackSha256`; fails with instructions if that is impossible. `preBuild` depends on it | `app/build.gradle.kts` |
 | Signing | `signingConfigs.release` reads `SmartBuild/keystore.properties` (gitignored). Without that file, release builds are unsigned and debug builds use the debug key | see [RELEASE](./RELEASE.md) |
 
 Main libraries: Compose BOM 2026.06.01, Material 3, material-icons-extended 1.7.8,

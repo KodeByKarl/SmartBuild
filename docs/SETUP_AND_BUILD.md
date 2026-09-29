@@ -6,12 +6,16 @@ How to get from a fresh Windows machine to an installable APK. For signed releas
 The product is the Compose Android app, built with Gradle. The supporting Godot content
 (Module 0–1 visuals) is packed into one asset file that Gradle copies into the APK:
 
-1. Export the supporting Godot content to `SmartBuildGodot.pck` (only needed when those
-   files change, or on a fresh clone).
+1. Get `SmartBuildGodot.pck`. On a fresh clone **the build downloads it automatically** from
+   the GitHub release; you only export it yourself after changing the Godot content.
 2. Build the Android app with Gradle.
+
+**Quick start (fresh clone):** open `SmartBuild/` in Android Studio, create
+`secrets.properties` (§3), then Run. The first build downloads the pack (~60 MB).
 
 ```mermaid
 flowchart LR
+  R["GitHub release asset<br/>(auto-download on fresh clone)"] --> P
   G["SmartBuild-Godot/<br/>(Godot 4.7.2)"] -->|export-pack| P["SmartBuild/app/src/main/assets/<br/>SmartBuildGodot.pck"]
   P --> A["Gradle assembleDebug / bundleRelease"]
   K["SmartBuild/ Kotlin sources"] --> A
@@ -95,8 +99,22 @@ session from the Android app. Copy `config/env.example` to `config/env.local`. D
 
 ## 4. Export the Godot pack
 
-Needed after **any** change inside `SmartBuild-Godot/`, and on a fresh clone (the `.pck` is
-gitignored). The Gradle task `checkGodotPack` fails the build if the file is missing.
+The `.pck` (~60 MB) is too large for the repository (it is gitignored), so the current pack
+is published as an asset of the GitHub release
+[v2.1](https://github.com/KodeByKarl/SmartBuild/releases/tag/v2.1).
+
+**Fresh clone — nothing to do.** Before every build, the Gradle task `checkGodotPack` checks
+`app/src/main/assets/SmartBuildGodot.pck`. If it is missing it downloads the release asset,
+verifies its SHA-256, and continues. If there is no internet (or GitHub is blocked), download
+the file manually from the release page into `app/src/main/assets/`.
+
+**After changing the Godot content** you must export a new pack with one of the options
+below. To make it the default for everyone who clones the repo:
+
+1. Upload it to a new GitHub release (e.g. `gh release create v2.2 app\src\main\assets\SmartBuildGodot.pck`).
+2. In `app/build.gradle.kts`, update `godotPackUrl` (new tag) and `godotPackSha256`
+   (`(Get-FileHash app\src\main\assets\SmartBuildGodot.pck).Hash.ToLower()`).
+3. Commit and push.
 
 ### Option A — script
 
@@ -161,7 +179,7 @@ Useful tasks:
 | `:app:bundleRelease` | Release AAB (needs signing — see [RELEASE](./RELEASE.md)) |
 | `:app:testDebugUnitTest` | JVM unit tests |
 | `:app:connectedDebugAndroidTest` | Instrumented tests on a phone |
-| `:app:checkGodotPack` | Verifies the `.pck` exists (runs automatically before every build) |
+| `:app:checkGodotPack` | Downloads the `.pck` from the GitHub release if it is missing (runs automatically before every build) |
 
 If Gradle says everything is `UP-TO-DATE` but the APK is missing, force packaging:
 `.\gradlew.bat :app:packageDebug --rerun`.

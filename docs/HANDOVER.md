@@ -11,7 +11,7 @@ must change hands, and what the new owner should do after receiving the system.
 |---|---|---|
 | Android app source (main system) | `SmartBuild/` | Kotlin + Jetpack Compose. Git remote `https://github.com/KodeByKarl/SmartBuild.git`, branch `master` |
 | Supporting Godot content source | `SmartBuild-Godot/` | Godot 4.7.2 visual content for Modules 0 and 1. Git remote `https://github.com/KodeByKarl/SmartBuild-Godot.git` |
-| Exported support pack | `SmartBuild/app/src/main/assets/SmartBuildGodot.pck` | About 60 MB. Gitignored — it must be re-exported from `SmartBuild-Godot/` or copied by hand |
+| Exported support pack | `SmartBuild/app/src/main/assets/SmartBuildGodot.pck` | About 60 MB. Gitignored; published on the GitHub release [v2.1](https://github.com/KodeByKarl/SmartBuild/releases/tag/v2.1) and downloaded automatically by the build |
 | **Official APK** | `release/SmartBuild-V2.1.apk` | Release-signed, about 132 MB. Package `com.smartbuild.app`, version `V2.1` (versionCode 3) |
 | Release keystore | `release-keys/` (`smartbuild-release.jks` + `keystore.properties`) | Signs every official build. Not in Git — see section 4 |
 | Build tools | `tools/jdk/jdk-17.0.20.1+1/`, `tools/godot/Godot_v4.7.2-stable_win64.exe` | Exact tool versions used to build the project |

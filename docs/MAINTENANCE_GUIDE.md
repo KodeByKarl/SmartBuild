@@ -7,7 +7,8 @@ Rebuild rules:
 
 - Changed **Kotlin** (`SmartBuild/`) → rebuild the APK.
 - Changed **Godot** (`SmartBuild-Godot/`) → run the regression probe → export the `.pck` →
-  rebuild the APK. See [SETUP_AND_BUILD §4](./SETUP_AND_BUILD.md#4-export-the-godot-pack).
+  rebuild the APK → publish the new `.pck` on a GitHub release and update `godotPackUrl` /
+  `godotPackSha256`, so fresh clones get it. See [SETUP_AND_BUILD §4](./SETUP_AND_BUILD.md#4-export-the-godot-pack).
 
 Kotlin paths are relative to `SmartBuild/app/src/main/java/com/example/smart_build/`.
 

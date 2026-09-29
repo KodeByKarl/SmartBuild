@@ -1,3 +1,7 @@
+import java.net.URI
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.security.MessageDigest
 import java.util.Properties
 
 plugins {
@@ -154,15 +158,46 @@ dependencies {
 }
 
 val godotPack = file("src/main/assets/SmartBuildGodot.pck")
+// Update both values when a new pack is published as a GitHub Release asset.
+val godotPackUrl = "https://github.com/KodeByKarl/SmartBuild/releases/download/v2.1/SmartBuildGodot.pck"
+val godotPackSha256 = "70a991b9a4ec5f4caa0b8e0d3494627feb56d64d390b50eaeafb7d970903ff7a"
 
 tasks.register("checkGodotPack") {
     group = "verification"
-    description = "Fails the build if the embedded Godot pack is missing."
+    description = "Downloads the embedded Godot pack from the GitHub release if it is missing."
     doLast {
-        if (!godotPack.exists() || godotPack.length() < 1024L) {
+        if (godotPack.exists() && godotPack.length() >= 1024L) {
+            return@doLast
+        }
+        logger.lifecycle("SmartBuildGodot.pck is missing - downloading $godotPackUrl")
+        godotPack.parentFile.mkdirs()
+        val partial = File(godotPack.path + ".download")
+        try {
+            URI(godotPackUrl).toURL().openStream().use { input ->
+                partial.outputStream().use { output -> input.copyTo(output) }
+            }
+            val digest = MessageDigest.getInstance("SHA-256")
+            partial.inputStream().use { input ->
+                val buffer = ByteArray(1 shl 16)
+                while (true) {
+                    val read = input.read(buffer)
+                    if (read < 0) break
+                    digest.update(buffer, 0, read)
+                }
+            }
+            val actual = digest.digest().joinToString("") { byte -> "%02x".format(byte) }
+            if (actual != godotPackSha256) {
+                throw GradleException("Downloaded pack has SHA-256 $actual, expected $godotPackSha256.")
+            }
+            Files.move(partial.toPath(), godotPack.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            logger.lifecycle("SmartBuildGodot.pck downloaded and verified.")
+        } catch (e: Exception) {
+            partial.delete()
             throw GradleException(
-                "Missing SmartBuildGodot.pck (${godotPack.path}). " +
-                    "Export it from SmartBuild-Godot: .\\tools\\export_android_pck.ps1"
+                "Missing SmartBuildGodot.pck (${godotPack.path}) and the automatic download failed. " +
+                    "Download it manually from $godotPackUrl into app/src/main/assets/, " +
+                    "or export it from SmartBuild-Godot: .\\tools\\export_android_pck.ps1",
+                e,
             )
         }
     }
