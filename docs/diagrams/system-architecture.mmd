@@ -1,0 +1,55 @@
+%%{init: {"theme": "base", "layout": "elk", "flowchart": {"curve": "basis", "nodeSpacing": 40, "rankSpacing": 55}, "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "15px", "primaryColor": "#E8F6FC", "primaryBorderColor": "#17A6DF", "primaryTextColor": "#011723", "lineColor": "#4A5A66", "clusterBkg": "#F7FBFD", "clusterBorder": "#17A6DF"}}}%%
+flowchart TB
+  User(["Student / Teacher"])
+
+  subgraph Device["Android Device"]
+    subgraph App["SmartBuild App — Kotlin + Jetpack Compose (main system)"]
+      direction TB
+      subgraph UI["Presentation Layer — Compose screens"]
+        direction LR
+        Auth["Authentication<br/>Log In · Register<br/>Forgot / Reset Password"]
+        Home["Home<br/>Module cards · Progress<br/>Help · Profile"]
+        Search["Component Search<br/>40 CSS parts in 8 categories"]
+        Modules["Module Screens<br/>Modules 0–4<br/>Guided Simulation · Scenario Assessment"]
+      end
+      subgraph Logic["Application Layer"]
+        direction LR
+        VM["ViewModels<br/>Auth · Home · Module"]
+        Nav["Navigation<br/>screen routes"]
+        Rules["Progress Rules<br/>unlock · 99% cap · retake"]
+        Conn["Connectivity Monitor"]
+      end
+      subgraph Data["Data Layer"]
+        direction LR
+        Store[("Local Progress Cache<br/>per account")]
+        Catalog[("Parts Catalog<br/>bundled content")]
+        Client["Supabase Client<br/>auth · database · functions"]
+      end
+      Support["Godot render support<br/>Module 0 slides · Module 1 3D visuals"]
+    end
+  end
+
+  subgraph Cloud["Supabase — Cloud Backend"]
+    direction LR
+    SAuth["Supabase Auth<br/>email + password (PKCE)"]
+    DB[("PostgreSQL<br/>module_progress table<br/>Row-Level Security")]
+    Fn["Edge Function<br/>delete-user"]
+    Mail["Email Service<br/>confirmation · password reset"]
+  end
+
+  User -->|touch input| UI
+  UI --> Logic
+  Logic --> Data
+  Modules -.->|display request / learner actions| Support
+  Client -->|HTTPS| SAuth
+  Client -->|HTTPS · REST| DB
+  Client -->|HTTPS| Fn
+  SAuth --> Mail
+  Mail -.->|email link opens app<br/>smartbuild://auth| Auth
+
+  classDef support fill:#F3F4F5,stroke:#9AA5AD,stroke-dasharray:5 4,color:#4A5A66,font-size:13px
+  classDef cloud fill:#EEF9EE,stroke:#3E9B4F,color:#1D3B22
+  classDef actor fill:#011723,stroke:#011723,color:#FFFFFF
+  class Support support
+  class SAuth,DB,Fn,Mail cloud
+  class User actor

@@ -16,7 +16,7 @@ This folder is the complete handover documentation for the system.
 
 | If you are… | Read, in order |
 |---|---|
-| **The client / project owner** | [HANDOVER](./HANDOVER.md) → [BACKEND](./BACKEND.md) → [WORKFLOW](./WORKFLOW.md) → [USER_MANUAL](./USER_MANUAL.md) |
+| **The client / project owner** | [HANDOVER](./HANDOVER.md) → [DIAGRAMS](./DIAGRAMS.md) → [BACKEND](./BACKEND.md) → [WORKFLOW](./WORKFLOW.md) → [USER_MANUAL](./USER_MANUAL.md) |
 | **A panelist / teacher** | [WORKFLOW](./WORKFLOW.md) → [MODULE_REFERENCE](./MODULE_REFERENCE.md) → [USER_MANUAL](./USER_MANUAL.md) |
 | **A student** | [USER_MANUAL](./USER_MANUAL.md) |
 | **A developer taking over the code** | [ARCHITECTURE](./ARCHITECTURE.md) → [SETUP_AND_BUILD](./SETUP_AND_BUILD.md) → [ANDROID_APP](./ANDROID_APP.md) → [MAINTENANCE_GUIDE](./MAINTENANCE_GUIDE.md) → [KNOWN_ISSUES](./KNOWN_ISSUES.md) |
@@ -47,6 +47,7 @@ This folder is the complete handover documentation for the system.
 
 | Document | What it covers |
 |---|---|
+| [DIAGRAMS.md](./DIAGRAMS.md) | System Architecture, Use Case and System Flowchart (PNG/SVG + editable sources) |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | System overview, tech stack, runtime flow, how Compose drives the Godot support layer |
 | [SETUP_AND_BUILD.md](./SETUP_AND_BUILD.md) | Tools to install, secrets, building the Godot pack and the APK, tests |
 | [ANDROID_APP.md](./ANDROID_APP.md) | Main system code map (Kotlin / Jetpack Compose): navigation, auth, progress, labs |

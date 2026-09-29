@@ -1,0 +1,77 @@
+@startuml use-case
+!pragma layout smetana
+left to right direction
+skinparam dpi 200
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam ArrowColor #4A5A66
+skinparam ActorBorderColor #011723
+skinparam ActorBackgroundColor #FFFFFF
+skinparam UsecaseBackgroundColor #E8F6FC
+skinparam UsecaseBorderColor #17A6DF
+skinparam RectangleBorderColor #011723
+skinparam RectangleFontSize 15
+skinparam NoteBackgroundColor #FFF6DD
+skinparam NoteBorderColor #D9A300
+
+title SmartBuild — Use Case Diagram
+
+actor "Student" as Student
+actor "Teacher /\nAdministrator" as Teacher
+actor "Supabase\n(Auth + Database)" as Supa <<system>>
+
+Teacher --|> Student
+
+rectangle "SmartBuild System" {
+  usecase "Register account" as UC1
+  usecase "Confirm email" as UC2
+  usecase "Log in" as UC3
+  usecase "Reset forgotten\npassword" as UC4
+  usecase "Log out" as UC5
+  usecase "Delete account" as UC6
+  usecase "View modules\nand progress" as UC7
+  usecase "Study Module 0\nlesson" as UC8
+  usecase "Take Guided\nSimulation" as UC9
+  usecase "Take Scenario\nAssessment\n(after Guided)" as UC10
+  usecase "Perform module tasks\n(PC assembly, network cabling,\nserver setup, maintenance)" as UC11
+  usecase "Save and sync\nprogress" as UC12
+  usecase "Retake module" as UC13
+  usecase "Search computer\ncomponents" as UC14
+  usecase "View how-to-use\nhelp" as UC15
+  usecase "Monitor student\nprogress" as UC16
+  usecase "Manage user\naccounts" as UC17
+}
+
+Student -- UC1
+Student -- UC3
+Student -- UC5
+Student -- UC6
+Student -- UC7
+Student -- UC8
+Student -- UC9
+Student -- UC10
+Student -- UC13
+Student -- UC14
+Student -- UC15
+
+Teacher -- UC16
+Teacher -- UC17
+
+UC2 .> UC1 : <<extend>>
+UC4 .> UC3 : <<extend>>
+UC9 ..> UC11 : <<include>>
+UC10 ..> UC11 : <<include>>
+UC8 ..> UC12 : <<include>>
+UC9 ..> UC12 : <<include>>
+UC10 ..> UC12 : <<include>>
+
+UC1 -- Supa
+UC3 -- Supa
+UC4 -- Supa
+UC6 -- Supa
+UC12 -- Supa
+UC16 -- Supa
+UC17 -- Supa
+@enduml

@@ -1,0 +1,36 @@
+---
+title: "SmartBuild System Flowchart — Part 2: Taking a Module"
+---
+%%{init: {"theme": "base", "layout": "elk", "flowchart": {"curve": "linear", "nodeSpacing": 40, "rankSpacing": 45}, "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "14px", "primaryColor": "#E8F6FC", "primaryBorderColor": "#17A6DF", "primaryTextColor": "#011723", "lineColor": "#4A5A66"}}}%%
+flowchart TD
+  A(["A: from Part 1"]) --> M0{Module 0?}
+
+  M0 -- Yes --> Lesson[View lesson slides<br/>progress rises per slide,<br/>up to 99%]
+  Lesson --> Fin0{Reached the<br/>last slide?}
+  Fin0 -- "Yes, Proceed to Home" --> C0[Mark lesson complete<br/>progress 100%] --> Save
+  Fin0 -- "No, Back" --> Save
+
+  M0 -- "No (Modules 1–4)" --> Mode{Guided or<br/>Assessment?}
+  Mode -- Guided Simulation --> G[Start with hints<br/>and step guides]
+  Mode -- Scenario Assessment --> Unl{Guided<br/>completed?}
+  Unl -- No --> Notice[Notice: finish the<br/>Guided Simulation first] --> B2(["B: back to Home in Part 1"])
+  Unl -- Yes --> Brief[Show scenario brief<br/>no hints, planted faults]
+  G --> Task[/Perform task/]
+  Brief --> Task
+  Task --> Chk{Correct?}
+  Chk -- No --> FB[Show feedback<br/>what you did · expected · why] --> Task
+  Chk -- Yes --> More{All tasks<br/>finished?}
+  More -- No --> Task
+  More -- Exit early --> Save
+  More -- Yes --> Kind{Which mode?}
+  Kind -- Guided --> GD[Mark Guided complete<br/>progress at least 50%<br/>unlock Assessment] --> Save
+  Kind -- Assessment --> AD[Mark Assessment complete<br/>progress 100%] --> Save
+
+  Save[(Save progress on device<br/>and sync to Supabase)] --> B(["B: back to Home in Part 1"])
+
+  classDef decision fill:#FFF6DD,stroke:#D9A300,color:#3A2C00
+  classDef data fill:#EEF9EE,stroke:#3E9B4F,color:#1D3B22
+  classDef connector fill:#17A6DF,stroke:#0D6E96,color:#FFFFFF,font-weight:bold
+  class M0,Fin0,Mode,Unl,Chk,More,Kind decision
+  class Save data
+  class A,B,B2 connector

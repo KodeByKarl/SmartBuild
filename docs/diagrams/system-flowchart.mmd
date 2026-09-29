@@ -1,0 +1,34 @@
+---
+title: "SmartBuild System Flowchart — Part 1: Access, Authentication and Home"
+---
+%%{init: {"theme": "base", "layout": "elk", "flowchart": {"curve": "linear", "nodeSpacing": 40, "rankSpacing": 45}, "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "14px", "primaryColor": "#E8F6FC", "primaryBorderColor": "#17A6DF", "primaryTextColor": "#011723", "lineColor": "#4A5A66"}}}%%
+flowchart TD
+  Start([Start]) --> Open[/Open SmartBuild app/]
+  Open --> Net{Internet<br/>connected?}
+  Net -- No --> Lost[Show 'Connection lost'<br/>dialog and wait] --> Net
+  Net -- Yes --> Sess{Already<br/>signed in?}
+
+  Sess -- No --> Login[Log In screen]
+  Login --> Act{Choose action}
+  Act -- Log In --> Cred[/Enter email<br/>and password/] --> Valid{Valid and<br/>confirmed?}
+  Valid -- No --> Err[Show error message] --> Login
+  Act -- Register --> Reg[/Enter email and password<br/>at least 8 characters/] --> Conf[Confirm account<br/>through email link] --> Login
+  Act -- Forgot Password --> FP[/Enter email/] --> RL[Open reset link and<br/>set new password] --> Login
+
+  Valid -- Yes --> Home
+  Sess -- Yes --> Home[Home screen<br/>load and sync progress<br/>show module cards]
+  B(["B: back from Part 2"]) --> Home
+  Home --> Choice{Select}
+  Choice -- Module card --> A(["A: continue in Part 2"])
+  Choice -- Component Search --> Srch[Search or browse parts<br/>view part details] --> Home
+  Choice -- Profile --> Prof{Profile action}
+  Prof -- Log out --> Login
+  Prof -- Delete account --> Del[Confirm, then delete<br/>account and progress] --> Login
+  Choice -- Close app --> Stop([End])
+
+  classDef terminal fill:#011723,stroke:#011723,color:#FFFFFF
+  classDef decision fill:#FFF6DD,stroke:#D9A300,color:#3A2C00
+  classDef connector fill:#17A6DF,stroke:#0D6E96,color:#FFFFFF,font-weight:bold
+  class Start,Stop terminal
+  class Net,Sess,Act,Valid,Choice,Prof decision
+  class A,B connector
