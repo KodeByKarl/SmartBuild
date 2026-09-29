@@ -19,7 +19,7 @@ This folder is the complete handover documentation for the system.
 | **The client / project owner** | [HANDOVER](./HANDOVER.md) → [BACKEND](./BACKEND.md) → [WORKFLOW](./WORKFLOW.md) → [USER_MANUAL](./USER_MANUAL.md) |
 | **A panelist / teacher** | [WORKFLOW](./WORKFLOW.md) → [MODULE_REFERENCE](./MODULE_REFERENCE.md) → [USER_MANUAL](./USER_MANUAL.md) |
 | **A student** | [USER_MANUAL](./USER_MANUAL.md) |
-| **A developer taking over the code** | [ARCHITECTURE](./ARCHITECTURE.md) → [SETUP_AND_BUILD](./SETUP_AND_BUILD.md) → [ANDROID_APP](./ANDROID_APP.md) → [GODOT_PROJECT](./GODOT_PROJECT.md) → [MAINTENANCE_GUIDE](./MAINTENANCE_GUIDE.md) → [KNOWN_ISSUES](./KNOWN_ISSUES.md) |
+| **A developer taking over the code** | [ARCHITECTURE](./ARCHITECTURE.md) → [SETUP_AND_BUILD](./SETUP_AND_BUILD.md) → [ANDROID_APP](./ANDROID_APP.md) → [MAINTENANCE_GUIDE](./MAINTENANCE_GUIDE.md) → [KNOWN_ISSUES](./KNOWN_ISSUES.md) |
 | **Whoever publishes the app** | [RELEASE](./RELEASE.md) → [PLAYSTORE](./PLAYSTORE.md) → [SUPABASE](./SUPABASE.md) |
 
 ---
@@ -50,7 +50,6 @@ This folder is the complete handover documentation for the system.
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | System overview, tech stack, runtime flow, how Compose drives the Godot support layer |
 | [SETUP_AND_BUILD.md](./SETUP_AND_BUILD.md) | Tools to install, secrets, building the Godot pack and the APK, tests |
 | [ANDROID_APP.md](./ANDROID_APP.md) | Main system code map (Kotlin / Jetpack Compose): navigation, auth, progress, labs |
-| [GODOT_PROJECT.md](./GODOT_PROJECT.md) | Supporting Godot content: Module 0 slide visuals, Module 1 3D bench, tools |
 | [SUPABASE.md](./SUPABASE.md) | Supabase Auth, `module_progress` table, SQL, Edge Function, troubleshooting |
 | [MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md) | How to make common changes (content, steps, parts, versions, package name) |
 | [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) | Build, runtime, Godot, Supabase and device problems with fixes |

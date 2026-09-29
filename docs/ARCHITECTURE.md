@@ -2,7 +2,7 @@
 
 This document explains how the system is put together. For build steps see
 [SETUP_AND_BUILD](./SETUP_AND_BUILD.md); for code-level detail see
-[ANDROID_APP](./ANDROID_APP.md) and [GODOT_PROJECT](./GODOT_PROJECT.md).
+[ANDROID_APP](./ANDROID_APP.md).
 
 ---
 
