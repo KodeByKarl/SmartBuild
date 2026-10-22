@@ -39,9 +39,18 @@ import androidx.navigation.NavHostController
 import com.example.smart_build.data.CssPart
 import com.example.smart_build.data.CssPartsCatalog
 import com.example.smart_build.screens.search.components.CategoryChipRow
+import com.example.smart_build.tutorial.CoachHost
+import com.example.smart_build.tutorial.CoachTourEffect
+import com.example.smart_build.tutorial.TutorialContent
+import com.example.smart_build.tutorial.coachTarget
+import com.example.smart_build.tutorial.rememberCoachController
+import androidx.compose.ui.platform.LocalContext
 import com.example.smart_build.screens.search.components.PartCard
 import com.example.smart_build.screens.search.components.PartDetailSheet
 import com.example.smart_build.screens.search.components.PartImageViewer
+import com.example.smart_build.ui.theme.ThemePrefs
+import com.example.smart_build.ui.theme.ScreenFg
+import com.example.smart_build.ui.theme.ScreenBg
 import com.example.smart_build.ui.theme.Black
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.White
@@ -53,6 +62,14 @@ fun ComponentSearchPage(navController: NavHostController) {
   var selected by remember { mutableStateOf<CssPart?>(null) }
   var zoomed by remember { mutableStateOf<CssPart?>(null) }
 
+  val coach = rememberCoachController()
+  CoachTourEffect(
+    controller = coach,
+    tourId = TutorialContent.SEARCH_ID,
+    steps = TutorialContent.search,
+    context = LocalContext.current,
+  )
+
   val hits = remember(query, category) {
     CssPartsCatalog.filter(query, category)
   }
@@ -60,7 +77,7 @@ fun ComponentSearchPage(navController: NavHostController) {
   BoxWithConstraints(
     modifier = Modifier
       .fillMaxSize()
-      .background(Black)
+      .background(ScreenBg)
   ) {
     val columns = if (maxWidth > 900.dp) 3 else 2
 
@@ -75,11 +92,14 @@ fun ComponentSearchPage(navController: NavHostController) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
       ) {
-        IconButton(onClick = { navController.popBackStack() }) {
+        IconButton(
+          onClick = { navController.popBackStack() },
+          modifier = Modifier.coachTarget(coach, "search_back"),
+        ) {
           Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
             contentDescription = "Back",
-            tint = White,
+            tint = ScreenFg,
           )
         }
 
@@ -91,9 +111,10 @@ fun ComponentSearchPage(navController: NavHostController) {
           },
           modifier = Modifier
             .weight(1f)
+            .coachTarget(coach, "search_field")
             .clip(RoundedCornerShape(28.dp)),
           placeholder = {
-            Text("Search Components", color = White.copy(alpha = 0.55f))
+            Text("Search Components", color = ScreenFg.copy(alpha = 0.55f))
           },
           leadingIcon = {
             Icon(Icons.Default.Search, contentDescription = null, tint = Primary)
@@ -101,12 +122,12 @@ fun ComponentSearchPage(navController: NavHostController) {
           singleLine = true,
           shape = RoundedCornerShape(28.dp),
           colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = White,
-            unfocusedTextColor = White,
+            focusedTextColor = ScreenFg,
+            unfocusedTextColor = ScreenFg,
             focusedBorderColor = Primary,
             unfocusedBorderColor = Primary.copy(alpha = 0.45f),
-            focusedContainerColor = Color(0xFF0A3A55),
-            unfocusedContainerColor = Color(0xFF072C42),
+            focusedContainerColor = if (ThemePrefs.lightMode) Color.White else Color(0xFF0A3A55),
+            unfocusedContainerColor = if (ThemePrefs.lightMode) Color.White else Color(0xFF072C42),
             cursorColor = Primary,
           ),
         )
@@ -114,16 +135,17 @@ fun ComponentSearchPage(navController: NavHostController) {
 
       Text(
         text = "CSS Parts Encyclopedia",
-        color = White,
+        color = ScreenFg,
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
       )
       Text(
         text = "Hardware · networks · cabling · servers · internet & cloud",
-        color = White.copy(alpha = 0.65f),
+        color = ScreenFg.copy(alpha = 0.65f),
         fontSize = 14.sp,
       )
 
+      Box(modifier = Modifier.coachTarget(coach, "search_chips")) {
       CategoryChipRow(
         selected = category,
         onSelect = {
@@ -131,6 +153,7 @@ fun ComponentSearchPage(navController: NavHostController) {
           selected = null
         },
       )
+      }
 
       if (hits.isEmpty()) {
         Box(
@@ -147,7 +170,7 @@ fun ComponentSearchPage(navController: NavHostController) {
       } else {
         LazyVerticalGrid(
           columns = GridCells.Fixed(columns),
-          modifier = Modifier.weight(1f),
+          modifier = Modifier.weight(1f).coachTarget(coach, "search_grid"),
           contentPadding = PaddingValues(bottom = if (selected != null) 280.dp else 16.dp),
           verticalArrangement = Arrangement.spacedBy(12.dp),
           horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -178,5 +201,7 @@ fun ComponentSearchPage(navController: NavHostController) {
     zoomed?.let { part ->
       PartImageViewer(part = part, onDismiss = { zoomed = null })
     }
+
+    CoachHost(coach)
   }
 }

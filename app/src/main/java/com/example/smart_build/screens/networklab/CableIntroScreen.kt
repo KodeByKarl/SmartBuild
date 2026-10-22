@@ -36,6 +36,8 @@ fun CableIntroScreen(
 ) {
   ComposeLabScaffold(
     navController = navController,
+    introTourId = com.example.smart_build.tutorial.TutorialContent.CABLE_INTRO_ID,
+    introSteps = com.example.smart_build.tutorial.TutorialContent.cableIntro,
     eyebrow = "CABLE STANDARDS · Before you crimp",
     title = "Module 2 · straight-through vs crossover",
     progressLabel = "Intro",

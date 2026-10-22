@@ -12,7 +12,7 @@ sealed class Routes(val route: String) {
     fun createRoute(moduleId: Int, simulationType: Int): String = "cm/$moduleId/$simulationType"
   }
 
-  /** Godot ModulePage for Modules 0–1. */
+  /** Godot ModulePage for every module (0–4); Modules 2–4 hand simulations to ComposeModule. */
   data object ModulePage : Routes("mp/{moduleId}/{moduleName}/{simulationType}/{progress}") {
     fun createRoute(moduleId: Int, moduleName: String, simulationType: Int, progress: Float): String {
       val safeName = Uri.encode(moduleName)

@@ -32,6 +32,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import com.example.smart_build.components.ModuleName
+import com.example.smart_build.tutorial.CoachHost
+import com.example.smart_build.tutorial.CoachTourEffect
+import com.example.smart_build.tutorial.TutorialContent
+import com.example.smart_build.tutorial.coachTarget
+import com.example.smart_build.tutorial.rememberCoachController
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import com.example.smart_build.ui.theme.GSCode
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
@@ -56,11 +63,27 @@ fun ModuleCardExpanded(
     bottomEnd = (maxWidth.value * 0.022f).dp
   )
 
+  val scrollState = rememberScrollState()
+  val coach = rememberCoachController()
+  val context = LocalContext.current
+  CoachTourEffect(
+    controller = coach,
+    tourId = TutorialContent.HOME_CARD_ID,
+    steps = TutorialContent.homeCard(module.moduleId),
+    context = context,
+  )
+  // The Guided / Assessment buttons sit below the fold — scroll them into view.
+  LaunchedEffect(coach.activeTargetKey) {
+    when (coach.activeTargetKey) {
+      "card_progress", "card_gs", "card_as" -> scrollState.animateScrollTo(scrollState.maxValue)
+      "card_back", "card_benefits" -> scrollState.animateScrollTo(0)
+    }
+  }
+
+  Box(modifier = Modifier.fillMaxSize()) {
   Column(
     modifier = Modifier
-      .verticalScroll(
-        rememberScrollState()
-      )
+      .verticalScroll(scrollState)
       .fillMaxSize()
       .background(
         Color(0xFF001923)
@@ -102,6 +125,7 @@ fun ModuleCardExpanded(
       Box(
         modifier = Modifier
           .align(Alignment.TopStart)
+          .coachTarget(coach, "card_back")
           .padding(
             top = (maxHeight.value * 0.04f).dp,
             start = (maxWidth.value * 0.034f).dp
@@ -313,7 +337,10 @@ fun ModuleCardExpanded(
         },
         onGS = onGS,
         onAS = onAS,
+        coach = coach,
       )
     }
+  }
+  CoachHost(coach)
   }
 }

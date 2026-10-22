@@ -31,10 +31,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.smart_build.components.AuthFieldStyles
+import com.example.smart_build.ui.theme.ScreenFg
+import com.example.smart_build.ui.theme.White
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
-import com.example.smart_build.ui.theme.White
 import com.example.smart_build.ui.theme.readableSp
 import com.example.smart_build.viewmodel.auth.AuthFormState
 import com.example.smart_build.viewmodel.auth.AuthStatusState
@@ -58,7 +59,7 @@ fun RPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
     Row(
       verticalAlignment = Alignment.CenterVertically
     ) {
-      VerticalDivider(color = White)
+      VerticalDivider(color = ScreenFg)
       Spacer(modifier = Modifier.size((maxWidthScreen.value * 0.025).dp))
       Column {
         Column {
@@ -73,7 +74,7 @@ fun RPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
             "Enter your new password and do not lose it!",
             style = Typography.labelLarge,
             fontSize = readableSp(maxWidthScreen, 0.011f, 16f),
-            color = White.copy(alpha = 0.7f)
+            color = ScreenFg.copy(alpha = 0.7f)
           )
         }
         Spacer(Modifier.size((maxHeightScreen.value * 0.035f).dp))
@@ -81,10 +82,11 @@ fun RPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
           val hintVisible = (authState is AuthStatusState.Error && (
             authError.type == ErrorType.PW_BLANK ||
               authError.type == ErrorType.PW_SHORT ||
+              authError.type == ErrorType.PW_WEAK ||
               authError.type == ErrorType.RESET_SESSION_EXPIRED
             )) || authState is AuthStatusState.Registered
           OutlinedTextField(
-            label = { Text("Password", color = White.copy(alpha = 0.7f)) },
+            label = { Text("Password", color = ScreenFg.copy(alpha = 0.7f)) },
             value = rpFormState.password,
             singleLine = true,
             textStyle = AuthFieldStyles.textStyle,
@@ -93,6 +95,7 @@ fun RPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
             isError = authState is AuthStatusState.Error && (
               authError.type == ErrorType.PW_BLANK ||
                 authError.type == ErrorType.PW_SHORT ||
+                authError.type == ErrorType.PW_WEAK ||
                 authError.type == ErrorType.RESET_SESSION_EXPIRED
               ),
             supportingText = if (hintVisible) {

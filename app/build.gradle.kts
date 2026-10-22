@@ -65,9 +65,9 @@ android {
     defaultConfig {
         applicationId = "com.smartbuild.app"
         minSdk = 24
-        targetSdk = 35
-        versionCode = 3
-        versionName = "V2.1"
+        targetSdk = 36
+        versionCode = 6
+        versionName = "V2.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -117,6 +117,11 @@ android {
         compose = true
         buildConfig = true
     }
+    androidResources {
+        // Godot seeks randomly inside the pack; a deflated asset must be re-inflated
+        // from the start on every seek, which makes Module 0/1 load extremely slowly.
+        noCompress += "pck"
+    }
     packaging {
         jniLibs {
             // Compress libgodot_android.so inside the APK (~70 MB -> ~20 MB per ABI).
@@ -159,8 +164,8 @@ dependencies {
 
 val godotPack = file("src/main/assets/SmartBuildGodot.pck")
 // Update both values when a new pack is published as a GitHub Release asset.
-val godotPackUrl = "https://github.com/KodeByKarl/SmartBuild/releases/download/v2.1/SmartBuildGodot.pck"
-val godotPackSha256 = "70a991b9a4ec5f4caa0b8e0d3494627feb56d64d390b50eaeafb7d970903ff7a"
+val godotPackUrl = "https://github.com/KodeByKarl/SmartBuild/releases/download/v2.2/SmartBuildGodot.pck"
+val godotPackSha256 = "b417e60878896c1ecc4dae410c02e671be1ddba1299ba31702cc216d8678e1ed"
 
 tasks.register("checkGodotPack") {
     group = "verification"

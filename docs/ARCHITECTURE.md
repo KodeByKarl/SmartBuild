@@ -33,7 +33,7 @@ flowchart LR
   subgraph Phone["Android phone — SmartBuild APK"]
     Compose["Jetpack Compose app (main system)<br/>Auth · Navigation · Home · Search<br/>Progress · Modules 0–4 screens<br/>Modules 2–4 labs"]
     Bridge["SmartBuildBridge"]
-    Godot["Godot render support<br/>(Module 0 slides,<br/>Module 1 3D bench visuals)"]
+    Godot["Godot render support<br/>(lesson pages for Modules 0–4,<br/>Module 1 3D bench)"]
     Cache["SharedPreferences<br/>progress cache (per user)"]
     Compose -->|commands| Bridge -->|draw content| Godot
     Godot -.->|learner actions| Bridge -.-> Compose
@@ -46,19 +46,27 @@ flowchart LR
 
 ### Module screens
 
-Every module is opened, controlled and closed by a Compose screen. Modules 0 and 1 use Godot
-only as a supporting surface for their visuals.
+Every module is opened, controlled and closed by a Compose screen. Godot draws the lesson
+pages for all modules with one set of shared components (`core/components/lesson/`, SMARTBUILD
+Figma layout). Modules 1–4 share one data-driven flow, `ModuleFlow`:
+**Lessons (swipe) → Guided Simulation → Be Ready → Assessment Simulation → Completion.**
+Module 1's simulations run in Godot (3D bench); Modules 2–4 hand theirs to the Compose labs.
 
 | Module | Title | Compose screen | Godot support content |
 |---|---|---|---|
 | 0 | Introduction to Computer Systems Servicing | `ModulePage` | Slide visuals (`modules/module_0/Main.tscn`, 21 slides) |
-| 1 | Installing and Configuring Computer Systems | `ModulePage` | 3D bench and page visuals (`modules/module_1/Main.tscn` → `ModuleShell` + `PcBuildBench`) |
-| 2 | Setting Up Computer Networks | `ComposeModuleScreen` → cable intro, crimp lab, topology | — |
-| 3 | Setting Up Computer Servers | `ComposeModuleScreen` → server topology, file-server desktop | — |
-| 4 | Maintaining Computer Systems and Networks | `ComposeModuleScreen` → Windows service-ticket desktop | — |
+| 1 | Installing and Configuring Computer Systems | `ModulePage` | `ModuleFlow` lessons + full-screen 3D bench (`SimulationPage` + `PcBuildBench`) |
+| 2 | Setting Up Computer Networks | `ModulePage` (lessons, Be Ready, Completion) ↔ `ComposeModuleScreen` (cable intro, crimp lab, topology) | `ModuleFlow` lesson pages |
+| 3 | Setting Up Computer Servers | `ModulePage` (lessons, Be Ready, Completion) ↔ `ComposeModuleScreen` (server topology, file-server desktop) | `ModuleFlow` lesson pages |
+| 4 | Maintaining Computer Systems and Networks | `ModulePage` (lessons, Be Ready, Completion) ↔ `ComposeModuleScreen` (Windows service-ticket desktop) | `ModuleFlow` lesson pages |
 
-Early prototypes of Modules 2–4 in Godot were replaced by native Compose labs and removed from
-the Godot project; Godot replies with an `error` event if asked to show them.
+Godot → Compose events used by the flow: `progress_update`, `guided_saved` (Guided finished,
+stay in the module), `assessment_saved` (Assessment finished, stay), `assessment_completed`
+(leave from Completion), `start_guided_lab` / `start_assessment_lab` (Modules 2–4: open the
+Compose lab), `progress_reset` (Retake), `destroy` (Back). The prepare `simulationType` picks
+the entry page: `0` lessons, `1` Be Ready, `3` Completion (`ModuleFlowEntry`). When a Compose
+lab finishes it reopens the flow at Be Ready (after Guided) or Completion (after Assessment).
+There is no quiz; modules are passed only through the Assessment Simulation.
 
 ---
 
@@ -99,12 +107,13 @@ d:\Porjects\Smartbuild\
 │   ├── app\src\main\res\           Drawables (module cards, part cards), fonts
 │   ├── secrets.properties          Supabase URL + anon key (gitignored)
 │   └── web\auth-reset.html         Optional https bounce page for reset emails
-├── SmartBuild-Godot\               Supporting Godot 4.7 content (visuals for Modules 0–1)
+├── SmartBuild-Godot\               Supporting Godot 4.7 content (lesson pages, Module 1 3D bench)
 │   ├── scripts\Main.gd             Entry point + bridge to Android
-│   ├── core\                       Module shell, 3D bench, step engine, services (autoloads), UI
-│   ├── modules\module_0\           Intro slides
-│   ├── modules\module_1\           Module 1 entry (uses core ModuleShell)
-│   ├── scripts\module_content_registry.gd   All Module 1 pages and steps
+│   ├── core\components\lesson\     Shared lesson components: LessonDeck, ModuleFlow, Figma layouts
+│   ├── core\                       3D bench + SimulationPage, step engine, services (autoloads), UI
+│   ├── modules\module_0\           Module 0 (data in module_0_content.gd + completion slide)
+│   ├── scripts\content\            Module 1–4 lesson pages (Figma copy)
+│   ├── scripts\module_content_registry.gd   Modules 1–4 lookup + Module 1 simulation steps
 │   ├── assets\                     Models, images, fonts, icons, old dev docs
 │   └── tools\                      PCK export script, headless regression probes
 ├── docs\                           This documentation

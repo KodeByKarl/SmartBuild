@@ -11,6 +11,11 @@ Common rules for all modules:
   starts with planted faults. Grading rules are the same as Guided.
 - Every correct or incorrect action shows a **Correct / Incorrect** dialog with an explanation.
 - Progress is capped at 99% until the Assessment is passed (then 100%).
+- Modules 1–4 share one flow (Godot `ModuleFlow`, SMARTBUILD Figma layout):
+  **Lesson pages (swipe) → Guided Simulation → Be Ready for Assessment → Assessment Simulation
+  → Completion.** There is no quiz: a module is passed only by finishing the Assessment
+  Simulation. The module card's **Guided Simulation** button opens the lessons; **Scenario
+  Assessment** opens "Be Ready for Assessment".
 
 ---
 
@@ -30,8 +35,9 @@ Common rules for all modules:
 | 11–20 | Hardware basics | Computer types, components, memory vs storage, peripherals, networking basics |
 | 21 | Complete | Achievement checklist, progress bar to 100%, Proceed to Home / Retake |
 
-Controls: **Back** (top left), **Help** (context help for the current slide), **Prev / Next**
-and page counter at the bottom.
+Controls: **Back** (top left), **Help** (context help for the current slide), **swipe** left / right
+(or mouse-drag on desktop) to change slides, and a page counter at the bottom. Swipes are ignored
+when they start on buttons, 3D viewers or scrolling lists.
 
 ---
 
@@ -39,34 +45,44 @@ and page counter at the bottom.
 
 | | |
 |---|---|
-| Screen | Compose `ModulePage`; page and 3D bench visuals from the Godot support content (`module_shell.gd`, `pc_build_bench.gd`) |
-| Content source | `SmartBuild-Godot/scripts/module_content_registry.gd` |
-| Guided | Pages 1–12 in order, with yellow hints |
-| Assessment | Opens directly on page 10 (Capstone), no hints |
-| Pass (Guided) | Finish the path and exit from the Congratulations page |
-| Pass (Assessment) | Complete the 25-step capstone and exit from the Congratulations page → 100% |
+| Screen | Compose `ModulePage` → Godot `ModuleFlow` (`core/components/lesson/`); 3D bench in `SimulationPage` (`core/simulation/`) |
+| Content source | Lessons: `SmartBuild-Godot/scripts/content/module_1_content.gd`; simulations: `scripts/module_content_registry.gd` |
+| Guided | Lesson pages 1–13 (swipe), then the Guided Simulation (pages 14–15) with yellow hints |
+| Assessment | Opens on page 16 (Be Ready), then the 25-step Assessment Simulation with no hints |
+| Pass (Guided) | Finish the Guided Simulation (disassembly + assembly) → Guided saved, ≥ 50% |
+| Pass (Assessment) | Finish the Assessment Simulation → 100%; leave from the Congratulations page |
 
 ### Pages
 
 | # | Page | What the student does |
 |---|---|---|
-| 1 | Introduction | Reads the six phases |
-| 2 | Parts Lab | Browses a 2D parts catalog |
-| 3 | Phase 01 · ESD-Safe Preparation | 6 multiple-choice steps |
-| 4 | Phase 02 · Safe Disassembly | Tears down a complete PC on the 3D bench (11 steps) |
-| 5 | Phase 03 · Hardware Assembly | Builds the PC on the 3D bench (14 steps) |
-| 6 | Phase 04 · BIOS Configuration | 8 multiple-choice steps |
-| 7 | Phase 05 · OS Installation | 8 multiple-choice steps |
-| 8 | Phase 06 · Drivers and Testing | 8 multiple-choice steps |
-| 9 | Be Ready for Assessment | Checklist |
-| 10 | Capstone: Disassemble, Then Rebuild | 25 bench steps without hints (Assessment) |
-| 11 | Parts Museum | Browses a parts gallery |
-| 12 | Congratulations! | Achievements, **Back to Home** / **Retake** |
+| 1 | Ready to Assemble and Disassemble a Computer? | Reads the intro |
+| 2 | Tools and Equipment | Screwdrivers, anti-static wrist strap, clean workspace |
+| 3–4 | ESD-Safe Preparation Steps | Six step cards with illustrations |
+| 5 | Before You Start, Follow These Safety Precautions! | Taps each precaution (not graded) |
+| 6–7 | Input and Output Device Setup | Eight step cards |
+| 8–9 | BIOS Configuration Steps | Eight step cards |
+| 10–11 | Operating System Install Steps | Eight step cards |
+| 12–13 | Drivers and System Testing Steps | Eight step cards |
+| 14 | Guided Simulation · Disassemble | Tears down a complete PC on the 3D bench (11 steps) |
+| 15 | Guided Simulation · Assemble | Builds the PC on the 3D bench (14 steps) → Guided saved |
+| 16 | Be Ready for Assessment! | Reads, then swipes to begin |
+| 17 | Assessment Simulation | Disassemble then rebuild (25 steps), no hints → Assessment saved |
+| 18 | Congratulations! | **Proceed to Home** / **Retake Module** |
+
+Lesson pages swipe left/right. Simulations are one-way: swiping unlocks only after the
+simulation is finished (or use the Continue button on the "done" dialog).
 
 ### How the 3D bench works
 
 - **Remove** a part: tap it inside the case.
-- **Install** a part: drag it from the tray on the right onto its bay in the case.
+- The 3D bench is **full screen**. Small floating buttons at the top right open the
+  **Steps** (current instruction, feedback, assessment reset), **Parts** (the tray) and
+  **Info** (objectives, pitfalls) panels; all start hidden and slide in over the 3D view.
+  Opening or closing a panel never changes the current step. **Back** and **Help** sit at the
+  top left; **Zoom + / −** at the top centre.
+- **Install** a part: open **Parts** and drag the part onto its bay in the case (the tray
+  slides away as soon as the drag starts).
 - Rotate the view with one finger; zoom with **Zoom + / −** or pinch.
 - A wrong tap or drop is refused, and the Incorrect dialog explains what was expected and why.
 - When the **motherboard** is removed, it comes out of the case with the RAM, CPU fan and CPU
@@ -111,17 +127,17 @@ and page counter at the bottom.
 
 The Assessment capstone is Phase 02 followed by Phase 03 (25 steps) with no hints.
 
-### Answer key — quiz phases
+### Lesson step order (no quiz)
 
-Each quiz step shows a question with four choices. The correct choice is the step name below;
-the other choices come from other steps.
+The former multiple-choice phases (ESD preparation, BIOS, OS install, drivers and testing) are
+now lesson pages of step cards in the order below. They are read, not graded.
 
-| Phase | Correct answers, in order |
+| Topic | Steps, in order |
 |---|---|
-| 01 · ESD-Safe Preparation | Wear anti-static wrist strap → Lay out the anti-static mat → Stage screwdriver and fasteners → Inspect delivered components → Confirm compatibility → Organize the workspace |
-| 04 · BIOS Configuration | Connect display and input → Power on the system → Enter BIOS/UEFI setup → Verify CPU detection → Verify RAM detection → Verify storage detection → Set boot priority → Save and exit |
-| 05 · OS Installation | Insert bootable USB → Boot from the USB → Choose install options → Prepare partitions → Format the target volume → Run OS installation → Create user account → Finish first-run setup |
-| 06 · Drivers and Testing | Install motherboard drivers → Install graphics drivers → Install network drivers → Install baseline applications → Test the display → Test internet access → Test storage access → Document the build |
+| ESD-Safe Preparation | Wear anti-static wrist strap → Lay out the anti-static mat → Stage screwdriver and fasteners → Inspect delivered components → Confirm compatibility → Organize the workspace |
+| BIOS Configuration | Connect display and input → Power on the system → Enter BIOS/UEFI setup → Verify CPU detection → Verify RAM detection → Verify storage detection → Set boot priority → Save and exit |
+| OS Installation | Insert bootable USB → Boot from the USB → Choose install options → Prepare partitions → Format the target volume → Run OS installation → Create user account → Finish first-run setup |
+| Drivers and Testing | Install motherboard drivers → Install graphics drivers → Install network drivers → Install baseline applications → Test the display → Test internet access → Test storage access → Document the build |
 
 ---
 
@@ -129,7 +145,9 @@ the other choices come from other steps.
 
 | | |
 |---|---|
-| Engine | Compose (`screens/networklab/`, `screens/crimplab/`) |
+| Lessons | Godot `ModuleFlow` — 10 Figma pages (`scripts/content/module_2_content.gd`) |
+| Simulation | Compose (`screens/networklab/`, `screens/crimplab/`), opened from the flow |
+| Flow | Lessons (swipe) → **Start Guided Simulation** → Compose lab → Be Ready (Godot) → **Start Assessment** → Compose lab → Congratulations (Godot) |
 | Stations | 1 Cable intro → 2 Crimp lab → 3 Network topology |
 | Pass | Finish all three stations → Guided / Assessment complete |
 
@@ -183,7 +201,9 @@ Orange, White-Brown, Brown.)
 
 | | |
 |---|---|
-| Engine | Compose (`screens/serverlab/`, `screens/packettracer/`) |
+| Lessons | Godot `ModuleFlow` — 14 Figma pages (`scripts/content/module_3_content.gd`) |
+| Simulation | Compose (`screens/serverlab/`, `screens/packettracer/`), opened from the flow |
+| Flow | Lessons (swipe) → **Start Guided Simulation** → Compose lab → Be Ready (Godot) → **Start Assessment** → Compose lab → Congratulations (Godot) |
 | Stations | 1 Client–server topology → 2 File server setup |
 | Pass | Finish both stations |
 
@@ -230,7 +250,9 @@ After all seven, **Finish module** appears.
 
 | | |
 |---|---|
-| Engine | Compose (`screens/maintenancelab/MaintenanceLabScreen.kt`) |
+| Lessons | Godot `ModuleFlow` — 21 Figma pages (`scripts/content/module_4_content.gd`) |
+| Simulation | Compose (`screens/maintenancelab/MaintenanceLabScreen.kt`), opened from the flow |
+| Flow | Lessons (swipe) → **Start Guided Simulation** → Compose lab → Be Ready (Godot) → **Start Assessment** → Compose lab → Congratulations (Godot) |
 | Setting | Full-screen Windows desktop service visit |
 | Pass | Complete the service order and close the ticket → **Finish module** |
 

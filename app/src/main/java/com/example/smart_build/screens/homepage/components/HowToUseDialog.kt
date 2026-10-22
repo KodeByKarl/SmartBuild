@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun HowToUseDialog(onDismiss: () -> Unit) {
+fun HowToUseDialog(onDismiss: () -> Unit, onReplayTutorial: (() -> Unit)? = null) {
   AlertDialog(
     onDismissRequest = onDismiss,
     title = {
@@ -41,7 +41,7 @@ fun HowToUseDialog(onDismiss: () -> Unit) {
           "Open Guided Simulation. Module 1 uses the 3D Godot bench. Modules 2–4 use Compose labs with DO THIS coaches. Repeat until you are confident.",
         )
         HowToBlock(
-          "4. Scenario Assessment",
+          "4. Assessment",
           "Unlocks after Guided. You get a short scenario with faults to identify and correct (TESDA-aligned), then complete the lab without yellow coaches.",
         )
         HowToBlock(
@@ -61,6 +61,13 @@ fun HowToUseDialog(onDismiss: () -> Unit) {
     confirmButton = {
       TextButton(onClick = onDismiss) {
         Text("Got it")
+      }
+    },
+    dismissButton = onReplayTutorial?.let { replay ->
+      {
+        TextButton(onClick = replay) {
+          Text("Replay tutorial")
+        }
       }
     },
   )

@@ -24,8 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.smart_build.components.AppLogo
-import com.example.smart_build.ui.theme.Primary
+import com.example.smart_build.ui.theme.ScreenFg
 import com.example.smart_build.ui.theme.White
+import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.viewmodel.auth.AuthStatusState
 
 @Composable
@@ -58,7 +59,7 @@ fun AppLogoWithLoading(
         CircularProgressIndicator(
           modifier = Modifier.size(loadingSize.dp),
           color = Primary,
-          trackColor = White,
+          trackColor = ScreenFg,
           strokeWidth = loadingStroke.dp
         )
       }

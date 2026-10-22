@@ -14,7 +14,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
+import com.example.smart_build.data.ModuleFlowEntry
 import com.example.smart_build.data.ModuleProgressStore
+import com.example.smart_build.data.ModuleTitles
 import com.example.smart_build.data.ReturnToModule
 import com.example.smart_build.navigation.Routes
 import com.example.smart_build.screens.crimplab.CableMode
@@ -24,16 +26,21 @@ import com.example.smart_build.screens.networklab.CableIntroScreen
 import com.example.smart_build.screens.networklab.NetworkTopologyScreen
 import com.example.smart_build.screens.serverlab.ServerLabScreen
 import com.example.smart_build.screens.serverlab.ServerTopologyScreen
+import com.example.smart_build.ui.theme.ScreenBg
+import com.example.smart_build.ui.theme.ScreenFg
 import com.example.smart_build.ui.theme.Black
 
 /**
- * Compose Guided/Assessment for Modules 2–4.
- * M2: cable intro → crimp → topology
+ * Compose Guided/Assessment simulations for Modules 2–4.
+ * M2: cable intro → straight-through crimp → crossover crimp → network (place, cable, IP, ping)
  * M3: client–server topology (straight-through) → Server Manager
  * M4: maintenance service visit
  *
+ * Opened from the Godot module flow (lessons → this lab → Be Ready → this lab
+ * → Completion). Finishing a lab returns to the flow instead of Home.
+ *
  * simulationType 0 = Guided Simulation (hints on)
- * simulationType 1 = Scenario Assessment (scenario brief + no yellow coach)
+ * simulationType 1 = Assessment (scenario brief + no yellow coach)
  */
 @Composable
 fun ComposeModuleScreen(
@@ -55,12 +62,19 @@ fun ComposeModuleScreen(
     }
   }
 
+  // Back / Exit always returns to Home, from any station (toolbox → workstation included).
   fun stepBack() {
-    when {
-      showScenario -> goHome()
-      station > 0 -> station -= 1
-      isAssessment -> showScenario = true
-      else -> goHome()
+    goHome()
+  }
+
+  // Back into the Godot flow: Be Ready after Guided, Completion after Assessment.
+  fun continueInFlow(entry: Int) {
+    val progress = ModuleProgressStore.progress(context, moduleId)
+    navController.navigate(
+      Routes.ModulePage.createRoute(moduleId, ModuleTitles.forId(moduleId), entry, progress)
+    ) {
+      popUpTo(Routes.ComposeModule.route) { inclusive = true }
+      launchSingleTop = true
     }
   }
 
@@ -68,18 +82,15 @@ fun ComposeModuleScreen(
     when {
       isAssessment -> {
         ModuleProgressStore.markAssessmentCompleted(context, moduleId)
-        Toast.makeText(context, "Scenario Assessment complete.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Assessment complete.", Toast.LENGTH_SHORT).show()
+        continueInFlow(ModuleFlowEntry.COMPLETION)
       }
       else -> {
         ModuleProgressStore.markGuidedCompleted(context, moduleId)
-        Toast.makeText(
-          context,
-          "Guided Simulation saved. Scenario Assessment unlocked.",
-          Toast.LENGTH_SHORT,
-        ).show()
+        Toast.makeText(context, "Guided Simulation saved.", Toast.LENGTH_SHORT).show()
+        continueInFlow(ModuleFlowEntry.BE_READY)
       }
     }
-    goHome()
   }
 
   fun bumpProgress(fractionOfModule: Float) {
@@ -89,7 +100,7 @@ fun ComposeModuleScreen(
 
   BackHandler { stepBack() }
 
-  Box(modifier = Modifier.fillMaxSize().background(Black)) {
+  Box(modifier = Modifier.fillMaxSize().background(ScreenBg)) {
     if (showScenario) {
       ScenarioBriefScreen(
         scenario = AssessmentScenarios.forModule(moduleId),
@@ -112,12 +123,26 @@ fun ComposeModuleScreen(
             navController = navController,
             hints = hints,
             forcedMode = CableMode.STRAIGHT,
-            allowModeSwitch = hints,
+            allowModeSwitch = false,
+            showToolStep = true,
             embedded = true,
             onLeave = { stepBack() },
             onStationComplete = {
-              bumpProgress(0.55f)
+              bumpProgress(0.4f)
               station = 2
+            },
+          )
+          2 -> CrimpLabScreen(
+            navController = navController,
+            hints = hints,
+            forcedMode = CableMode.CROSSOVER,
+            allowModeSwitch = false,
+            showToolStep = true,
+            embedded = true,
+            onLeave = { stepBack() },
+            onStationComplete = {
+              bumpProgress(0.65f)
+              station = 3
             },
           )
           else -> NetworkTopologyScreen(

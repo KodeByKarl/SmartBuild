@@ -62,7 +62,8 @@ enum class AuthMode {
 
 data class SignInFormState(
   val email: String = "",
-  val password: String = ""
+  val password: String = "",
+  val confirmPassword: String = ""
 )
 
 data class ForgotPasswordFormState(
@@ -123,6 +124,26 @@ sealed interface AuthStatusState {
 // ============================================================================
 // VIEWMODEL
 // ============================================================================
+
+private const val PASSWORD_MIN_LENGTH = 8
+
+/**
+ * Password rule for new accounts, password resets, and password changes: at least
+ * 8 characters with letters, numbers, and special characters. Returns the message
+ * to show, or null when the password is acceptable.
+ */
+fun newPasswordProblem(password: String): String? {
+  if (password.length < PASSWORD_MIN_LENGTH) {
+    return "Password must have at least $PASSWORD_MIN_LENGTH characters."
+  }
+  val hasLetter = password.any { it.isLetter() }
+  val hasDigit = password.any { it.isDigit() }
+  val hasSpecial = password.any { !it.isLetterOrDigit() && !it.isWhitespace() }
+  if (!hasLetter || !hasDigit || !hasSpecial) {
+    return "Password must contain letters, numbers, and special characters (e.g. ! @ # \$ %)."
+  }
+  return null
+}
 
 class AuthViewModel : ViewModel() {
 
@@ -431,6 +452,10 @@ class AuthViewModel : ViewModel() {
     _authMode.value =
       mode
 
+    _signInFormState.update {
+      it.copy(confirmPassword = "")
+    }
+
     when (mode) {
 
       AuthMode.SignIn -> {
@@ -454,7 +479,8 @@ class AuthViewModel : ViewModel() {
 
   fun signUp(
     email: String,
-    password: String
+    password: String,
+    confirmPassword: String
   ) {
 
     clearErrorOnly()
@@ -464,6 +490,9 @@ class AuthViewModel : ViewModel() {
 
     val trimmedPassword =
       password.trim()
+
+    val trimmedConfirmPassword =
+      confirmPassword.trim()
 
 
     // ---------------------------------------------------------------------
@@ -503,12 +532,28 @@ class AuthViewModel : ViewModel() {
     }
 
 
-    if (trimmedPassword.length < 8) {
+    if (!validateNewPassword(trimmedPassword)) {
+
+      return
+    }
+
+
+    if (trimmedConfirmPassword.isBlank()) {
 
       showError(
-        type = ErrorType.PW_SHORT,
-        message =
-          "Password must have at least 8 characters."
+        type = ErrorType.PW_MISMATCH,
+        message = "Please confirm your password."
+      )
+
+      return
+    }
+
+
+    if (trimmedPassword != trimmedConfirmPassword) {
+
+      showError(
+        type = ErrorType.PW_MISMATCH,
+        message = "Passwords do not match."
       )
 
       return
@@ -990,13 +1035,7 @@ class AuthViewModel : ViewModel() {
     }
 
 
-    if (trimmedPassword.length < 8) {
-
-      showError(
-        type = ErrorType.PW_SHORT,
-        message =
-          "Password must have at least 8 characters."
-      )
+    if (!validateNewPassword(trimmedPassword)) {
 
       return
     }
@@ -1196,6 +1235,19 @@ class AuthViewModel : ViewModel() {
 
       it.copy(
         password = password
+      )
+    }
+  }
+
+
+  fun onConfirmPWSIChanged(
+    password: String
+  ) {
+
+    _signInFormState.update {
+
+      it.copy(
+        confirmPassword = password
       )
     }
   }
@@ -1489,6 +1541,25 @@ class AuthViewModel : ViewModel() {
     return android.util.Patterns.EMAIL_ADDRESS
       .matcher(email)
       .matches()
+  }
+
+  /**
+   * Applies [newPasswordProblem]. Sign-in skips this so accounts created before
+   * the rule can still log in.
+   */
+  private fun validateNewPassword(
+    password: String
+  ): Boolean {
+
+    val problem = newPasswordProblem(password) ?: return true
+
+    showError(
+      type =
+        if (password.length < PASSWORD_MIN_LENGTH) ErrorType.PW_SHORT else ErrorType.PW_WEAK,
+      message = problem
+    )
+
+    return false
   }
 
   fun onPasswordRecoveryDetected() {

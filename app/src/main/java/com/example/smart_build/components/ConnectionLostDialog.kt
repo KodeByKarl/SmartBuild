@@ -28,7 +28,7 @@ import com.example.smart_build.ui.theme.Black
 import com.example.smart_build.ui.theme.Typography
 
 @Composable
-fun ConnectionLostDialog(maxWidth: Dp, maxHeight: Dp) {
+fun ConnectionLostDialog(maxWidth: Dp, maxHeight: Dp, onReload: () -> Unit = {}) {
   AlertDialog(
     properties = DialogProperties(
       usePlatformDefaultWidth = false,
@@ -65,7 +65,14 @@ fun ConnectionLostDialog(maxWidth: Dp, maxHeight: Dp) {
         )
       )
     },
-    confirmButton = {},
+    confirmButton = {
+      TextButton(onClick = onReload) {
+        Text(
+          "Reload",
+          style = Typography.titleMedium.copy(color = Black, fontWeight = FontWeight.Bold)
+        )
+      }
+    },
     containerColor = Color(0xFFD7ECFF),
     modifier = Modifier
 //      .widthIn(min = 312.dp, max = 560.dp)

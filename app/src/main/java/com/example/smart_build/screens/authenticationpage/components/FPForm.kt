@@ -35,10 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.smart_build.components.AuthFieldStyles
+import com.example.smart_build.ui.theme.ScreenFg
+import com.example.smart_build.ui.theme.White
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
-import com.example.smart_build.ui.theme.White
 import com.example.smart_build.ui.theme.readableSp
 import com.example.smart_build.viewmodel.auth.AuthFormState
 import com.example.smart_build.viewmodel.auth.AuthStatusState
@@ -62,7 +63,7 @@ fun FPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
     Row(
       verticalAlignment = Alignment.CenterVertically
     ) {
-      VerticalDivider(color = White)
+      VerticalDivider(color = ScreenFg)
       Spacer(modifier = Modifier.size((maxWidthScreen.value * 0.025).dp))
       Column {
         Column {
@@ -77,7 +78,7 @@ fun FPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
             "Enter your email address so we can send you a link for reset password.",
             style = Typography.labelLarge,
             fontSize = readableSp(maxWidthScreen, 0.011f, 16f),
-            color = White.copy(alpha = 0.7f)
+            color = ScreenFg.copy(alpha = 0.7f)
           )
         }
         Spacer(Modifier.size((maxHeightScreen.value * 0.035f).dp))
@@ -88,7 +89,7 @@ fun FPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
               authError.type == ErrorType.RESET_FAILED
             )) || authState is AuthStatusState.Registered
           OutlinedTextField(
-            label = { Text("Email", color = White.copy(alpha = 0.7f)) },
+            label = { Text("Email", color = ScreenFg.copy(alpha = 0.7f)) },
             value = fpFormState.email,
             singleLine = true,
             textStyle = AuthFieldStyles.textStyle,
@@ -161,7 +162,7 @@ fun FPForm(modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, max
                 style = Typography.titleMedium.copy(textDecoration = TextDecoration.Underline),
                 fontSize = readableSp(maxWidthScreen, 0.013f, 15f),
                 fontWeight = FontWeight.Medium,
-                color = White.copy(alpha = 0.8f)
+                color = ScreenFg.copy(alpha = 0.8f)
               )
             }
           }

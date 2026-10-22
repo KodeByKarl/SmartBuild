@@ -141,6 +141,7 @@ object SmartBuildBridge {
       put("moduleId", moduleId)
       put("simulationType", simulationType)
       put("progress", progress.toDouble())
+      put("lightMode", com.example.smart_build.ui.theme.ThemePrefs.lightMode)
       accessToken?.takeIf { it.isNotBlank() }?.let { put("accessToken", it) }
       refreshToken?.takeIf { it.isNotBlank() }?.let { put("refreshToken", it) }
       userId?.takeIf { it.isNotBlank() }?.let { put("userId", it) }

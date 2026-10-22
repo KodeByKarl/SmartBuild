@@ -5,15 +5,23 @@
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+  <!-- enableOnBackInvokedCallback=false keeps the classic back-key dispatch the Godot view
+       and labs were tested with; targetSdk 36 would otherwise switch to predictive back. -->
   <application
     android:allowBackup="true"
     android:dataExtractionRules="@xml/data_extraction_rules"
+    android:enableOnBackInvokedCallback="false"
     android:fullBackupContent="@xml/backup_rules"
-    android:icon="@drawable/app_icon"
+    android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
-    android:roundIcon="@drawable/app_icon"
+    android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/Theme.Smart_Build">
+    <!-- Android 16 ignores the landscape lock on tablets unless this is set. Only honored
+         while targetSdk is 36; must be revisited before moving to 37. -->
+    <property
+      android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+      android:value="true" />
     <activity
       android:name=".MainActivity"
       android:screenOrientation="sensorLandscape"

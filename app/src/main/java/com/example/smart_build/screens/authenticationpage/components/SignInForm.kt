@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -45,10 +47,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.smart_build.components.AuthFieldStyles
+import com.example.smart_build.ui.theme.ScreenFg
+import com.example.smart_build.ui.theme.White
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
-import com.example.smart_build.ui.theme.White
 import com.example.smart_build.ui.theme.readableSp
 import com.example.smart_build.viewmodel.auth.AuthFormState
 import com.example.smart_build.viewmodel.auth.AuthMode
@@ -61,6 +64,7 @@ import com.example.smart_build.viewmodel.auth.ErrorType
 fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel, maxWidthScreen: Dp, maxHeightScreen: Dp) {
   var submitting by remember { mutableStateOf(false) }
   var isPWVisible by remember { mutableStateOf(false) }
+  var isConfirmPWVisible by remember { mutableStateOf(false) }
 
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
   val formState by viewModel.formState.collectAsStateWithLifecycle()
@@ -74,7 +78,9 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
     Row(
       verticalAlignment = Alignment.CenterVertically
     ) {
-      Column {
+      // Sign up adds Confirm Password and the password rule; scroll when that
+      // no longer fits a short landscape screen.
+      Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         Column {
           AnimatedContent(
             targetState = authMode
@@ -92,7 +98,7 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                   "Authenticate to sync your progress to the server.",
                   style = Typography.labelLarge,
                   fontSize = readableSp(maxWidthScreen, 0.011f, 16f),
-                  color = White.copy(alpha = 0.7f)
+                  color = ScreenFg.copy(alpha = 0.7f)
                 )
               }
               AuthMode.SignUp -> Column {
@@ -107,7 +113,7 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                   "Create an account to save and sync your progress across your devices.",
                   style = Typography.labelLarge,
                   fontSize = readableSp(maxWidthScreen, 0.011f, 16f),
-                  color = White.copy(alpha = 0.7f)
+                  color = ScreenFg.copy(alpha = 0.7f)
                 )
               }
             }
@@ -124,7 +130,7 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                 authError.type == ErrorType.ACCOUNT_NOT_VERIFIED
               )) || (uiState is AuthStatusState.Registered)
             OutlinedTextField(
-              label = { Text("Email", color = White.copy(alpha = 0.7f)) },
+              label = { Text("Email", color = ScreenFg.copy(alpha = 0.7f)) },
               value = signInFormState.email,
               singleLine = true,
               textStyle = AuthFieldStyles.textStyle,
@@ -156,21 +162,19 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
               modifier = Modifier.fillMaxWidth(0.9f)
             )
             Spacer(Modifier.size((maxHeightScreen.value * 0.018f).dp))
-            val passwordHintVisible = uiState is AuthStatusState.Error && (
+            val passwordError = uiState is AuthStatusState.Error && (
               authError.type == ErrorType.PW_BLANK ||
                 authError.type == ErrorType.PW_SHORT ||
-                authError.type == ErrorType.PW_WEAK ||
-                authError.type == ErrorType.PW_MISMATCH
+                authError.type == ErrorType.PW_WEAK
               )
+            val showPasswordRule = authMode == AuthMode.SignUp && !passwordError
             OutlinedTextField(
-              label = { Text("Password", color = White.copy(alpha = 0.7f)) },
+              label = { Text("Password", color = ScreenFg.copy(alpha = 0.7f)) },
               value = signInFormState.password,
               singleLine = true,
               textStyle = AuthFieldStyles.textStyle,
               colors = AuthFieldStyles.colors(),
-              isError = uiState is AuthStatusState.Error && (
-                authError.type == ErrorType.PW_BLANK || authError.type == ErrorType.PW_SHORT
-                ),
+              isError = passwordError,
               modifier = Modifier.fillMaxWidth(0.9f),
               onValueChange = { value ->
                 viewModel.clearError()
@@ -185,16 +189,17 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                   Icon(
                     imageVector = icon,
                     contentDescription = desc,
-                    tint = White.copy(alpha = 0.7f)
+                    tint = ScreenFg.copy(alpha = 0.7f)
                   )
                 }
               },
-              supportingText = if (passwordHintVisible) {
+              supportingText = if (passwordError || showPasswordRule) {
                 {
                   Text(
-                    authError.message,
+                    if (passwordError) authError.message
+                    else "At least 8 characters with letters, numbers, and special characters.",
                     style = Typography.bodySmall.copy(
-                      color = Color.Red,
+                      color = if (passwordError) Color.Red else ScreenFg.copy(alpha = 0.6f),
                       fontSize = readableSp(maxWidthScreen, 0.011f, 16f),
                       lineHeight = 18.sp,
                     ),
@@ -203,13 +208,61 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                 }
               } else null,
             )
+            AnimatedVisibility(
+              visible = authMode == AuthMode.SignUp,
+            ) {
+              val confirmError = uiState is AuthStatusState.Error &&
+                authError.type == ErrorType.PW_MISMATCH
+              Column {
+                Spacer(Modifier.size((maxHeightScreen.value * 0.018f).dp))
+                OutlinedTextField(
+                  label = { Text("Confirm Password", color = ScreenFg.copy(alpha = 0.7f)) },
+                  value = signInFormState.confirmPassword,
+                  singleLine = true,
+                  textStyle = AuthFieldStyles.textStyle,
+                  colors = AuthFieldStyles.colors(),
+                  isError = confirmError,
+                  modifier = Modifier.fillMaxWidth(0.9f),
+                  onValueChange = { value ->
+                    viewModel.clearError()
+                    viewModel.onConfirmPWSIChanged(value)
+                  },
+                  visualTransformation = if (!isConfirmPWVisible) PasswordVisualTransformation() else VisualTransformation.None,
+                  trailingIcon = {
+                    val icon = if (isConfirmPWVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
+                    val desc = if (isConfirmPWVisible) "Hide Password" else "Show Password"
+
+                    IconButton(onClick = { isConfirmPWVisible = !isConfirmPWVisible }) {
+                      Icon(
+                        imageVector = icon,
+                        contentDescription = desc,
+                        tint = ScreenFg.copy(alpha = 0.7f)
+                      )
+                    }
+                  },
+                  supportingText = if (confirmError) {
+                    {
+                      Text(
+                        authError.message,
+                        style = Typography.bodySmall.copy(
+                          color = Color.Red,
+                          fontSize = readableSp(maxWidthScreen, 0.011f, 16f),
+                          lineHeight = 18.sp,
+                        ),
+                        modifier = Modifier.padding(top = 2.dp),
+                      )
+                    }
+                  } else null,
+                )
+              }
+            }
           }
           Spacer(Modifier.size((maxHeightScreen.value * 0.03f).dp))
           Row(horizontalArrangement = Arrangement.SpaceBetween) {
             Row() {
               Button(
                 onClick = {
-                  if(authMode == AuthMode.SignIn) viewModel.signIn(signInFormState.email, signInFormState.password) else viewModel.signUp(signInFormState.email, signInFormState.password)
+                  if(authMode == AuthMode.SignIn) viewModel.signIn(signInFormState.email, signInFormState.password) else viewModel.signUp(signInFormState.email, signInFormState.password, signInFormState.confirmPassword)
                 },
                 enabled = uiState != AuthStatusState.Submitting && formState is AuthFormState.SignIn,
                 contentPadding = PaddingValues(horizontal = (maxWidthScreen.value * 0.016f).dp, vertical = 10.dp),
@@ -312,7 +365,7 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                   style = Typography.titleMedium.copy(textDecoration = TextDecoration.Underline),
                   fontSize = readableSp(maxWidthScreen, 0.013f, 15f),
                   fontWeight = FontWeight.Medium,
-                  color = White.copy(alpha = 0.8f)
+                  color = ScreenFg.copy(alpha = 0.8f)
                 )
               }
             }
@@ -320,7 +373,7 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
         }
       }
       Spacer(modifier = Modifier.size((maxWidthScreen.value * 0.025).dp))
-      VerticalDivider(color = White)
+      VerticalDivider(color = ScreenFg)
     }
   }
 }

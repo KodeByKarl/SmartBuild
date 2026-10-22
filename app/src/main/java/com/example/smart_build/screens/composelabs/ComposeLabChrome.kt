@@ -35,6 +35,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.compose.ui.platform.LocalContext
+import com.example.smart_build.tutorial.CoachHost
+import com.example.smart_build.tutorial.CoachStep
+import com.example.smart_build.tutorial.CoachTourEffect
+import com.example.smart_build.tutorial.TutorialContent
+import com.example.smart_build.tutorial.coachTarget
+import com.example.smart_build.tutorial.rememberCoachController
 import com.example.smart_build.ui.theme.Black
 import com.example.smart_build.ui.theme.GSCode
 import com.example.smart_build.ui.theme.GSFlex
@@ -67,8 +74,23 @@ fun ComposeLabScaffold(
   embedded: Boolean = false,
   onBack: (() -> Unit)? = null,
   goal: String = "",
+  /** Per-lab welcome tutorial (modals), shown once before the shared chrome tour. */
+  introTourId: String? = null,
+  introSteps: List<CoachStep> = emptyList(),
   content: @Composable BoxScope.() -> Unit,
 ) {
+  val coach = rememberCoachController()
+  val tourContext = LocalContext.current
+  if (introTourId != null) {
+    CoachTourEffect(coach, introTourId, introSteps, tourContext)
+  }
+  CoachTourEffect(
+    controller = coach,
+    tourId = TutorialContent.LAB_CHROME_ID,
+    steps = TutorialContent.labChrome(hasReset = onReset != null),
+    context = tourContext,
+  )
+
   fun goBack() {
     if (onBack != null) onBack()
     else if (!navController.popBackStack()) navController.navigateUp()
@@ -97,7 +119,7 @@ fun ComposeLabScaffold(
     ) {
       // —— Slim header (brand + progress only) ——
       Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().coachTarget(coach, "lab_header"),
         verticalAlignment = Alignment.CenterVertically,
       ) {
         if (showBack) {
@@ -142,6 +164,7 @@ fun ComposeLabScaffold(
 
       Spacer(modifier = Modifier.height(4.dp))
 
+      Column(modifier = Modifier.fillMaxWidth().coachTarget(coach, "lab_guide")) {
       if (goal.isNotBlank()) {
         Text(
           text = "Goal: $goal",
@@ -179,6 +202,7 @@ fun ComposeLabScaffold(
             .padding(horizontal = 2.dp, vertical = 2.dp),
         )
       }
+      }
 
       Spacer(modifier = Modifier.height(4.dp))
 
@@ -187,6 +211,7 @@ fun ComposeLabScaffold(
         modifier = Modifier
           .weight(1f)
           .fillMaxWidth()
+          .coachTarget(coach, "lab_playground")
           .clip(RoundedCornerShape(12.dp))
           .background(Color(0xFF071A22))
           .border(1.dp, Primary.copy(alpha = 0.28f), RoundedCornerShape(12.dp)),
@@ -203,6 +228,7 @@ fun ComposeLabScaffold(
         fontSize = labSp(maxW, 0.012f, 10f, 11f),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.fillMaxWidth().coachTarget(coach, "lab_status"),
       )
       Spacer(modifier = Modifier.height(4.dp))
       Row(
@@ -212,7 +238,7 @@ fun ComposeLabScaffold(
         if (onReset != null) {
           LabChromeButton(
             label = "Reset",
-            modifier = Modifier.weight(0.28f),
+            modifier = Modifier.weight(0.28f).coachTarget(coach, "lab_reset"),
             background = Color(0xFF003247),
             onClick = onReset,
           )
@@ -223,7 +249,7 @@ fun ComposeLabScaffold(
           } else {
             primaryLabel
           },
-          modifier = Modifier.weight(if (onReset != null) 0.72f else 1f),
+          modifier = Modifier.weight(if (onReset != null) 0.72f else 1f).coachTarget(coach, "lab_primary"),
           background = when {
             !primaryEnabled -> Color(0xFF003247)
             statusOk -> Color(0xFF1E8449)
@@ -240,6 +266,7 @@ fun ComposeLabScaffold(
         )
       }
     }
+    CoachHost(coach)
   }
 }
 

@@ -62,7 +62,7 @@ class P6SmokeInstrumentedTest {
 
     // M0–M1 → Godot ModulePage
     val godotTitles = listOf(
-      0 to "Introduction To Computer Systems Servicing",
+      0 to "Preparatory Module | Introduction To Computer Systems Servicing",
       1 to "Installing and Configuring Computer Systems",
     )
     for ((id, name) in godotTitles) {

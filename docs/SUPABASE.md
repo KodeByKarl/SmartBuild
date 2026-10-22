@@ -114,6 +114,10 @@ Pagkatapos magbago ng schema: **Settings → API → Reload schema** (iwas `PGRS
 - Max **99%** hanggang Assessment (o Module 0 complete)
 - Assessment → **100%** + `assessment_done = true`
 - Guided → `guided_done = true`, percent ≥ 50%, ≤ 99%
+- Guided is saved when the **Guided Simulation** finishes (Godot `guided_saved`, or the Compose lab
+  for Modules 2–4); Assessment when the **Assessment Simulation** finishes (`assessment_saved` /
+  Compose lab). There is no quiz — no quiz columns exist, and older rows load unchanged
+  (`percent`, `guided_done`, `assessment_done` keep their meaning).
 
 ---
 

@@ -144,7 +144,7 @@ object CssPartsCatalog {
       summary = "Enclosure that mounts the board, drives, PSU, and cooling.",
       overview = "The case provides structure, airflow paths, front I/O, and drive bays. Form factor must match the motherboard. Panelists expect Case as a core assembly component.",
       howItWorks = "Intake/exhaust fans move air across CPU and GPU heatsinks. Cable management improves cooling and serviceability.",
-      cssUse = "Assembly order in CSS training includes preparing the chassis, installing PSU and motherboard, then routing cables before closing the side panel.",
+      cssUse = "Assembly order in CSS training includes preparing the chassis, installing the PSU, fitting the CPU, CPU fan, and RAM on the motherboard outside the case, then installing the motherboard and routing cables before closing the side panel.",
       commonIssues = "Missing standoffs, blocked airflow, sharp edges cutting cables, front-panel connectors miswired.",
       technicianTips = "Photograph front-panel pinouts before disconnecting. Keep intake filters clean during maintenance.",
       relatedModules = listOf(0, 1, 4),

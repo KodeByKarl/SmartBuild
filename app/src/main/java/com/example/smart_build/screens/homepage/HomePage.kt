@@ -34,17 +34,29 @@ import android.widget.Toast
 import com.example.smart_build.R
 import com.example.smart_build.SmartBuildBridge
 import com.example.smart_build.SimulationWarmState
+import com.example.smart_build.data.ModuleFlowEntry
 import com.example.smart_build.data.ModuleProgressStore
 import com.example.smart_build.data.ReturnToModule
 import com.example.smart_build.navigation.Routes
+import com.example.smart_build.screens.homepage.components.ChangePasswordDialog
+import com.example.smart_build.screens.homepage.components.CreditsDialog
 import com.example.smart_build.screens.homepage.components.HowToUseDialog
 import com.example.smart_build.screens.homepage.components.ModuleCarousel
 import com.example.smart_build.screens.homepage.components.ProfileOverlay
 import com.example.smart_build.screens.homepage.components.TopBar
+import com.example.smart_build.tutorial.CoachHost
+import com.example.smart_build.tutorial.CoachTourEffect
+import com.example.smart_build.tutorial.TutorialContent
+import com.example.smart_build.tutorial.TutorialStore
+import com.example.smart_build.tutorial.coachTarget
+import com.example.smart_build.tutorial.rememberCoachController
+import com.example.smart_build.ui.theme.ScreenBg
+import com.example.smart_build.ui.theme.ScreenFg
 import com.example.smart_build.ui.theme.Black
 import com.example.smart_build.ui.theme.White
 import com.example.smart_build.viewmodel.auth.AuthStatusState
 import com.example.smart_build.viewmodel.auth.AuthViewModel
+import com.example.smart_build.viewmodel.home.ChangePasswordState
 import com.example.smart_build.viewmodel.home.HomeViewModel
 import com.example.smart_build.viewmodel.home.ModuleCardData
 import kotlinx.coroutines.delay
@@ -68,9 +80,18 @@ fun HomePage(
     mutableStateOf(false)
   }
   var howToOpen by remember { mutableStateOf(false) }
+  var creditsOpen by remember { mutableStateOf(false) }
+  val changePasswordState by viewModel.changePasswordState.collectAsStateWithLifecycle()
   var openModuleId by remember { mutableStateOf<Int?>(null) }
 
   val lifecycleOwner = LocalLifecycleOwner.current
+  val coach = rememberCoachController()
+  CoachTourEffect(
+    controller = coach,
+    tourId = TutorialContent.HOME_ID,
+    steps = TutorialContent.home,
+    context = context,
+  )
 
   // Refresh on every entry (including popBackStack from ModulePage after guided/assessment save).
   LaunchedEffect(Unit) {
@@ -101,7 +122,11 @@ fun HomePage(
     SmartBuildBridge.requestWarmup(moduleId = 1)
   }
 
-  fun openModule(moduleId: Int, moduleName: String, simulationType: Int) {
+  fun openModule(moduleId: Int, moduleName: String, requestedType: Int) {
+    // A finished module reopens on its Congratulations page (Proceed to Home / Retake Module)
+    // instead of replaying the lessons from page 1.
+    val finished = ModuleProgressStore.progress(context, moduleId) >= 100f
+    val simulationType = if (finished) ModuleFlowEntry.COMPLETION else requestedType
     // Reaching the last guided page caps progress at 99%. Treat that as guided
     // done so Assessment unlocks even if guided_completed was missed (Next-only).
     if (simulationType == 1 && moduleId >= 1) {
@@ -112,19 +137,15 @@ fun HomePage(
       } else if (!guided) {
         Toast.makeText(
           context,
-          "Finish Guided Simulation first. Scenario Assessment unlocks after Guided.",
+          "Finish Guided Simulation first. Assessment unlocks after Guided.",
           Toast.LENGTH_SHORT
         ).show()
         return
       }
     }
-    // M2–M4 = Compose path; M0–M1 = Godot.
-    if (moduleId in 2..4) {
-      navController.navigate(Routes.ComposeModule.createRoute(moduleId, simulationType)) {
-        launchSingleTop = true
-      }
-      return
-    }
+    // Every module opens in Godot (ModulePage). Guided starts at the lesson
+    // pages, Assessment at "Be Ready" (ModuleFlowEntry). Modules 2–4 then hand
+    // their simulations to the Compose labs from inside the flow.
     val progress = ModuleProgressStore.progress(context, moduleId)
     navController.navigate(
       Routes.ModulePage.createRoute(moduleId, moduleName, simulationType, progress)
@@ -153,7 +174,7 @@ fun HomePage(
 
   val modules = listOf(
     ModuleCardData(
-      number = "Module 0",
+      number = "Preparatory Module",
       moduleId = 0,
       title = "Introduction to Computer Systems Servicing",
       description = "This prerequisite module for Computer Systems Servicing (CSS) NC II covers the fundamentals of computer systems. It is recommended to complete this module first before proceeding to the other CSS modules and hands-on servicing activities.",
@@ -297,7 +318,7 @@ fun HomePage(
     contentAlignment = Alignment.Center,
     modifier = Modifier
       .fillMaxSize()
-      .background(Black)
+      .background(ScreenBg)
   ) {
     val MAX_WIDTH = maxWidth
     val MAX_HEIGHT = maxHeight
@@ -317,7 +338,8 @@ fun HomePage(
         helpOnClick = { howToOpen = true },
         iconButtonOnClick = {
           profileMenuOpen = !profileMenuOpen
-        }
+        },
+        coach = coach,
       )
       ModuleCarousel(
         modules = modules,
@@ -328,11 +350,20 @@ fun HomePage(
         modifier = Modifier
           .fillMaxWidth()
           .padding(top = 40.dp)
+          .coachTarget(coach, "home_modules")
       )
     }
 
     if (howToOpen) {
-      HowToUseDialog(onDismiss = { howToOpen = false })
+      HowToUseDialog(
+        onDismiss = { howToOpen = false },
+        onReplayTutorial = {
+          howToOpen = false
+          // Forget every tutorial so each screen shows its tour again, then replay Home now.
+          TutorialStore.resetAll(context)
+          coach.start(context, TutorialContent.HOME_ID, TutorialContent.home, force = true)
+        },
+      )
     }
 
     val warmLabel = when (warmState) {
@@ -351,7 +382,7 @@ fun HomePage(
     ) {
       Text(
         text = warmLabel,
-        color = White.copy(alpha = 0.72f),
+        color = ScreenFg.copy(alpha = 0.72f),
         fontSize = 14.sp,
         fontWeight = FontWeight.Medium
       )
@@ -362,6 +393,25 @@ fun HomePage(
         maxWidth = MAX_WIDTH,
         maxHeight = MAX_HEIGHT,
         onDismiss = {
+          profileMenuOpen = false
+        },
+        onCreditsClick = {
+          profileMenuOpen = false
+          creditsOpen = true
+        }
+      )
+    }
+
+    if (creditsOpen) {
+      CreditsDialog(onDismiss = { creditsOpen = false })
+    }
+
+    if (changePasswordState != ChangePasswordState.Hidden) {
+      ChangePasswordDialog(
+        state = changePasswordState,
+        onSubmit = { current, new, confirm -> viewModel.changePassword(current, new, confirm) },
+        onDismiss = {
+          viewModel.closeChangePassword()
           profileMenuOpen = false
         }
       )
@@ -402,5 +452,7 @@ fun HomePage(
         }
       )
     }
+
+    CoachHost(coach)
   }
 }

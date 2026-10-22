@@ -17,13 +17,13 @@ object AssessmentScenarios {
     2 -> AssessmentScenario(
       moduleId = 2,
       title = "Broken small-office link",
-      situation = "A trainee finished a ‘straight-through’ run, but the switch–PC link has no light. " +
-        "The cable on the bench is actually a crossover, and the topology sketch is incomplete.",
+      situation = "A trainee cabled two office PCs straight to each other with the wrong cable, and there are no switches in between. " +
+        "Nothing on the bench is configured, so the PCs cannot ping.",
       faults = listOf(
-        "Wrong cable standard used for PC-to-switch (should be straight-through T568B both ends — you will build the correct cable first).",
-        "Missing or wrong device order / cabling on the bench sketch.",
+        "The PC-to-PC cable is the wrong media, and the office needs switches between the PCs.",
+        "No IP addresses are set, so the PCs cannot reach each other.",
       ),
-      goal = "Build the correct cable, then restore modem→router→switch→AP/PC so link lights pass.",
+      goal = "Make a straight-through and a crossover cable, rebuild the LAN (PC ↔ Switch straight-through, Switch ↔ Switch crossover), set both PC addresses, then ping PC1 from PC0.",
     )
     3 -> AssessmentScenario(
       moduleId = 3,
@@ -45,6 +45,7 @@ object AssessmentScenarios {
       faults = listOf(
         "Desktop not personalized / wallpaper still default.",
         "Junk files and Disk Cleanup not finished.",
+        "No antivirus scan run, so three threats are still on the PC.",
         "Gateway / external ping path not verified in CMD.",
         "Ticket not closed with documentation.",
       ),

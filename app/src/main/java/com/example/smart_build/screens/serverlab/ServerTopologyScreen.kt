@@ -1,5 +1,11 @@
 package com.example.smart_build.screens.serverlab
 
+import com.example.smart_build.tutorial.CoachHost
+import com.example.smart_build.tutorial.CoachTourEffect
+import com.example.smart_build.tutorial.TutorialContent
+import com.example.smart_build.tutorial.coachTarget
+import com.example.smart_build.tutorial.rememberCoachController
+import androidx.compose.ui.platform.LocalContext
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -427,6 +433,14 @@ fun ServerTopologyScreen(
     else -> null
   }
 
+  val coach = rememberCoachController()
+  CoachTourEffect(
+    controller = coach,
+    tourId = TutorialContent.SERVER_TOPOLOGY_ID,
+    steps = TutorialContent.serverTopology,
+    context = LocalContext.current,
+  )
+
   BackHandler { leave() }
 
   Box(modifier = Modifier.fillMaxSize()) {
@@ -563,6 +577,7 @@ fun ServerTopologyScreen(
         Text(actionLabel, color = White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
       }
     }
+    CoachHost(coach)
   }
 }
 

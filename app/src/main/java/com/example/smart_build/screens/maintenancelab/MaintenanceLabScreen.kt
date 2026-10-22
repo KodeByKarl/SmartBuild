@@ -1,5 +1,11 @@
 package com.example.smart_build.screens.maintenancelab
 
+import com.example.smart_build.tutorial.CoachHost
+import com.example.smart_build.tutorial.CoachTourEffect
+import com.example.smart_build.tutorial.TutorialContent
+import com.example.smart_build.tutorial.coachTarget
+import com.example.smart_build.tutorial.rememberCoachController
+import androidx.compose.ui.platform.LocalContext
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -58,13 +64,22 @@ import com.example.smart_build.ui.RuleFeedbackDialog
 import com.example.smart_build.ui.theme.White
 import kotlin.math.roundToInt
 
-private enum class DeskWindow { NONE, TICKET, PICTURES, CLEANUP, CMD, ACTION }
+private enum class DeskWindow { NONE, TICKET, PICTURES, CLEANUP, ANTIVIRUS, CMD, ACTION }
+
+/** Ticket accepted, wallpaper, junk, Disk Cleanup, antivirus, ping, ticket closed. */
+private const val TOTAL_STEPS = 7
+
+private const val THREAT_COUNT = 3
 
 private data class MaintState(
   val ticketAccepted: Boolean = false,
   val wallpaperSet: Boolean = false,
   val junkInTrash: Int = 0,
   val diskCleanupDone: Boolean = false,
+  /** Antivirus Quick Scan has been run and listed its findings. */
+  val avScanned: Boolean = false,
+  /** Threat id -> "Removed" / "Quarantined" for the ones already handled. */
+  val threatLog: Map<String, String> = emptyMap(),
   val pingGw: Boolean = false,
   val pingDns: Boolean = false,
   val ticketClosed: Boolean = false,
@@ -72,12 +87,14 @@ private data class MaintState(
 ) {
   val junkCleared: Boolean get() = junkInTrash >= 2
   val netDone: Boolean get() = pingGw && pingDns
+  val threatsLeft: Int get() = THREAT_COUNT - threatLog.size
+  val avDone: Boolean get() = avScanned && threatsLeft == 0
 
   /** Soft-only Windows repair steps (no hardware tools on the OS desktop). */
   val doneCount: Int
     get() = listOf(
       ticketAccepted, wallpaperSet, junkCleared,
-      diskCleanupDone, netDone, ticketClosed,
+      diskCleanupDone, avDone, netDone, ticketClosed,
     ).count { it }
 
   fun nextHint(): String = when {
@@ -85,6 +102,8 @@ private data class MaintState(
     !wallpaperSet -> "Start → Pictures — drag a wallpaper onto the desktop"
     !junkCleared -> "Drag Temp and OldReports into Recycle Bin"
     !diskCleanupDone -> "Start → Disk Cleanup → Run"
+    !avScanned -> "Start → Antivirus — tap Quick Scan"
+    !avDone -> "Antivirus — Remove or Quarantine every threat ($threatsLeft left)"
     !pingGw -> "CMD — type: ping 192.168.1.1  then Enter"
     !pingDns -> "CMD — type: ping 8.8.8.8  then Enter"
     !ticketClosed -> "Action Center — Close ticket"
@@ -121,6 +140,14 @@ fun MaintenanceLabScreen(
     }
   }
 
+  val coach = rememberCoachController()
+  CoachTourEffect(
+    controller = coach,
+    tourId = TutorialContent.MAINTENANCE_ID,
+    steps = TutorialContent.maintenance,
+    context = LocalContext.current,
+  )
+
   BackHandler { goBack() }
 
   fun reset() {
@@ -133,7 +160,7 @@ fun MaintenanceLabScreen(
   }
 
   fun finishModule() {
-    if (state.doneCount < 6 && !passed) {
+    if (state.doneCount < TOTAL_STEPS && !passed) {
       dialog = false to ("Not finished" to "Still needed: ${state.nextHint()}")
       return
     }
@@ -186,15 +213,28 @@ fun MaintenanceLabScreen(
         dialog = true to ("Disk Cleanup" to "Free space recovered.")
         window = DeskWindow.NONE
       },
+      onAvScanned = {
+        state = state.copy(avScanned = true)
+      },
+      onThreatHandled = { id, how ->
+        val updated = state.threatLog + (id to how)
+        state = state.copy(threatLog = updated)
+        if (updated.size >= THREAT_COUNT) {
+          dialog = true to ("System clean" to "All threats are removed or quarantined. Check the network next.")
+        }
+      },
+      onThreatFailed = { why ->
+        dialog = false to ("Cannot remove that way" to why)
+      },
       onPing = { which ->
         // Feedback stays inside CMD transcript (typed commands).
         state = if (which == "gw") state.copy(pingGw = true) else state.copy(pingDns = true)
       },
       onCloseTicket = {
-        if (state.doneCount < 5) {
+        if (state.doneCount < TOTAL_STEPS - 1) {
           dialog = false to (
             "Not ready" to
-              "Finish wallpaper, Recycle Bin, Disk Cleanup, and ping before closing."
+              "Finish wallpaper, Recycle Bin, Disk Cleanup, the antivirus scan, and ping before closing."
             )
           return@WindowsDesktop
         }
@@ -221,6 +261,7 @@ fun MaintenanceLabScreen(
         Column(
           modifier = Modifier
             .weight(1f)
+            .coachTarget(coach, "mt_guide")
             .clip(RoundedCornerShape(10.dp))
             .background(Color.Black.copy(alpha = 0.55f))
             .border(1.dp, Color(0xFFE8B84A).copy(alpha = 0.7f), RoundedCornerShape(10.dp))
@@ -236,13 +277,13 @@ fun MaintenanceLabScreen(
             overflow = TextOverflow.Ellipsis,
           )
           Text(
-            "Tap guide to hide · ${state.doneCount}/6",
+            "Tap guide to hide · ${state.doneCount}/$TOTAL_STEPS",
             color = White.copy(alpha = 0.75f),
             fontSize = 10.sp,
           )
         }
         Spacer(modifier = Modifier.width(6.dp))
-        FloatChip("Exit") { goBack() }
+        FloatChip("Exit", Modifier.coachTarget(coach, "mt_exit")) { goBack() }
       }
     } else {
       Row(
@@ -254,8 +295,8 @@ fun MaintenanceLabScreen(
         if (hints) {
           FloatChip("Guide") { guideVisible = true }
         }
-        FloatChip("${state.doneCount}/6") {}
-        FloatChip("Exit") { goBack() }
+        FloatChip("${state.doneCount}/$TOTAL_STEPS") {}
+        FloatChip("Exit", Modifier.coachTarget(coach, "mt_exit")) { goBack() }
       }
     }
 
@@ -272,13 +313,14 @@ fun MaintenanceLabScreen(
         Text("Finish module ▶", color = White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
       }
     }
+    CoachHost(coach)
   }
 }
 
 @Composable
-private fun FloatChip(label: String, onClick: () -> Unit) {
+private fun FloatChip(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
   Box(
-    modifier = Modifier
+    modifier = modifier
       .clip(RoundedCornerShape(8.dp))
       .background(Color.Black.copy(alpha = 0.55f))
       .border(1.dp, White.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
@@ -302,6 +344,9 @@ private fun WindowsDesktop(
   onSetWallpaper: (Int) -> Unit,
   onTrashJunk: (String) -> Unit,
   onDiskCleanup: () -> Unit,
+  onAvScanned: () -> Unit,
+  onThreatHandled: (String, String) -> Unit,
+  onThreatFailed: (String) -> Unit,
   onPing: (String) -> Unit,
   onCloseTicket: () -> Unit,
   onFinish: () -> Unit,
@@ -339,7 +384,11 @@ private fun WindowsDesktop(
         startOpen = false
         onOpen(DeskWindow.PICTURES)
       }
-      DeskIcon("💻", "CMD", highlight = state.diskCleanupDone && !state.netDone) {
+      DeskIcon("🛡️", "Antivirus", highlight = state.diskCleanupDone && !state.avDone) {
+        startOpen = false
+        onOpen(DeskWindow.ANTIVIRUS)
+      }
+      DeskIcon("💻", "CMD", highlight = state.avDone && !state.netDone) {
         startOpen = false
         onOpen(DeskWindow.CMD)
       }
@@ -417,6 +466,13 @@ private fun WindowsDesktop(
           Text("✓ Cleanup complete", color = Color(0xFF1E8449), fontWeight = FontWeight.Bold)
         }
       }
+      DeskWindow.ANTIVIRUS -> AntivirusWindow(
+        state = state,
+        onClose = onCloseWindow,
+        onScanned = onAvScanned,
+        onThreatHandled = onThreatHandled,
+        onThreatFailed = onThreatFailed,
+      )
       DeskWindow.CMD -> CmdWindow(
         state = state,
         onClose = onCloseWindow,
@@ -426,6 +482,7 @@ private fun WindowsDesktop(
         val warns = listOf(
           (!state.wallpaperSet) to "Default wallpaper / not personalized",
           (!state.junkCleared || !state.diskCleanupDone) to "Low disk / junk files",
+          (!state.avDone) to "Threats detected / antivirus scan pending",
           (!state.netDone) to "No internet",
           (!state.ticketClosed) to "Open service ticket",
         )
@@ -490,7 +547,11 @@ private fun WindowsDesktop(
         Text("⊞", color = White, fontSize = 14.sp)
       }
       // Pinned taskbar apps
-      TaskbarPin("💻", highlight = state.diskCleanupDone && !state.netDone) {
+      TaskbarPin("🛡️", highlight = state.diskCleanupDone && !state.avDone) {
+        startOpen = false
+        onOpen(DeskWindow.ANTIVIRUS)
+      }
+      TaskbarPin("💻", highlight = state.avDone && !state.netDone) {
         startOpen = false
         onOpen(DeskWindow.CMD)
       }
@@ -500,7 +561,7 @@ private fun WindowsDesktop(
       }
       Spacer(modifier = Modifier.weight(1f))
       Text(
-        if (passed) "Finish ✓" else "Action Center (${6 - state.doneCount})",
+        if (passed) "Finish ✓" else "Action Center (${TOTAL_STEPS - state.doneCount})",
         color = White,
         fontSize = 11.sp,
         fontWeight = FontWeight.SemiBold,
@@ -546,7 +607,10 @@ private fun StartMenu(
     StartItem("💽", "Disk Cleanup", highlight = state.junkCleared && !state.diskCleanupDone) {
       onPick(DeskWindow.CLEANUP)
     }
-    StartItem("💻", "Command Prompt", highlight = state.diskCleanupDone && !state.netDone) {
+    StartItem("🛡️", "Antivirus", highlight = state.diskCleanupDone && !state.avDone) {
+      onPick(DeskWindow.ANTIVIRUS)
+    }
+    StartItem("💻", "Command Prompt", highlight = state.avDone && !state.netDone) {
       onPick(DeskWindow.CMD)
     }
     StartItem("🔔", "Action Center", highlight = state.netDone && !state.ticketClosed) {
@@ -814,6 +878,143 @@ private fun DraggableDeskItem(
   }
 }
 
+private data class Threat(
+  val id: String,
+  val name: String,
+  val where: String,
+  /** False when the file cannot be cleaned without destroying it: must be quarantined. */
+  val removable: Boolean,
+)
+
+private val THREATS = listOf(
+  Threat("t1", "Adware.Popup.Gen", "C:\\Users\\Tech\\Temp\\ads.dll", removable = true),
+  Threat("t2", "Trojan.FakeAV", "C:\\Users\\Tech\\Downloads\\crack.exe", removable = true),
+  Threat("t3", "Macro.Word.Concept", "C:\\Users\\Tech\\Documents\\OldReports.doc", removable = false),
+)
+
+@Composable
+private fun AntivirusWindow(
+  state: MaintState,
+  onClose: () -> Unit,
+  onScanned: () -> Unit,
+  onThreatHandled: (String, String) -> Unit,
+  onThreatFailed: (String) -> Unit,
+) {
+  var scanning by remember { mutableStateOf(false) }
+  var progress by remember { mutableFloatStateOf(if (state.avScanned) 1f else 0f) }
+
+  LaunchedEffect(scanning) {
+    if (!scanning) return@LaunchedEffect
+    var step = 0
+    while (step < 20) {
+      kotlinx.coroutines.delay(110)
+      step += 1
+      progress = step / 20f
+    }
+    scanning = false
+    onScanned()
+  }
+
+  WinFrame("SmartBuild Defender", onClose) {
+    when {
+      !state.avScanned -> {
+        Text(
+          if (scanning) "Scanning… ${(progress * 100).toInt()}%" else "No scan has been run on this PC yet.",
+          fontSize = 12.sp,
+          color = Color(0xFF444444),
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(8.dp)
+            .clip(RoundedCornerShape(4.dp))
+            .background(Color(0xFFD5D8DC)),
+        ) {
+          Box(
+            modifier = Modifier
+              .fillMaxWidth(progress)
+              .height(8.dp)
+              .background(Color(0xFF2E86C1)),
+          )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        if (!scanning) {
+          ActionBtn("Quick Scan") { scanning = true }
+        }
+      }
+      else -> {
+        Text(
+          if (state.threatsLeft == 0) "✓ No threats left" else "⚠ ${THREATS.size} threats found — ${state.threatsLeft} left",
+          fontSize = 12.sp,
+          fontWeight = FontWeight.Bold,
+          color = if (state.threatsLeft == 0) Color(0xFF1E8449) else Color(0xFFC0392B),
+        )
+        Text(
+          "Remove cleans the file. If it cannot be cleaned safely, Quarantine isolates it.",
+          fontSize = 10.sp,
+          color = Color(0xFF555555),
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        THREATS.forEach { threat ->
+          val done = threat.id in state.threatLog
+          Column(
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(vertical = 3.dp)
+              .clip(RoundedCornerShape(4.dp))
+              .background(if (done) Color(0xFFE8F6EF) else Color.White)
+              .border(1.dp, Color(0xFFBDC3C7), RoundedCornerShape(4.dp))
+              .padding(6.dp),
+          ) {
+            Text(threat.name, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+            Text(threat.where, fontSize = 9.sp, fontFamily = FontFamily.Monospace, color = Color(0xFF555555))
+            if (done) {
+              Text("✓ ${state.threatLog[threat.id]}", fontSize = 11.sp, color = Color(0xFF1E8449), fontWeight = FontWeight.Bold)
+            } else {
+              Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
+                Box(
+                  modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xFFC0392B))
+                    .clickable {
+                      if (threat.removable) {
+                        onThreatHandled(threat.id, "Removed")
+                      } else {
+                        onThreatFailed(
+                          "${threat.name} is embedded in a document, so removing it would destroy the file. " +
+                            "Use Quarantine to isolate it instead.",
+                        )
+                      }
+                    }
+                    .padding(vertical = 6.dp),
+                  contentAlignment = Alignment.Center,
+                ) {
+                  Text("Remove", color = White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
+                Box(
+                  modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xFFD68910))
+                    .clickable {
+                      onThreatHandled(threat.id, "Quarantined")
+                    }
+                    .padding(vertical = 6.dp),
+                  contentAlignment = Alignment.Center,
+                ) {
+                  Text("Quarantine", color = White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 @Composable
 private fun WallpaperThumb(
   name: String,
@@ -865,6 +1066,7 @@ private fun WinFrame(title: String, onClose: () -> Unit, content: @Composable ()
     modifier = Modifier
       .padding(start = 72.dp, top = 56.dp, end = 16.dp)
       .widthIn(max = 340.dp)
+      .heightIn(max = 270.dp)
       .clip(RoundedCornerShape(6.dp))
       .background(Color(0xFFF4F6F7))
       .border(1.dp, Color(0xFF7F8C8D), RoundedCornerShape(6.dp)),
@@ -884,7 +1086,10 @@ private fun WinFrame(title: String, onClose: () -> Unit, content: @Composable ()
         modifier = Modifier.clickable(onClick = onClose).padding(4.dp),
       )
     }
-    Column(modifier = Modifier.padding(10.dp), content = { content() })
+    Column(
+      modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(10.dp),
+      content = { content() },
+    )
   }
 }
 

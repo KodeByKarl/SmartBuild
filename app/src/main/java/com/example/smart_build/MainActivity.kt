@@ -10,7 +10,13 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.widget.Toast
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
@@ -25,6 +31,7 @@ import com.example.smart_build.godot.GodotHostLayer
 import com.example.smart_build.navigation.AppNav
 import com.example.smart_build.network.NetworkConnectivityObserver
 import com.example.smart_build.ui.theme.Smart_BuildTheme
+import com.example.smart_build.ui.theme.ThemePrefs
 import com.example.smart_build.viewmodel.auth.AuthRecoveryHold
 import com.example.smart_build.viewmodel.auth.AuthViewModel
 import io.github.jan.supabase.auth.handleDeeplinks
@@ -51,6 +58,8 @@ class MainActivity : FragmentActivity(), GodotHost {
       systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
     }
 
+    ThemePrefs.init(this)
+
     setContent {
       requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
 
@@ -58,8 +67,20 @@ class MainActivity : FragmentActivity(), GodotHost {
       val context = LocalContext.current
       val connectivityObserver = remember { NetworkConnectivityObserver(context) }
       val isConnected by connectivityObserver.isConnected.collectAsStateWithLifecycle(initialValue = true)
+      // "Reload" re-checks the connection by hand, so a stale offline flag never traps the learner.
+      var manuallyOnline by remember { mutableStateOf(false) }
+      LaunchedEffect(isConnected) { if (isConnected) manuallyOnline = false }
+      val reloadConnection = {
+        val manager = context.getSystemService(ConnectivityManager::class.java)
+        val caps = manager?.getNetworkCapabilities(manager.activeNetwork)
+        if (caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true) {
+          manuallyOnline = true
+        } else {
+          Toast.makeText(context, "Still offline. Check your connection and try again.", Toast.LENGTH_SHORT).show()
+        }
+      }
 
-      Smart_BuildTheme {
+      Smart_BuildTheme(darkTheme = !ThemePrefs.lightMode) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
           val MAX_WIDTH = maxWidth
           val MAX_HEIGHT = maxHeight
@@ -68,7 +89,7 @@ class MainActivity : FragmentActivity(), GodotHost {
           GodotHostLayer()
           AppNav(navController, authViewModel)
 
-          if (!isConnected) ConnectionLostDialog(maxWidth = MAX_WIDTH, maxHeight = MAX_HEIGHT)
+          if (!isConnected && !manuallyOnline) ConnectionLostDialog(maxWidth = MAX_WIDTH, maxHeight = MAX_HEIGHT, onReload = reloadConnection)
         }
       }
     }

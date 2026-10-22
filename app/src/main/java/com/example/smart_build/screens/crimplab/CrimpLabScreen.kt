@@ -39,9 +39,13 @@ fun CrimpLabScreen(
   forcedMode: CableMode? = null,
   allowModeSwitch: Boolean = true,
   embedded: Boolean = false,
+  /** Open with the toolbox: pick the right tools before the bench unlocks. */
+  showToolStep: Boolean = false,
   onStationComplete: (() -> Unit)? = null,
   onLeave: (() -> Unit)? = null,
 ) {
+  var toolsReady by remember { mutableStateOf(!showToolStep) }
+  var pickedTools by remember { mutableStateOf(setOf<String>()) }
   var state by remember {
     mutableStateOf(
       CrimpLabUiState(
@@ -300,25 +304,52 @@ fun CrimpLabScreen(
     )
   }
 
-  val showModes = allowModeSwitch && hints && state.step == CrimpStep.SELECT && !state.passed
+  val showModes = allowModeSwitch && hints && toolsReady && state.step == CrimpStep.SELECT && !state.passed
+
+  fun confirmTools() {
+    val problem = toolPickProblem(pickedTools)
+    if (problem == null) {
+      toolsReady = true
+      dialog = true to (
+        "Toolbox ready" to
+          "You have the cable, plugs, stripper, crimper, and tester. Start at the bench."
+        )
+    } else {
+      dialog = false to ("Check your toolbox" to problem)
+    }
+  }
 
   ComposeLabScaffold(
     navController = navController,
-    eyebrow = "CRIMP LAB · ${if (hints) "Guided Simulation" else "Scenario Assessment"}",
+    introTourId = com.example.smart_build.tutorial.TutorialContent.CRIMP_ID,
+    introSteps = com.example.smart_build.tutorial.TutorialContent.crimp,
+    eyebrow = "CRIMP LAB · ${if (hints) "Guided Simulation" else "Assessment"}",
     title = "Module 2 · ${modeLabel()}",
-    progressLabel = state.progressLabel,
-    coachTitle = state.step.title,
-    coachBody = state.step.coachFor(state.mode),
-    nextStep = if (state.passed) "Cable certified — continue to the next station" else state.step.nextStepLabel,
-    status = state.status,
+    progressLabel = if (toolsReady) state.progressLabel else "Tools",
+    coachTitle = if (toolsReady) state.step.title else "0 · Gather your tools",
+    coachBody = if (toolsReady) {
+      state.step.coachFor(state.mode)
+    } else {
+      "Tap the tools this ${if (state.mode == CableMode.STRAIGHT) "straight-through" else "crossover"} cable needs. Leave the rest in the box."
+    },
+    nextStep = when {
+      !toolsReady -> "Pick the right tools, then confirm"
+      state.passed -> "Cable certified — continue to the next station"
+      else -> state.step.nextStepLabel
+    },
+    status = if (toolsReady) state.status else "Choose your tools from the toolbox",
     statusOk = state.passed,
-    primaryLabel = state.step.nextStepLabel,
-    primaryEnabled = state.passed,
+    primaryLabel = if (toolsReady) state.step.nextStepLabel else "Confirm tools",
+    primaryEnabled = if (toolsReady) state.passed else true,
     onPrimary = {
-      dialog = false to (
-        "Use the bench" to
-          "Drag the tool on the 2D bench. The button does not skip strip, untwist, or crimp."
-        )
+      if (!toolsReady) {
+        confirmTools()
+      } else {
+        dialog = false to (
+          "Use the bench" to
+            "Drag the tool on the 2D bench. The button does not skip strip, untwist, or crimp."
+          )
+      }
     },
     onReset = {
       dialog = null
@@ -332,6 +363,15 @@ fun CrimpLabScreen(
     onComplete = onStationComplete,
     completeLabel = if (onStationComplete != null) "Next station ▶" else "Back to Home",
   ) {
+    if (!toolsReady) {
+      CrimpToolPicker(
+        mode = state.mode,
+        selected = pickedTools,
+        onToggle = { id -> pickedTools = if (id in pickedTools) pickedTools - id else pickedTools + id },
+        onConfirm = { confirmTools() },
+      )
+      return@ComposeLabScaffold
+    }
     Box(modifier = Modifier.fillMaxSize()) {
       CrimpBench(
         state = state,

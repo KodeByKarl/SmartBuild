@@ -1,5 +1,11 @@
 ﻿package com.example.smart_build.screens.serverlab
 
+import com.example.smart_build.tutorial.CoachHost
+import com.example.smart_build.tutorial.CoachTourEffect
+import com.example.smart_build.tutorial.TutorialContent
+import com.example.smart_build.tutorial.coachTarget
+import com.example.smart_build.tutorial.rememberCoachController
+import androidx.compose.ui.platform.LocalContext
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -146,6 +152,14 @@ fun ServerLabScreen(
       !embedded && !navController.popBackStack() -> navController.navigateUp()
     }
   }
+
+  val coach = rememberCoachController()
+  CoachTourEffect(
+    controller = coach,
+    tourId = TutorialContent.SERVER_LAB_ID,
+    steps = TutorialContent.serverLab,
+    context = LocalContext.current,
+  )
 
   BackHandler { leave() }
 
@@ -359,6 +373,7 @@ fun ServerLabScreen(
         Column(
           modifier = Modifier
             .weight(1f)
+            .coachTarget(coach, "srv_guide")
             .clip(RoundedCornerShape(10.dp))
             .background(Color.Black.copy(alpha = 0.55f))
             .border(1.dp, Color(0xFFE8B84A).copy(alpha = 0.7f), RoundedCornerShape(10.dp))
@@ -390,7 +405,7 @@ fun ServerLabScreen(
           )
         }
         Spacer(modifier = Modifier.width(6.dp))
-        GuideChip("Back") { leave() }
+        GuideChip("Back", Modifier.coachTarget(coach, "srv_back")) { leave() }
       }
     } else {
       Row(
@@ -402,7 +417,7 @@ fun ServerLabScreen(
         GuideChip("Guide") { guideVisible = true }
         GuideChip("Reset") { reset() }
         GuideChip("${cfg.checklistDone}/7") {}
-        GuideChip("Back") { leave() }
+        GuideChip("Back", Modifier.coachTarget(coach, "srv_back")) { leave() }
       }
     }
 
@@ -419,13 +434,14 @@ fun ServerLabScreen(
         Text("Finish module", color = White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
       }
     }
+    CoachHost(coach)
   }
 }
 
 @Composable
-private fun GuideChip(label: String, onClick: () -> Unit) {
+private fun GuideChip(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
   Box(
-    modifier = Modifier
+    modifier = modifier
       .clip(RoundedCornerShape(8.dp))
       .background(Color.Black.copy(alpha = 0.55f))
       .border(1.dp, White.copy(alpha = 0.35f), RoundedCornerShape(8.dp))

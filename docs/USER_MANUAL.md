@@ -106,37 +106,42 @@ signing in on another phone shows the same progress.
 
 A 21-slide lesson: career path, safety and quality, and hardware basics.
 
-- **Next** / **Prev** move between slides; **Help** explains the current slide.
+- **Swipe left** for the next slide and **swipe right** to go back; the counter at the bottom shows where you are. **Help** explains the current slide.
 - The last slide shows your completion. Tap **Proceed to Home** to finish (100%).
 - **Back** before the end saves how far you got.
 
 ### Module 1 — Installing and Configuring Computer Systems
 
-A 3D computer on a workbench, plus quiz phases.
+Lesson pages, then a 3D computer on a workbench. Every module from 1 to 4 follows the same
+path: **lesson pages → Guided Simulation → Be Ready for Assessment → Assessment Simulation →
+Congratulations.** There are no quizzes.
 
-| Phase | What you do |
+| Part | What you do |
 |---|---|
-| 01 ESD-Safe Preparation | Answer multiple-choice questions |
-| 02 Safe Disassembly | Take apart a complete PC in the correct order |
-| 03 Hardware Assembly | Build the PC from the parts tray |
-| 04–06 BIOS, OS installation, drivers | Answer multiple-choice questions |
-| Capstone (Assessment) | Disassemble, then rebuild, with no hints |
+| Lessons | Swipe through tools, ESD safety, safety precautions, I/O, BIOS, OS install, drivers and testing |
+| Guided Simulation | Take apart a complete PC, then build it again, with yellow hints |
+| Be Ready | Read the reminder, then swipe to begin |
+| Assessment Simulation | Disassemble, then rebuild, with no hints |
+| Congratulations | **Proceed to Home** or **Retake Module** |
 
 3D controls:
 
 - **Drag with one finger** on empty space to rotate the view; **pinch** or the **zoom
   buttons** to zoom.
-- **Install:** drag a part from the tray onto the correct bay (the yellow highlight shows where
-  in Guided mode).
+- The simulation fills the screen. Tap **Steps**, **Parts** or **Info** (top right) to slide a
+  panel in or out; this never loses your place.
+- **Install:** open **Parts** and drag a part onto the correct bay (the yellow highlight shows
+  where in Guided mode).
 - **Remove:** tap a part that is installed.
 - When you remove the motherboard, it comes out **with the RAM, CPU fan and CPU still on it**.
   Remove those three next.
 - A wrong move shows a window explaining what you did, what was expected, and why.
-- **Next** unlocks when the current phase is finished.
+- When a simulation is finished, tap **Continue** (or swipe left) to move on.
 
 ### Module 2 — Setting Up Computer Networks
 
-Three stations, in order:
+Swipe through the lesson pages first, then tap **Start Guided Simulation**. The simulation has
+three stations, in order:
 
 1. **Cable intro** — straight-through vs crossover cables.
 2. **Crimp lab** — strip the cable, arrange the 8 wires (T568B), crimp, then test with the LED
@@ -148,6 +153,8 @@ or leave the module. **Reset** starts the current station over.
 
 ### Module 3 — Setting Up Computer Servers
 
+Swipe through the lesson pages first, then tap **Start Guided Simulation**:
+
 1. **Client–server topology** — connect the PC and server with the correct cable and set IP
    addresses, then test with `ping`.
 2. **File server setup** — on the simulated server desktop, add the file server role, create
@@ -156,7 +163,8 @@ or leave the module. **Reset** starts the current station over.
 
 ### Module 4 — Maintaining Computer Systems and Networks
 
-A simulated Windows desktop service visit:
+Swipe through the lesson pages first, then tap **Start Guided Simulation** — a simulated Windows
+desktop service visit:
 
 1. Open the service ticket and **Accept** it.
 2. Set the wallpaper.
@@ -164,6 +172,9 @@ A simulated Windows desktop service visit:
 4. Run **Disk Cleanup**.
 5. In **CMD**, type `ping 192.168.1.1`, then `ping 8.8.8.8`.
 6. Open the **Action Center** and close the ticket.
+
+For Modules 2–4, finishing the Guided Simulation brings you to **Be Ready for Assessment**;
+swipe and tap **Start Assessment**. Finishing the assessment shows **Congratulations**.
 
 ---
 

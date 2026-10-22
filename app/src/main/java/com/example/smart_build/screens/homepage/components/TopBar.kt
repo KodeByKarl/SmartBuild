@@ -37,6 +37,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.smart_build.R
+import com.example.smart_build.tutorial.CoachController
+import com.example.smart_build.tutorial.coachTarget
+import com.example.smart_build.ui.theme.ThemePrefs
+import com.example.smart_build.ui.theme.ScreenBg
+import com.example.smart_build.ui.theme.ScreenFg
 import com.example.smart_build.ui.theme.Black
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
@@ -49,6 +54,7 @@ fun TopBar(
   searchBarOnClick: () -> Unit,
   helpOnClick: () -> Unit,
   iconButtonOnClick: () -> Unit,
+  coach: CoachController? = null,
 ) {
 
   val appTitleLetterSpacing: Float = (maxWidth.value * 0.002f) // max width * 0.7%
@@ -75,7 +81,7 @@ fun TopBar(
       Row {
         Text(
           "SMART",
-          color = White,
+          color = ScreenFg,
           letterSpacing = appTitleLetterSpacing.sp,
           lineHeight = appTitleLineHeight.sp,
           style = Typography.displaySmall.copy(
@@ -99,13 +105,14 @@ fun TopBar(
     Row() {
       Button(
         onClick = searchBarOnClick,
-        border = BorderStroke(width = (maxHeight.value * 0.003f).dp, color = White.copy(alpha = 0.32f)),
+        border = BorderStroke(width = (maxHeight.value * 0.003f).dp, color = ScreenFg.copy(alpha = 0.32f)),
         shape = RoundedCornerShape(100),
         colors = ButtonDefaults.buttonColors(
           containerColor = Color.Transparent
         ),
         contentPadding = PaddingValues(horizontal = (maxWidth.value * 0.006f).dp, vertical = (maxHeight.value * 0.01f).dp),
         modifier = Modifier
+          .coachTarget(coach, "home_search")
           .height(IntrinsicSize.Min)
       ) {
         Row(
@@ -117,14 +124,14 @@ fun TopBar(
           Icon(
             imageVector = Icons.Default.Search,
             contentDescription = null,
-            tint = White.copy(alpha = 0.32f),
+            tint = ScreenFg.copy(alpha = 0.32f),
             modifier = Modifier.size((maxWidth.value * 0.019f).dp)
           )
           Spacer(Modifier.size((maxWidth.value * 0.006f).dp))
           Text(
             "Start exploring components",
             style = Typography.titleMedium.copy(
-              color = White.copy(alpha = 0.32f),
+              color = ScreenFg.copy(alpha = 0.32f),
               fontSize = (maxWidth.value * 0.013f).sp,
               fontWeight = FontWeight.Medium
             )
@@ -136,14 +143,16 @@ fun TopBar(
         onClick = helpOnClick,
         shape = CircleShape,
         colors = IconButtonDefaults.iconButtonColors(
-          containerColor = Color(0xFF1A3A4C)
+          containerColor = if (ThemePrefs.lightMode) Color(0xFFD7ECFF) else Color(0xFF1A3A4C)
         ),
-        modifier = Modifier.size((maxWidth.value * 0.038f).dp)
+        modifier = Modifier
+          .coachTarget(coach, "home_help")
+          .size((maxWidth.value * 0.038f).dp)
       ) {
         Icon(
           imageVector = Icons.AutoMirrored.Filled.HelpOutline,
           contentDescription = "How SmartBuild works",
-          tint = White,
+          tint = ScreenFg,
           modifier = Modifier.size((maxWidth.value * 0.022f).dp)
         )
       }
@@ -154,7 +163,9 @@ fun TopBar(
         colors = IconButtonDefaults.iconButtonColors(
           containerColor = Color(0xFFD7ECFF)
         ),
-        modifier = Modifier.size((maxWidth.value * 0.038f).dp)
+        modifier = Modifier
+          .coachTarget(coach, "home_profile")
+          .size((maxWidth.value * 0.038f).dp)
       ) {
         Icon(
           imageVector = Icons.Default.AccountCircle,

@@ -17,6 +17,10 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import com.example.smart_build.ui.theme.ThemePrefs
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,7 +41,8 @@ import com.example.smart_build.viewmodel.home.HomeViewModel
 fun ProfileOverlay(
   maxWidth: Dp,
   maxHeight: Dp,
-  onDismiss: () -> Unit
+  onDismiss: () -> Unit,
+  onCreditsClick: () -> Unit
 ) {
   val viewModel: HomeViewModel = viewModel()
   val authViewModel1: AuthViewModel = viewModel()
@@ -150,8 +155,25 @@ fun ProfileOverlay(
           maxWidth = maxWidth,
           maxHeight = maxHeight,
           onClick = {
-            // TODO: Change password
+            viewModel.openChangePassword()
           }
+        )
+
+        val context = androidx.compose.ui.platform.LocalContext.current
+        ProfileMenuItem(
+          icon = if (ThemePrefs.lightMode) Icons.Default.DarkMode else Icons.Default.LightMode,
+          text = if (ThemePrefs.lightMode) "Dark Mode" else "Light Mode",
+          maxWidth = maxWidth,
+          maxHeight = maxHeight,
+          onClick = { ThemePrefs.set(context, !ThemePrefs.lightMode) }
+        )
+
+        ProfileMenuItem(
+          icon = Icons.Default.Info,
+          text = "Credits",
+          maxWidth = maxWidth,
+          maxHeight = maxHeight,
+          onClick = onCreditsClick
         )
 
         ProfileMenuItem(
@@ -160,9 +182,7 @@ fun ProfileOverlay(
           maxWidth = maxWidth,
           maxHeight = maxHeight,
           onClick = {
-            // TODO: Delete account
             viewModel.changeShowDeleteDialog(true)
-//            authViewModel1.deleteAccount()
           }
         )
 

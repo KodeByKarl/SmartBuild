@@ -35,6 +35,8 @@ import com.example.smart_build.screens.authenticationpage.components.AppLogoWith
 import com.example.smart_build.screens.authenticationpage.components.FPForm
 import com.example.smart_build.screens.authenticationpage.components.RPForm
 import com.example.smart_build.screens.authenticationpage.components.SignInForm
+import com.example.smart_build.ui.theme.ScreenBg
+import com.example.smart_build.ui.theme.ScreenFg
 import com.example.smart_build.ui.theme.Black
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.viewmodel.auth.AuthFormState
@@ -88,7 +90,7 @@ fun AuthPage(
     contentAlignment = Alignment.Center,
     modifier = Modifier
       .fillMaxSize()
-      .background(Black)
+      .background(ScreenBg)
   ) {
 
     val MAX_WIDTH  = maxWidth

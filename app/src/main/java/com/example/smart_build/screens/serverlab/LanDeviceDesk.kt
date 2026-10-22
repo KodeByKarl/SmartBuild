@@ -57,6 +57,10 @@ internal fun LanDeviceDesk(
   currentIp: String,
   currentMask: String,
   canPing: Boolean,
+  /** Address the Command Prompt is expected to ping (default: the Module 3 server). */
+  pingTarget: String = "192.168.10.10",
+  /** Short names used in the "set the IP first" hint. */
+  setupHint: String = "Set the IP on PC0 and Server0, then ping again.",
   page: LanDeskPage,
   onPage: (LanDeskPage) -> Unit,
   onApply: (String, String) -> Unit,
@@ -110,6 +114,8 @@ internal fun LanDeviceDesk(
         currentMask = currentMask,
         configured = configured,
         canPing = canPing,
+        pingTarget = pingTarget,
+        setupHint = setupHint,
         onPingOk = onPingOk,
         onClose = { onPage(LanDeskPage.HOME) },
         modifier = Modifier
@@ -261,6 +267,8 @@ private fun PingWindow(
   currentMask: String,
   configured: Boolean,
   canPing: Boolean,
+  pingTarget: String,
+  setupHint: String,
   onPingOk: () -> Unit,
   onClose: () -> Unit,
   modifier: Modifier,
@@ -314,17 +322,17 @@ private fun PingWindow(
           )
         }
       }
-      norm == "ping 192.168.10.10" || norm.startsWith("ping 192.168.10.10 ") -> {
+      norm == "ping $pingTarget" || norm.startsWith("ping $pingTarget ") -> {
         if (canPing) {
           out += listOf(
             "",
-            "Pinging 192.168.10.10 with 32 bytes of data:",
-            "Reply from 192.168.10.10: bytes=32 time<1ms TTL=128",
-            "Reply from 192.168.10.10: bytes=32 time<1ms TTL=128",
-            "Reply from 192.168.10.10: bytes=32 time=1ms TTL=128",
-            "Reply from 192.168.10.10: bytes=32 time<1ms TTL=128",
+            "Pinging $pingTarget with 32 bytes of data:",
+            "Reply from $pingTarget: bytes=32 time<1ms TTL=128",
+            "Reply from $pingTarget: bytes=32 time<1ms TTL=128",
+            "Reply from $pingTarget: bytes=32 time=1ms TTL=128",
+            "Reply from $pingTarget: bytes=32 time<1ms TTL=128",
             "",
-            "Ping statistics for 192.168.10.10:",
+            "Ping statistics for $pingTarget:",
             "    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),",
             "",
           )
@@ -332,16 +340,16 @@ private fun PingWindow(
         } else {
           out += listOf(
             "",
-            "Pinging 192.168.10.10 with 32 bytes of data:",
+            "Pinging $pingTarget with 32 bytes of data:",
             "Request timed out.",
             "Request timed out.",
             "Request timed out.",
             "Request timed out.",
             "",
-            "Ping statistics for 192.168.10.10:",
+            "Ping statistics for $pingTarget:",
             "    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),",
             "",
-            "Set the IP on PC0 and Server0, then ping again.",
+            setupHint,
             "",
           )
         }

@@ -8,13 +8,18 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +43,12 @@ import com.example.smart_build.components.ModuleName
 import com.example.smart_build.data.ModuleProgressStore
 import com.example.smart_build.data.ReturnToModule
 import com.example.smart_build.navigation.Routes
+import com.example.smart_build.tutorial.CoachHost
+import com.example.smart_build.tutorial.CoachTourEffect
+import com.example.smart_build.tutorial.TutorialContent
+import com.example.smart_build.tutorial.rememberCoachController
+import com.example.smart_build.ui.theme.ScreenBg
+import com.example.smart_build.ui.theme.ScreenFg
 import com.example.smart_build.ui.theme.Black
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Typography
@@ -72,12 +83,31 @@ fun ModulePage(
   var loadingMessage by remember { mutableStateOf("SETTING UP YOUR ENVIRONMENT...") }
   var prepareAttempt by remember { mutableStateOf(0) }
   var acceptModuleEvents by remember { mutableStateOf(false) }
+  val coach = rememberCoachController()
+  // The lesson pages are drawn by Godot, so this tour is modal-only (no button spotlight).
+  CoachTourEffect(
+    controller = coach,
+    tourId = TutorialContent.LESSON_ID,
+    steps = TutorialContent.lesson,
+    context = context,
+    enabled = godotEnvState.value is GodotEnvState.Ready,
+    delayMs = 900,
+  )
 
   fun returnToModuleCard() {
     ReturnToModule.mark(moduleId)
     val returned = navController.popBackStack()
     if (!returned) {
       navController.navigate(Routes.HomePage.route) { launchSingleTop = true }
+    }
+  }
+
+  // Modules 2–4: the Godot flow hands its Guided / Assessment simulation to the
+  // Compose lab, which returns to Godot (Be Ready / Completion) when done.
+  fun openComposeLab(labType: Int) {
+    navController.navigate(Routes.ComposeModule.createRoute(moduleId, labType)) {
+      popUpTo(Routes.ModulePage.route) { inclusive = true }
+      launchSingleTop = true
     }
   }
 
@@ -200,6 +230,31 @@ fun ModulePage(
           returnToModuleCard()
         }
 
+        "guided_saved" -> {
+          // Guided Simulation finished inside the flow — save it, stay on the
+          // "Be Ready" page instead of leaving the module.
+          if (eventModuleId != moduleId || !acceptModuleEvents) return@LaunchedEffect
+          ModuleProgressStore.markGuidedCompleted(context, moduleId)
+          Toast.makeText(context, "Guided Simulation saved.", Toast.LENGTH_SHORT).show()
+        }
+
+        "assessment_saved" -> {
+          // Assessment Simulation finished — save now; the learner leaves from
+          // the Completion page (assessment_completed).
+          if (eventModuleId != moduleId || !acceptModuleEvents) return@LaunchedEffect
+          ModuleProgressStore.markAssessmentCompleted(context, moduleId)
+        }
+
+        "start_guided_lab" -> {
+          if (eventModuleId != moduleId || !acceptModuleEvents) return@LaunchedEffect
+          openComposeLab(0)
+        }
+
+        "start_assessment_lab" -> {
+          if (eventModuleId != moduleId || !acceptModuleEvents) return@LaunchedEffect
+          openComposeLab(1)
+        }
+
         "assessment_completed" -> {
           if (eventModuleId != moduleId || !acceptModuleEvents) return@LaunchedEffect
           if (moduleId == 0) {
@@ -281,7 +336,7 @@ fun ModulePage(
         contentAlignment = Alignment.Center,
         modifier = Modifier
           .fillMaxSize()
-          .background(Black)
+          .background(ScreenBg)
       ) {
         ModuleName(
           moduleName = moduleName,
@@ -296,7 +351,7 @@ fun ModulePage(
           Text(
             loadingMessage,
             style = Typography.headlineSmall.copy(fontFamily = GSFlex, fontWeight = FontWeight.Normal),
-            color = White,
+            color = ScreenFg,
             fontSize = (MAX_WIDTH.value * 0.019f).sp,
             letterSpacing = ((MAX_WIDTH.value * 0.019f) * 0.12f).sp,
             lineHeight = ((MAX_WIDTH.value * 0.019f) * 1.2f).sp
@@ -305,6 +360,24 @@ fun ModulePage(
           Spacer(Modifier.size((MAX_HEIGHT.value * 0.005f).dp))
 
           LinearProgressIndicator(modifier = Modifier.fillMaxWidth(0.6f))
+        }
+
+        // Back is always reachable while a module loads; Reload restarts a stuck load.
+        Row(
+          horizontalArrangement = Arrangement.spacedBy(12.dp),
+          modifier = Modifier
+            .align(Alignment.TopStart)
+            .padding(16.dp)
+        ) {
+          Button(onClick = { returnToModuleCard() }) {
+            Text("Back")
+          }
+          OutlinedButton(
+            onClick = { prepareAttempt += 1 },
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = ScreenFg)
+          ) {
+            Text("Reload")
+          }
         }
       }
     }
@@ -318,13 +391,13 @@ fun ModulePage(
         contentAlignment = Alignment.Center,
         modifier = Modifier
           .fillMaxSize()
-          .background(Black)
+          .background(ScreenBg)
       ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
           Text(
             "Could not load the simulation.",
             style = Typography.titleMedium,
-            color = White,
+            color = ScreenFg,
             fontSize = (MAX_WIDTH.value * 0.02f).sp
           )
           Spacer(Modifier.size((MAX_HEIGHT.value * 0.02f).dp))
@@ -338,5 +411,7 @@ fun ModulePage(
         }
       }
     }
+
+    CoachHost(coach)
   }
 }
