@@ -17,7 +17,6 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import com.example.smart_build.ui.theme.ThemePrefs
@@ -31,7 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.smart_build.ui.theme.Black
 import com.example.smart_build.ui.theme.readableSp
 import com.example.smart_build.viewmodel.auth.AuthViewModel
@@ -41,11 +39,10 @@ import com.example.smart_build.viewmodel.home.HomeViewModel
 fun ProfileOverlay(
   maxWidth: Dp,
   maxHeight: Dp,
+  viewModel: HomeViewModel,
+  authViewModel: AuthViewModel,
   onDismiss: () -> Unit,
-  onCreditsClick: () -> Unit
 ) {
-  val viewModel: HomeViewModel = viewModel()
-  val authViewModel1: AuthViewModel = viewModel()
 
   Box(
     contentAlignment = Alignment.TopEnd,
@@ -169,20 +166,13 @@ fun ProfileOverlay(
         )
 
         ProfileMenuItem(
-          icon = Icons.Default.Info,
-          text = "Credits",
-          maxWidth = maxWidth,
-          maxHeight = maxHeight,
-          onClick = onCreditsClick
-        )
-
-        ProfileMenuItem(
           icon = Icons.Default.Delete,
           text = "Delete Account",
           maxWidth = maxWidth,
           maxHeight = maxHeight,
           onClick = {
             viewModel.changeShowDeleteDialog(true)
+            onDismiss()
           }
         )
 
@@ -192,8 +182,8 @@ fun ProfileOverlay(
           maxWidth = maxWidth,
           maxHeight = maxHeight,
           onClick = {
-            // Relocate the function to AuthViewModel.
-            viewModel.signOut()
+            onDismiss()
+            authViewModel.signOut()
           }
         )
       }

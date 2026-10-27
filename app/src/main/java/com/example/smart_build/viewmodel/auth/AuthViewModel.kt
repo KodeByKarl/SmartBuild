@@ -1467,6 +1467,7 @@ class AuthViewModel : ViewModel() {
         // ---------------------------------------------------------
 
         SupabaseClient.client.auth.signOut()
+        ModuleProgressStore.unbindAccount()
 
         Log.d(
           "DELETE_ACCOUNT",

@@ -44,7 +44,7 @@ object CssPartsCatalog {
       commonIssues = "No POST, bent CPU pins/pads, failed CMOS battery, shorted standoffs, incompatible BIOS for a new CPU, missing front-panel wiring.",
       technicianTips = "Dry-fit the board on standoffs before seating the CPU. Match standoff holes to avoid motherboard shorts. Update BIOS only with stable power.",
       relatedModules = listOf(0, 1),
-      imageRes = R.drawable.card_motherboard,
+      imageRes = R.drawable.search_motherboard,
     ),
     CssPart(
       id = "cpu",
@@ -57,7 +57,7 @@ object CssPartsCatalog {
       commonIssues = "Bent pins, missing paste, cooler not locked, overheating/throttling, wrong cooler bracket, no display after install.",
       technicianTips = "Align the triangle marker. Never force the lever. Confirm cooler mounting pressure is even before first power-on.",
       relatedModules = listOf(0, 1),
-      imageRes = R.drawable.card_cpu,
+      imageRes = R.drawable.search_cpu,
     ),
     CssPart(
       id = "ram",
@@ -70,7 +70,7 @@ object CssPartsCatalog {
       commonIssues = "Half-seated sticks, mixed incompatible kits, dirty contacts, wrong slots for dual-channel, failing modules causing random reboots.",
       technicianTips = "Install in the slots recommended by the motherboard manual for dual-channel. Reseat before replacing modules.",
       relatedModules = listOf(0, 1),
-      imageRes = R.drawable.card_ram,
+      imageRes = R.drawable.search_ram,
     ),
     CssPart(
       id = "psu",
@@ -83,7 +83,7 @@ object CssPartsCatalog {
       commonIssues = "No power, coil whine, overloaded rails, wrong ATX connector, missing CPU power cable, shorted modular cables.",
       technicianTips = "Leave slack for airflow. Test suspected PSUs with a known-good unit before replacing expensive boards.",
       relatedModules = listOf(0, 1, 4),
-      imageRes = R.drawable.card_psu,
+      imageRes = R.drawable.search_psu,
     ),
     CssPart(
       id = "ssd",
@@ -96,7 +96,7 @@ object CssPartsCatalog {
       commonIssues = "Drive not detected (BIOS mode/cable), missing M.2 screw, NVMe slot shared with SATA ports, failing SMART health.",
       technicianTips = "Enable AHCI/NVMe in BIOS as required. Clone carefully when upgrading; verify boot order after install.",
       relatedModules = listOf(1),
-      imageRes = R.drawable.card_storage,
+      imageRes = R.drawable.search_storage,
     ),
     CssPart(
       id = "hdd",
@@ -109,7 +109,7 @@ object CssPartsCatalog {
       commonIssues = "Clicking sounds, bad sectors, loose SATA power, vibration noise, slow SMART warnings.",
       technicianTips = "Never drop a spinning drive. Back up immediately if SMART reports reallocated sectors.",
       relatedModules = listOf(1, 3, 4),
-      imageRes = R.drawable.card_storage,
+      imageRes = R.drawable.search_storage,
     ),
     CssPart(
       id = "gpu",
@@ -122,7 +122,7 @@ object CssPartsCatalog {
       commonIssues = "No display (cable/port), insufficient PCIe power, seating not fully locked, driver crashes, overheating fans.",
       technicianTips = "Confirm motherboard video output vs GPU output when troubleshooting blank screens.",
       relatedModules = listOf(1, 4),
-      imageRes = R.drawable.card_expansion,
+      imageRes = R.drawable.search_gpu,
     ),
     CssPart(
       id = "nic",
@@ -148,7 +148,7 @@ object CssPartsCatalog {
       commonIssues = "Missing standoffs, blocked airflow, sharp edges cutting cables, front-panel connectors miswired.",
       technicianTips = "Photograph front-panel pinouts before disconnecting. Keep intake filters clean during maintenance.",
       relatedModules = listOf(0, 1, 4),
-      imageRes = R.drawable.card_system_unit,
+      imageRes = R.drawable.search_system_unit,
     ),
     CssPart(
       id = "cpu_fan",
@@ -161,7 +161,7 @@ object CssPartsCatalog {
       commonIssues = "Uneven mounting pressure, forgotten paste, wrong bracket, fan cable on CHA_FAN instead of CPU_FAN, overheating after rebuild.",
       technicianTips = "Mount with even torque. Confirm the cooler does not rock. Plug the fan into CPU_FAN before first power-on.",
       relatedModules = listOf(0, 1, 4),
-      imageRes = R.drawable.card_cooling,
+      imageRes = R.drawable.search_cpu_fan,
     ),
     CssPart(
       id = "optical_drive",
@@ -187,7 +187,7 @@ object CssPartsCatalog {
       commonIssues = "Strap not clipped to ground, working on carpet without mat, touching pins while charged.",
       technicianTips = "Clip to bare metal on the case or a grounded mat point—not painted surfaces. Test straps periodically.",
       relatedModules = listOf(0, 1, 4),
-      imageRes = R.drawable.card_safety,
+      imageRes = R.drawable.search_antistatic,
     ),
     CssPart(
       id = "screwdriver_set",
@@ -200,7 +200,7 @@ object CssPartsCatalog {
       commonIssues = "Stripped screws, wrong bit size, lost M.2 screws, overtightening motherboard standoffs.",
       technicianTips = "Organize screws by type as you remove them. Never force a screw into a wrong hole.",
       relatedModules = listOf(1, 4),
-      imageRes = R.drawable.card_tools,
+      imageRes = R.drawable.search_screwdrivers,
     ),
     CssPart(
       id = "cable_tester",
@@ -213,7 +213,7 @@ object CssPartsCatalog {
       commonIssues = "False fails from bad remotes, untested factory cables, assuming green LEDs mean gigabit quality.",
       technicianTips = "Test every field-terminated cable. Label both ends after a pass.",
       relatedModules = listOf(2),
-      imageRes = R.drawable.card_tools,
+      imageRes = R.drawable.search_cable_tester,
     ),
     CssPart(
       id = "router",
@@ -226,7 +226,7 @@ object CssPartsCatalog {
       commonIssues = "Double NAT, wrong WAN type, DHCP pool exhausted, Wi-Fi on but no WAN link, default passwords left unchanged.",
       technicianTips = "Confirm WAN link lights first. Document LAN subnet, gateway, and DNS before changing settings.",
       relatedModules = listOf(2),
-      imageRes = R.drawable.card_network,
+      imageRes = R.drawable.search_router,
     ),
     CssPart(
       id = "switch",
@@ -239,7 +239,7 @@ object CssPartsCatalog {
       commonIssues = "No link (bad cable), loop without STP, power budget issues on PoE, wrong speed duplex.",
       technicianTips = "Match cable category to desired speed. Check port LEDs before reconfiguring IPs.",
       relatedModules = listOf(2),
-      imageRes = R.drawable.card_network,
+      imageRes = R.drawable.search_switch,
     ),
     CssPart(
       id = "hub",
@@ -252,7 +252,7 @@ object CssPartsCatalog {
       commonIssues = "Severe congestion, security sniffing risk, incompatible with full duplex expectations.",
       technicianTips = "Prefer a switch for any new deployment. Replace hubs during upgrades.",
       relatedModules = listOf(2),
-      imageRes = R.drawable.card_network,
+      imageRes = R.drawable.search_hub,
     ),
     CssPart(
       id = "modem",
@@ -291,7 +291,7 @@ object CssPartsCatalog {
       commonIssues = "Half-speed extender links, roaming issues, wrong placement too far from source AP.",
       technicianTips = "Prefer a second wired AP over a wireless-only extender when cabling is possible.",
       relatedModules = listOf(2, 4),
-      imageRes = R.drawable.card_network,
+      imageRes = R.drawable.search_repeater,
     ),
     CssPart(
       id = "firewall",
@@ -317,7 +317,7 @@ object CssPartsCatalog {
       commonIssues = "Open pairs, wrong pinout, damaged latch, cables too long, cheap flat cables failing gigabit.",
       technicianTips = "Always continuity-test before deployment. Keep bends gentle near terminations.",
       relatedModules = listOf(2),
-      imageRes = R.drawable.card_connector,
+      imageRes = R.drawable.search_ethernet_cable,
     ),
     CssPart(
       id = "fiber_optic",
@@ -356,7 +356,7 @@ object CssPartsCatalog {
       commonIssues = "Wires not fully inserted, wrong sequence, cheap plugs, incomplete crimp.",
       technicianTips = "Leave a little untwist only as needed. Test every cable after crimping.",
       relatedModules = listOf(2),
-      imageRes = R.drawable.card_tools,
+      imageRes = R.drawable.search_crimper,
     ),
     CssPart(
       id = "file_server",
@@ -369,7 +369,7 @@ object CssPartsCatalog {
       commonIssues = "Access denied, broken share paths, firewall blocking SMB, incorrect group nesting.",
       technicianTips = "Test with a standard user account, not only admin. Document share UNC paths.",
       relatedModules = listOf(3),
-      imageRes = R.drawable.card_system_unit,
+      imageRes = R.drawable.search_server,
     ),
     CssPart(
       id = "nas",
@@ -486,7 +486,7 @@ object CssPartsCatalog {
       commonIssues = "Bearing noise, disconnected headers, reversed airflow, clogged filters.",
       technicianTips = "Power down and ground yourself before vacuuming/brushing heatsinks. Avoid spinning fans with a vacuum alone.",
       relatedModules = listOf(4),
-      imageRes = R.drawable.card_cooling,
+      imageRes = R.drawable.search_cooling_fan,
     ),
     CssPart(
       id = "ups",
@@ -499,7 +499,7 @@ object CssPartsCatalog {
       commonIssues = "Dead batteries, overloaded VA rating, beeping ignored, no OS shutdown agent.",
       technicianTips = "Size VA for the load. Replace batteries on schedule; test monthly.",
       relatedModules = listOf(3, 4),
-      imageRes = R.drawable.card_psu,
+      imageRes = R.drawable.search_ups,
     ),
     CssPart(
       id = "thermal_paste",

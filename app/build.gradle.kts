@@ -66,8 +66,8 @@ android {
         applicationId = "com.smartbuild.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
-        versionName = "V2.4"
+        versionCode = 7
+        versionName = "V2.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

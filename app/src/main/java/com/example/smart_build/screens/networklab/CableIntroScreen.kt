@@ -26,6 +26,8 @@ import com.example.smart_build.screens.composelabs.ComposeLabScaffold
 import com.example.smart_build.ui.theme.GSCode
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.White
+import com.example.smart_build.ui.theme.ModuleSubtleSurface
+import com.example.smart_build.ui.theme.ScreenFg
 
 @Composable
 fun CableIntroScreen(
@@ -66,7 +68,7 @@ fun CableIntroScreen(
           modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(Color(0xFF0A3A4A))
+            .background(ModuleSubtleSurface)
             .border(1.dp, Color(0xFFE8B84A).copy(alpha = 0.4f), RoundedCornerShape(10.dp))
             .padding(12.dp),
         ) {
@@ -79,7 +81,7 @@ fun CableIntroScreen(
               fontSize = 14.sp,
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(point.body, color = White, fontFamily = GSFlex, fontSize = 13.sp, lineHeight = 18.sp)
+            Text(point.body, color = ScreenFg, fontFamily = GSFlex, fontSize = 13.sp, lineHeight = 18.sp)
           }
         }
       }

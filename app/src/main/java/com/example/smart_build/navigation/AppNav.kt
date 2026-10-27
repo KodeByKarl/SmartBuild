@@ -62,7 +62,7 @@ fun AppNav(navController: NavHostController, authViewModel1: AuthViewModel) {
       AuthPage(navController, authViewModel1)
     }
     composable(Routes.HomePage.route) {
-      HomePage(navController)
+      HomePage(navController, authViewModel1)
     }
     composable(Routes.ComponentSearch.route) {
       ComponentSearchPage(navController)

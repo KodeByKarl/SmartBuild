@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
 import com.example.smart_build.ui.theme.White
+import com.example.smart_build.ui.theme.ScreenFg
 
 @Composable
 fun AppLogo(scale: Float = 1f, xSet: Dp = 0.dp, maxWidth: Float) {
@@ -47,7 +48,7 @@ fun AppLogo(scale: Float = 1f, xSet: Dp = 0.dp, maxWidth: Float) {
     Row {
       Text(
         "SMART",
-        color = White,
+        color = ScreenFg,
         letterSpacing = appTitleLetterSpacing.sp,
         lineHeight = appTitleLineHeight.sp,
         style = Typography.displaySmall.copy(
@@ -73,7 +74,7 @@ fun AppLogo(scale: Float = 1f, xSet: Dp = 0.dp, maxWidth: Float) {
         fontSize = appHeadlineFontSize.sp,
         fontWeight = FontWeight.Normal
       ),
-      color = White.copy(alpha = 0.75f),
+      color = ScreenFg.copy(alpha = 0.75f),
       letterSpacing = appHeadlineLetterSpacing.sp
     ) // Text
   }

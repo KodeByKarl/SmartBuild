@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -39,7 +40,6 @@ import com.example.smart_build.data.ModuleProgressStore
 import com.example.smart_build.data.ReturnToModule
 import com.example.smart_build.navigation.Routes
 import com.example.smart_build.screens.homepage.components.ChangePasswordDialog
-import com.example.smart_build.screens.homepage.components.CreditsDialog
 import com.example.smart_build.screens.homepage.components.HowToUseDialog
 import com.example.smart_build.screens.homepage.components.ModuleCarousel
 import com.example.smart_build.screens.homepage.components.ProfileOverlay
@@ -64,23 +64,25 @@ import kotlinx.coroutines.delay
 @Composable
 fun HomePage(
   navController : NavHostController,
+  authViewModel: AuthViewModel,
   viewModel : HomeViewModel = viewModel()
 ) {
 
   val authState by viewModel.authState.collectAsStateWithLifecycle()
+  val authUiState by authViewModel.uiState.collectAsStateWithLifecycle()
+  val authError by authViewModel.authError.collectAsStateWithLifecycle()
   val showDeleteDialog by viewModel.showDeleteDialog.collectAsStateWithLifecycle()
   val progressMap by viewModel.moduleProgress.collectAsStateWithLifecycle()
   val guidedMap by viewModel.guidedDoneMap.collectAsStateWithLifecycle()
   val assessmentMap by viewModel.assessmentDoneMap.collectAsStateWithLifecycle()
-  val authViewModel1: AuthViewModel = viewModel()
   val context = LocalContext.current
   val warmState by SmartBuildBridge.simulationWarmState.collectAsStateWithLifecycle()
 
   var profileMenuOpen by remember {
     mutableStateOf(false)
   }
+  var deleteAttempted by remember { mutableStateOf(false) }
   var howToOpen by remember { mutableStateOf(false) }
-  var creditsOpen by remember { mutableStateOf(false) }
   val changePasswordState by viewModel.changePasswordState.collectAsStateWithLifecycle()
   var openModuleId by remember { mutableStateOf<Int?>(null) }
 
@@ -172,6 +174,20 @@ fun HomePage(
     }
   }
 
+  LaunchedEffect(authUiState, authError.message, showDeleteDialog) {
+    if (
+      authUiState == AuthStatusState.Error &&
+      !showDeleteDialog &&
+      authError.message.isNotBlank()
+    ) {
+      Toast.makeText(context, authError.message, Toast.LENGTH_LONG).show()
+    }
+  }
+
+  LaunchedEffect(showDeleteDialog) {
+    if (showDeleteDialog) deleteAttempted = false
+  }
+
   val modules = listOf(
     ModuleCardData(
       number = "Preparatory Module",
@@ -180,7 +196,7 @@ fun HomePage(
       description = "This prerequisite module for Computer Systems Servicing (CSS) NC II covers the fundamentals of computer systems. It is recommended to complete this module first before proceeding to the other CSS modules and hands-on servicing activities.",
       image = R.drawable.module_0_card,
       contents = """
-        Welcome to the very first module of the core modules of this course, the Introduction to Computer Systems Servicing.
+        Welcome to the Preparatory Module of Computer Systems Servicing NC II. This module prepares you for the four core modules of this course by introducing the field, workplace safety, the tools you will use, and the basic parts of a computer system.
       """.trimIndent(),
       benefits = listOf(
         "At the end of this introductory, you will be able to:",
@@ -392,18 +408,12 @@ fun HomePage(
       ProfileOverlay(
         maxWidth = MAX_WIDTH,
         maxHeight = MAX_HEIGHT,
+        viewModel = viewModel,
+        authViewModel = authViewModel,
         onDismiss = {
           profileMenuOpen = false
         },
-        onCreditsClick = {
-          profileMenuOpen = false
-          creditsOpen = true
-        }
       )
-    }
-
-    if (creditsOpen) {
-      CreditsDialog(onDismiss = { creditsOpen = false })
     }
 
     if (changePasswordState != ChangePasswordState.Hidden) {
@@ -418,35 +428,49 @@ fun HomePage(
     }
 
     if (showDeleteDialog) {
+      val deletingAccount = authUiState == AuthStatusState.Submitting
+      val deleteError = authError.message.takeIf {
+        deleteAttempted && authUiState == AuthStatusState.Error && it.isNotBlank()
+      }
       AlertDialog(
         onDismissRequest = {
-          viewModel.changeShowDeleteDialog(false)
+          if (!deletingAccount) viewModel.changeShowDeleteDialog(false)
         },
         title = {
           Text("Delete Account?")
         },
         text = {
           Text(
-            "Are you sure you want to delete your account? " +
-                "This action cannot be undone."
+            buildString {
+              append("Are you sure you want to delete your account? This action cannot be undone.")
+              if (deletingAccount) append("\n\nDeleting your account…")
+              if (deleteError != null) append("\n\n$deleteError")
+            },
+            color = if (deleteError != null) {
+              MaterialTheme.colorScheme.error
+            } else {
+              MaterialTheme.colorScheme.onSurfaceVariant
+            },
           )
         },
         confirmButton = {
 
           TextButton(
+            enabled = !deletingAccount,
             onClick = {
-              viewModel.changeShowDeleteDialog(false)
-//              showDeleteDialog = false
-//              viewModel.deleteAccount()
-              authViewModel1.deleteAccount()
+              deleteAttempted = true
+              authViewModel.deleteAccount()
             }
           ) {
-            Text("Delete")
+            Text(if (deletingAccount) "Deleting…" else "Delete")
           }
         },
 
         dismissButton = {
-          TextButton(onClick = { viewModel.changeShowDeleteDialog(false) }) {
+          TextButton(
+            enabled = !deletingAccount,
+            onClick = { viewModel.changeShowDeleteDialog(false) },
+          ) {
             Text("Cancel")
           }
         }

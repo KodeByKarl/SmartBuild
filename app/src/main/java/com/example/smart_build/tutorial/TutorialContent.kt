@@ -34,7 +34,7 @@ object TutorialContent {
       targetKey = "home_profile",
       emoji = "👤",
       title = "Your profile",
-      body = "Change your password, see the credits, or sign out. Your progress is saved to your account.",
+      body = "Change your password, switch display mode, delete your account, or sign out. Your progress is saved to your account.",
     ),
     CoachStep(
       targetKey = "home_modules",

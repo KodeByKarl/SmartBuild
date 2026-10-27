@@ -24,22 +24,23 @@ import androidx.compose.ui.unit.sp
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
 import com.example.smart_build.ui.theme.White
+import com.example.smart_build.ui.theme.ScreenFg
 
-/** Shared auth form field styling for dark login screens. */
+/** Shared auth form styling that follows the app-wide light/dark preference. */
 object AuthFieldStyles {
   val textStyle: TextStyle
-    get() = Typography.bodyLarge.copy(color = White)
+    get() = Typography.bodyLarge.copy(color = ScreenFg)
 
   @Composable
   fun colors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor = White,
-    unfocusedTextColor = White,
-    disabledTextColor = White.copy(alpha = 0.5f),
-    focusedLabelColor = White,
-    unfocusedLabelColor = White.copy(alpha = 0.7f),
-    disabledLabelColor = White.copy(alpha = 0.5f),
+    focusedTextColor = ScreenFg,
+    unfocusedTextColor = ScreenFg,
+    disabledTextColor = ScreenFg.copy(alpha = 0.5f),
+    focusedLabelColor = ScreenFg,
+    unfocusedLabelColor = ScreenFg.copy(alpha = 0.7f),
+    disabledLabelColor = ScreenFg.copy(alpha = 0.5f),
     focusedBorderColor = Primary,
-    unfocusedBorderColor = White.copy(alpha = 0.5f),
+    unfocusedBorderColor = ScreenFg.copy(alpha = 0.5f),
     cursorColor = Primary,
     focusedContainerColor = Color.Transparent,
     unfocusedContainerColor = Color.Transparent,
@@ -49,13 +50,13 @@ object AuthFieldStyles {
     errorLabelColor = Color(0xFFFF8A80),
     errorCursorColor = Color(0xFFFF8A80),
     errorSupportingTextColor = Color(0xFFFF8A80),
-    errorTextColor = White,
+    errorTextColor = ScreenFg,
   )
 }
 
 @Composable
 fun CustomColorOTF(
-  label: () -> Unit,
+  label: @Composable () -> Unit,
   value: String,
   onValueChange: (String) -> Unit,
   isPW: Boolean = false
@@ -63,20 +64,19 @@ fun CustomColorOTF(
   var isPWVisible by remember { mutableStateOf(false) }
 
   OutlinedTextField(
-//    label = { Text(label, color = White.copy(alpha = 0.5f)) },
-    label = { label },
+    label = label,
     value = value,
     onValueChange = onValueChange,
     singleLine = true,
     textStyle = AuthFieldStyles.textStyle,
     modifier = Modifier.width(484.dp),
-    visualTransformation = if(isPW && isPWVisible) {
+    visualTransformation = if(isPW && !isPWVisible) {
       PasswordVisualTransformation()
     } else {
       VisualTransformation.None
     },
-    trailingIcon = {
-      if(isPW) {
+    trailingIcon = if (isPW) {
+      {
         val icon = if(isPWVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
         val desc = if(isPWVisible) "Hide Password" else "Show Password"
 
@@ -84,11 +84,11 @@ fun CustomColorOTF(
           Icon(
             imageVector = icon,
             contentDescription = desc,
-            tint = White.copy(alpha = 0.7f)
+            tint = ScreenFg.copy(alpha = 0.7f)
           )
         }
-      } else { null }
-    },
+      }
+    } else null,
     colors = AuthFieldStyles.colors()
   )
 }

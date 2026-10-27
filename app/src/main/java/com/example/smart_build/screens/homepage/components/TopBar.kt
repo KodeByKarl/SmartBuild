@@ -41,7 +41,6 @@ import com.example.smart_build.tutorial.CoachController
 import com.example.smart_build.tutorial.coachTarget
 import com.example.smart_build.ui.theme.ThemePrefs
 import com.example.smart_build.ui.theme.ScreenBg
-import com.example.smart_build.ui.theme.ScreenFg
 import com.example.smart_build.ui.theme.Black
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.Typography
@@ -56,6 +55,11 @@ fun TopBar(
   iconButtonOnClick: () -> Unit,
   coach: CoachController? = null,
 ) {
+
+  // Keep the wordmark and help glyph at full contrast in light mode. Using an
+  // explicit foreground here avoids the pale Material icon/text defaults that
+  // previously made SMART and the question mark disappear on the blue-tinted bar.
+  val topBarForeground = if (ThemePrefs.lightMode) Black else White
 
   val appTitleLetterSpacing: Float = (maxWidth.value * 0.002f) // max width * 0.7%
   val appTitleLineHeight: Float = (maxWidth.value * 0.045f) // max width * 4.1%
@@ -81,7 +85,7 @@ fun TopBar(
       Row {
         Text(
           "SMART",
-          color = ScreenFg,
+          color = topBarForeground,
           letterSpacing = appTitleLetterSpacing.sp,
           lineHeight = appTitleLineHeight.sp,
           style = Typography.displaySmall.copy(
@@ -105,7 +109,7 @@ fun TopBar(
     Row() {
       Button(
         onClick = searchBarOnClick,
-        border = BorderStroke(width = (maxHeight.value * 0.003f).dp, color = ScreenFg.copy(alpha = 0.32f)),
+        border = BorderStroke(width = (maxHeight.value * 0.003f).dp, color = topBarForeground.copy(alpha = 0.42f)),
         shape = RoundedCornerShape(100),
         colors = ButtonDefaults.buttonColors(
           containerColor = Color.Transparent
@@ -124,14 +128,14 @@ fun TopBar(
           Icon(
             imageVector = Icons.Default.Search,
             contentDescription = null,
-            tint = ScreenFg.copy(alpha = 0.32f),
+            tint = topBarForeground.copy(alpha = 0.52f),
             modifier = Modifier.size((maxWidth.value * 0.019f).dp)
           )
           Spacer(Modifier.size((maxWidth.value * 0.006f).dp))
           Text(
             "Start exploring components",
             style = Typography.titleMedium.copy(
-              color = ScreenFg.copy(alpha = 0.32f),
+              color = topBarForeground.copy(alpha = 0.52f),
               fontSize = (maxWidth.value * 0.013f).sp,
               fontWeight = FontWeight.Medium
             )
@@ -152,7 +156,7 @@ fun TopBar(
         Icon(
           imageVector = Icons.AutoMirrored.Filled.HelpOutline,
           contentDescription = "How SmartBuild works",
-          tint = ScreenFg,
+          tint = if (ThemePrefs.lightMode) Black else White,
           modifier = Modifier.size((maxWidth.value * 0.022f).dp)
         )
       }

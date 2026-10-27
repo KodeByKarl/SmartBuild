@@ -317,8 +317,10 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                 shape = RoundedCornerShape((maxWidthScreen.value * 0.013f).dp),
                 modifier = Modifier.heightIn(min = 48.dp),
                 colors = ButtonDefaults.buttonColors(
-                  containerColor = White.copy(alpha = 0.4f),
-                  contentColor = Primary.copy(alpha = 0.4f)
+                  containerColor = Primary.copy(alpha = 0.14f),
+                  contentColor = Primary,
+                  disabledContainerColor = Primary.copy(alpha = 0.08f),
+                  disabledContentColor = Primary.copy(alpha = 0.45f),
                 )
               ) {
                 AnimatedContent(
@@ -332,7 +334,7 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                       fontWeight = FontWeight.Bold,
                       fontSize = readableSp(maxWidthScreen, 0.013f, 15f),
                       letterSpacing = (maxWidthScreen.value * 0.00012f).sp,
-                      color = White,
+                      color = Primary,
                       modifier = Modifier.padding(0.dp),
                     )
                     AuthMode.SignUp -> Text(
@@ -342,7 +344,7 @@ fun SignInForm(authMode: AuthMode, modifier: Modifier, viewModel: AuthViewModel,
                       fontWeight = FontWeight.Bold,
                       fontSize = readableSp(maxWidthScreen, 0.013f, 15f),
                       letterSpacing = (maxWidthScreen.value * 0.00012f).sp,
-                      color = White,
+                      color = Primary,
                       modifier = Modifier.padding(0.dp),
                     )
                   }

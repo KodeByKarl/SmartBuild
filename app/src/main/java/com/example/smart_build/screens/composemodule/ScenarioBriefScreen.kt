@@ -28,6 +28,11 @@ import com.example.smart_build.ui.theme.GSCode
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.White
+import com.example.smart_build.ui.theme.ModuleBottomBg
+import com.example.smart_build.ui.theme.ModuleMutedFg
+import com.example.smart_build.ui.theme.ModuleTopBg
+import com.example.smart_build.ui.theme.ScreenFg
+import com.example.smart_build.ui.theme.ThemePrefs
 
 @Composable
 fun ScenarioBriefScreen(
@@ -38,13 +43,13 @@ fun ScenarioBriefScreen(
   Column(
     modifier = Modifier
       .fillMaxSize()
-      .background(Brush.verticalGradient(listOf(Color(0xFF022A3A), Black)))
+      .background(Brush.verticalGradient(listOf(ModuleTopBg, ModuleBottomBg)))
       .padding(20.dp)
       .verticalScroll(rememberScrollState()),
   ) {
     Text(
       text = "Back",
-      color = White,
+      color = ScreenFg,
       fontFamily = GSFlex,
       fontWeight = FontWeight.SemiBold,
       fontSize = 15.sp,
@@ -55,7 +60,7 @@ fun ScenarioBriefScreen(
     )
     Spacer(modifier = Modifier.height(8.dp))
     Text(
-      text = "SCENARIO ASSESSMENT · Module ${scenario.moduleId}",
+      text = if (scenario.moduleId == 4) "Assessment" else "ASSESSMENT · Module ${scenario.moduleId}",
       color = Primary,
       fontFamily = GSCode,
       fontWeight = FontWeight.Bold,
@@ -64,7 +69,7 @@ fun ScenarioBriefScreen(
     Spacer(modifier = Modifier.height(6.dp))
     Text(
       text = "Not Guided Simulation — identify faults, then fix without yellow coaches.",
-      color = White.copy(alpha = 0.7f),
+      color = ModuleMutedFg,
       fontFamily = GSFlex,
       fontSize = 15.sp,
     )
@@ -78,15 +83,15 @@ fun ScenarioBriefScreen(
     )
     Spacer(modifier = Modifier.height(16.dp))
 
-    Text("Situation", color = White.copy(alpha = 0.7f), fontFamily = GSFlex, fontSize = 15.sp)
+    Text("Situation", color = ModuleMutedFg, fontFamily = GSFlex, fontSize = 15.sp)
     Spacer(modifier = Modifier.height(6.dp))
-    Text(scenario.situation, color = White, fontFamily = GSFlex, fontSize = 17.sp, lineHeight = 24.sp)
+    Text(scenario.situation, color = ScreenFg, fontFamily = GSFlex, fontSize = 17.sp, lineHeight = 24.sp)
 
     if (scenario.faults.isNotEmpty()) {
       Spacer(modifier = Modifier.height(16.dp))
       Text(
         "Faults to identify & correct",
-        color = White.copy(alpha = 0.7f),
+        color = ModuleMutedFg,
         fontFamily = GSFlex,
         fontSize = 13.sp,
       )
@@ -97,24 +102,24 @@ fun ScenarioBriefScreen(
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(Color(0xFF3A1515))
+            .background(if (ThemePrefs.lightMode) Color(0xFFFFE7E4) else Color(0xFF3A1515))
             .border(1.dp, Color(0xFFE74C3C).copy(alpha = 0.5f), RoundedCornerShape(8.dp))
             .padding(12.dp),
         ) {
-          Text("⚠  $fault", color = White, fontFamily = GSFlex, fontSize = 14.sp)
+          Text("⚠  $fault", color = ScreenFg, fontFamily = GSFlex, fontSize = 14.sp)
         }
       }
     }
 
     Spacer(modifier = Modifier.height(16.dp))
-    Text("Your goal", color = White.copy(alpha = 0.7f), fontFamily = GSFlex, fontSize = 13.sp)
+    Text("Your goal", color = ModuleMutedFg, fontFamily = GSFlex, fontSize = 13.sp)
     Spacer(modifier = Modifier.height(6.dp))
     Text(scenario.goal, color = Color(0xFF2ECC71), fontFamily = GSFlex, fontSize = 15.sp)
 
     Spacer(modifier = Modifier.height(12.dp))
     Text(
       "No yellow coach on this path — apply TESDA CSS NC II procedures from Guided practice.",
-      color = White.copy(alpha = 0.55f),
+      color = ModuleMutedFg.copy(alpha = 0.8f),
       fontFamily = GSFlex,
       fontSize = 13.sp,
     )

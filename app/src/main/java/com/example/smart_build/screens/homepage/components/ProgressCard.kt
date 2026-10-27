@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
-import com.example.smart_build.ui.theme.ScreenFg
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Typography
 import com.example.smart_build.ui.theme.White
@@ -62,7 +61,7 @@ fun ProgressCard(
       )
       .border(
         width = (maxWidth.value * 0.002f).dp,
-        color = ScreenFg.copy(alpha = 0.35f),
+        color = White.copy(alpha = 0.35f),
         shape = RoundedCornerShape((maxWidth.value * 0.009f).dp)
       )
       .padding((maxWidth.value * 0.013f).dp)
@@ -77,7 +76,7 @@ fun ProgressCard(
       Text(
         text = "Your Progress",
         style = Typography.headlineSmall.copy(fontFamily = GSFlex),
-        color = ScreenFg.copy(alpha = 0.75f),
+        color = White.copy(alpha = 0.9f),
         fontSize = readableSp(maxWidth, 0.016f, 16f)
       )
 
@@ -94,7 +93,7 @@ fun ProgressCard(
         Text(
           text = "$percentLabel",
           style = Typography.bodyLarge.copy(fontFamily = GSFlex),
-          color = ScreenFg.copy(alpha = 0.75f),
+          color = White.copy(alpha = 0.9f),
           fontSize = readableSp(maxWidth, 0.009f, 15f)
         )
       }

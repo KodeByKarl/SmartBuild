@@ -453,6 +453,10 @@ fun NetworkTopologyScreen(
         }
       },
       devicePalette = PALETTE,
+      maxDevicesByKind = mapOf(
+        PtDeviceKind.SWITCH to 2,
+        PtDeviceKind.PC to 2,
+      ),
       onPlaceDevice = { placeDevice(it) },
       pendingFromId = pendingFrom,
       selectedDeviceId = selectedId,

@@ -5,6 +5,23 @@ repository (`SmartBuild-Godot`). Short hashes refer to Git commits.
 
 ---
 
+## 23 Oct 2026 — `V2.5` official release (versionCode 7)
+
+### Changed
+
+- Dashboard and Component Search now use the supplied real module/component images.
+- Light mode now carries from the Dashboard into Modules 0–4, assessments, and Compose labs.
+- Login, registration, forgot-password, and reset-password controls now retain readable contrast in light mode.
+- Profile actions now use the shared authentication session; Credits was removed.
+
+### Fixed
+
+- Module 1 optical/SATA imagery, parts-panel readability, GPU placement, and GPU disassembly flow.
+- Module 2 networking workstation now permits the required two PCs and two switches.
+- Module 4 assessment label shortened to “Assessment”.
+
+---
+
 ## 29 Sep 2026 — `V2.1` official release (versionCode 3)
 
 First official, release-signed build: `release/SmartBuild-V2.1.apk` (about 132 MB).

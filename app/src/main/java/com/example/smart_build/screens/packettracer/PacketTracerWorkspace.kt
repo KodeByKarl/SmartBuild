@@ -68,6 +68,8 @@ fun PacketTracerWorkspace(
   activeTool: PtCableTool,
   onToolSelected: (PtCableTool) -> Unit,
   devicePalette: List<PtDeviceKind>,
+  /** Maximum number of each palette device that may be placed. Defaults to one. */
+  maxDevicesByKind: Map<PtDeviceKind, Int> = emptyMap(),
   onPlaceDevice: (PtDeviceKind) -> Unit,
   pendingFromId: String?,
   selectedDeviceId: String?,
@@ -297,7 +299,9 @@ fun PacketTracerWorkspace(
     ) {
       Text("Devices", color = Color(0xFF333333), fontSize = 9.sp, fontWeight = FontWeight.Bold)
       devicePalette.forEach { kind ->
-        val already = devices.any { it.kind == kind }
+        val placedCount = devices.count { it.kind == kind }
+        val deviceLimit = maxDevicesByKind[kind] ?: 1
+        val atLimit = placedCount >= deviceLimit
         val interaction = remember { MutableInteractionSource() }
         Column(
           horizontalAlignment = Alignment.CenterHorizontally,
@@ -305,14 +309,14 @@ fun PacketTracerWorkspace(
             .width(56.dp)
             .fillMaxHeight()
             .clip(RoundedCornerShape(4.dp))
-            .background(if (already) Color(0xFFD5F5E3) else Color.White)
+            .background(if (atLimit) Color(0xFFD5F5E3) else Color.White)
             .border(
               1.dp,
-              if (canPlaceDevices && !already) PtAccent else Color(0xFFBDBDBD),
+              if (canPlaceDevices && !atLimit) PtAccent else Color(0xFFBDBDBD),
               RoundedCornerShape(4.dp),
             )
             .clickable(
-              enabled = canPlaceDevices && !already,
+              enabled = canPlaceDevices && !atLimit,
               interactionSource = interaction,
               indication = null,
               onClick = { onPlaceDevice(kind) },

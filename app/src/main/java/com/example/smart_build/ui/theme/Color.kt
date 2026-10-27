@@ -14,3 +14,10 @@ val ScreenBg: Color get() = if (ThemePrefs.lightMode) LightBackground else Black
 
 /** Text/icon colour that reads on [ScreenBg]. */
 val ScreenFg: Color get() = if (ThemePrefs.lightMode) Black else White
+
+/** Shared module/lab surfaces. These are getters so Compose observes ThemePrefs. */
+val ModuleTopBg: Color get() = if (ThemePrefs.lightMode) Color(0xFFDCECF7) else Color(0xFF022A3A)
+val ModuleBottomBg: Color get() = if (ThemePrefs.lightMode) LightBackground else Color(0xFF011018)
+val ModuleSurface: Color get() = if (ThemePrefs.lightMode) Color(0xFFFFFFFF) else Color(0xFF071A22)
+val ModuleSubtleSurface: Color get() = if (ThemePrefs.lightMode) Color(0xFFD9ECF7) else Color(0xFF0A3A4A)
+val ModuleMutedFg: Color get() = ScreenFg.copy(alpha = if (ThemePrefs.lightMode) 0.68f else 0.75f)

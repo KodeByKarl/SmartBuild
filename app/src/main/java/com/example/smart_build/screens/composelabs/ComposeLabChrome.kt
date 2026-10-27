@@ -47,6 +47,12 @@ import com.example.smart_build.ui.theme.GSCode
 import com.example.smart_build.ui.theme.GSFlex
 import com.example.smart_build.ui.theme.Primary
 import com.example.smart_build.ui.theme.White
+import com.example.smart_build.ui.theme.ModuleBottomBg
+import com.example.smart_build.ui.theme.ModuleMutedFg
+import com.example.smart_build.ui.theme.ModuleSubtleSurface
+import com.example.smart_build.ui.theme.ModuleSurface
+import com.example.smart_build.ui.theme.ModuleTopBg
+import com.example.smart_build.ui.theme.ScreenFg
 import com.example.smart_build.ui.theme.labSp
 
 /**
@@ -105,7 +111,7 @@ fun ComposeLabScaffold(
     modifier = Modifier
       .fillMaxSize()
       .background(
-        Brush.verticalGradient(listOf(Color(0xFF022A3A), Black, Color(0xFF011018))),
+        Brush.verticalGradient(listOf(ModuleTopBg, ModuleBottomBg)),
       ),
   ) {
     val maxW = maxWidth
@@ -130,7 +136,7 @@ fun ComposeLabScaffold(
             Icon(
               Icons.AutoMirrored.Filled.ArrowBack,
               contentDescription = "Back",
-              tint = White,
+              tint = ScreenFg,
               modifier = Modifier.size(18.dp),
             )
           }
@@ -147,14 +153,14 @@ fun ComposeLabScaffold(
         )
         Text(
           text = progressLabel,
-          color = White.copy(alpha = 0.75f),
+          color = ModuleMutedFg,
           fontFamily = GSFlex,
           fontSize = labSp(maxW, 0.013f, 10f, 12f),
         )
       }
       Text(
         text = title,
-        color = White.copy(alpha = 0.5f),
+        color = ModuleMutedFg.copy(alpha = 0.8f),
         fontFamily = GSFlex,
         fontSize = labSp(maxW, 0.012f, 10f, 11f),
         maxLines = 1,
@@ -168,7 +174,7 @@ fun ComposeLabScaffold(
       if (goal.isNotBlank()) {
         Text(
           text = "Goal: $goal",
-          color = White,
+          color = ScreenFg,
           fontFamily = GSFlex,
           fontWeight = FontWeight.SemiBold,
           fontSize = labSp(maxW, 0.014f, 12f, 13f),
@@ -192,7 +198,7 @@ fun ComposeLabScaffold(
       if (guideLine.isNotBlank()) {
         Text(
           text = guideLine,
-          color = if (showCoach) Color(0xFFE8B84A) else White.copy(alpha = 0.75f),
+          color = if (showCoach) Color(0xFF9A6B00) else ModuleMutedFg,
           fontFamily = GSFlex,
           fontWeight = FontWeight.Medium,
           fontSize = labSp(maxW, 0.013f, 11f, 12f),
@@ -213,7 +219,7 @@ fun ComposeLabScaffold(
           .fillMaxWidth()
           .coachTarget(coach, "lab_playground")
           .clip(RoundedCornerShape(12.dp))
-          .background(Color(0xFF071A22))
+          .background(ModuleSurface)
           .border(1.dp, Primary.copy(alpha = 0.28f), RoundedCornerShape(12.dp)),
         content = content,
       )
@@ -223,7 +229,7 @@ fun ComposeLabScaffold(
       // —— Compact footer ——
       Text(
         text = status,
-        color = if (statusOk) Color(0xFF2ECC71) else White.copy(alpha = 0.8f),
+        color = if (statusOk) Color(0xFF16864A) else ModuleMutedFg,
         fontFamily = GSFlex,
         fontSize = labSp(maxW, 0.012f, 10f, 11f),
         maxLines = 1,
@@ -239,7 +245,8 @@ fun ComposeLabScaffold(
           LabChromeButton(
             label = "Reset",
             modifier = Modifier.weight(0.28f).coachTarget(coach, "lab_reset"),
-            background = Color(0xFF003247),
+            background = ModuleSubtleSurface,
+            foreground = ScreenFg,
             onClick = onReset,
           )
         }
@@ -276,6 +283,7 @@ fun LabChromeButton(
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
   background: Color = Primary,
+  foreground: Color = White,
   enabled: Boolean = true,
 ) {
   val interaction = remember { MutableInteractionSource() }
@@ -294,7 +302,7 @@ fun LabChromeButton(
   ) {
     Text(
       text = label,
-      color = White,
+      color = foreground,
       fontFamily = GSCode,
       fontWeight = FontWeight.Bold,
       fontSize = 12.sp,
@@ -318,7 +326,7 @@ fun StepList(steps: List<String>, currentIndex: Int, allDone: Boolean) {
       color = when {
         done -> Color(0xFF2ECC71)
         current -> Color(0xFFE8B84A)
-        else -> White.copy(alpha = 0.45f)
+        else -> ModuleMutedFg.copy(alpha = 0.75f)
       },
       fontFamily = GSFlex,
       fontSize = 12.sp,
