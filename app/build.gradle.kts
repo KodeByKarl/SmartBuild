@@ -164,8 +164,8 @@ dependencies {
 
 val godotPack = file("src/main/assets/SmartBuildGodot.pck")
 // Update both values when a new pack is published as a GitHub Release asset.
-val godotPackUrl = "https://github.com/KodeByKarl/SmartBuild/releases/download/v2.2/SmartBuildGodot.pck"
-val godotPackSha256 = "1679f12c44f06e743ac98c7e38a42ee45bf200f57391a87d3bd53324fb6a5eab"
+val godotPackUrl = "https://github.com/KodeByKarl/SmartBuild/releases/download/v2.3/SmartBuildGodot.pck"
+val godotPackSha256 = "ff21bf7d6b47778fad1e034db1536fe588236b7502145d556fc324581caba0fa"
 
 tasks.register("checkGodotPack") {
     group = "verification"
